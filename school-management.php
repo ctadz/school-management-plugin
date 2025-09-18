@@ -1,5 +1,4 @@
 <?php
-<?php
 /*
 Plugin Name: School Management
 Plugin URI:  https://github.com/ahmedsebaa/school-management-plugin
