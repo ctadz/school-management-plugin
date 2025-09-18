@@ -1,12 +1,16 @@
 <?php
-/**
- * Plugin Name: School Management
- * Description: A modular school management system for courses, students, payments, and planning.
- * Version: 1.0.0
- * Author: Ahmed Sebaa
- * Text Domain: school-management
- * Domain Path: /languages
- */
+/*
+Plugin Name: School Management
+Plugin URI:  https://github.com/ahmedsebaa/school-management-plugin
+Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
+Version:     0.1.0
+Author:      Ahmed Sebaa
+Author URI:  https://github.com/ahmedsebaa
+License:     GPL-2.0+
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: school-management
+Domain Path: /languages
+*/
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
