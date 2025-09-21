@@ -32,16 +32,18 @@ function sm_activate_plugin() {
     global $wpdb;
 
     $charset_collate = $wpdb->get_charset_collate();
+    $table_name = $wpdb->prefix . 'sm_students';
 
-    // Students table
-    $students_table = $wpdb->prefix . 'sm_students';
-
-    $sql = "CREATE TABLE $students_table (
+    // --- Create table if it doesn't exist ---
+    $sql = "CREATE TABLE $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
-        first_name varchar(100) NOT NULL,
-        last_name varchar(100) NOT NULL,
+        name varchar(100) NOT NULL,
         email varchar(100) NOT NULL,
+        phone varchar(50) NOT NULL,
+        dob date NOT NULL,
         level varchar(50) NOT NULL,
+        picture varchar(255) DEFAULT NULL,
+        blood_type varchar(5) DEFAULT NULL,
         created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
         PRIMARY KEY  (id)
     ) $charset_collate;";
@@ -49,5 +51,23 @@ function sm_activate_plugin() {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 
-    error_log('✅ School Management plugin activated and students table created.');
+    // --- Add missing columns if table already existed ---
+    $columns = $wpdb->get_results("SHOW COLUMNS FROM $table_name", ARRAY_A);
+    $existing_columns = array_column($columns, 'Field');
+
+    $new_columns = [
+        'phone'      => "ALTER TABLE $table_name ADD phone varchar(50) NOT NULL",
+        'dob'        => "ALTER TABLE $table_name ADD dob date NOT NULL",
+        'level'      => "ALTER TABLE $table_name ADD level varchar(50) NOT NULL",
+        'picture'    => "ALTER TABLE $table_name ADD picture varchar(255) DEFAULT NULL",
+        'blood_type' => "ALTER TABLE $table_name ADD blood_type varchar(5) DEFAULT NULL",
+    ];
+
+    foreach ( $new_columns as $col => $sql_col ) {
+        if ( ! in_array($col, $existing_columns) ) {
+            $wpdb->query($sql_col);
+        }
+    }
+
+    error_log('✅ School Management plugin activated. Students table created or updated safely.');
 }

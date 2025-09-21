@@ -7,19 +7,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SM_Enqueue {
 
     public function __construct() {
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
     }
 
-    public function enqueue_admin_scripts( $hook ) {
-        // Load only on our plugin’s pages
-        if ( strpos( $hook, 'school-management-settings' ) === false ) {
+    public function enqueue_admin_assets( $hook ) {
+        // Load only on plugin pages
+        if ( strpos( $hook, 'school-management' ) === false && strpos( $hook, 'school-management-students' ) === false ) {
             return;
         }
 
-        // Enqueue WordPress Media Uploader
+        // WordPress Media Uploader
         wp_enqueue_media();
 
-        // Enqueue custom JS
+        // Custom JS
         wp_enqueue_script(
             'sm-admin-js',
             SM_PLUGIN_URL . 'assets/js/sm-admin.js',
@@ -28,7 +28,7 @@ class SM_Enqueue {
             true
         );
 
-        // Localize strings for translation
+        // Localize JS strings
         wp_localize_script(
             'sm-admin-js',
             'sm_i18n',
@@ -36,10 +36,11 @@ class SM_Enqueue {
                 'uploadSuccess' => __( 'Upload successful!', 'school-management' ),
                 'uploadError'   => __( 'Upload failed. Please try again.', 'school-management' ),
                 'selectLogo'    => __( 'Select a logo', 'school-management' ),
+                'selectPicture' => __( 'Select a picture', 'school-management' ),
             ]
         );
 
-        // Optional: enqueue custom CSS
+        // Custom CSS (used for both admin and student pages)
         wp_enqueue_style(
             'sm-admin-css',
             SM_PLUGIN_URL . 'assets/css/sm-admin.css',

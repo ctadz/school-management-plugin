@@ -38,6 +38,17 @@ class SM_Admin_Menu {
             [ __CLASS__, 'render_dashboard' ]
         );
 
+        // Students submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Students', 'school-management' ),
+            __( 'Students', 'school-management' ),
+            'manage_options',
+            'school-management-students',
+            [ 'SM_Students_Page', 'render_students_page' ]
+);
+
+
         // Settings submenu
         add_submenu_page(
             'school-management',
