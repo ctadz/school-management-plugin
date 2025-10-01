@@ -1,68 +1,95 @@
-jQuery(document).ready(function ($) {
-    let frame;
+/* --- Student Picture Upload Box --- */
+#sm_student_picture_box {
+    width: 100px;
+    height: 100px;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: #fafafa;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
 
-    // --- School Logo Upload ---
-    $('.sm-upload-logo').on('click', function (e) {
-        e.preventDefault();
+#sm_student_picture_box:hover {
+    border-color: #0073aa;
+}
 
-        if (frame) { frame.open(); return; }
+#sm_student_picture_box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+}
 
-        frame = wp.media({
-            title: sm_i18n.selectLogo || 'Select a logo',
-            button: { text: sm_i18n.selectLogo || 'Select a logo' },
-            multiple: false
-        });
+#sm_student_picture_box span {
+    color: #aaa;
+    font-size: 12px;
+    text-align: center;
+    padding: 5px;
+}
 
-        frame.on('select', function () {
-            const attachment = frame.state().get('selection').first().toJSON();
-            $('#sm_school_logo').val(attachment.url);
+/* --- Level Badge --- */
+.sm-level-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    background: #0073aa;
+    color: white;
+}
 
-            if ($('#sm_school_logo_preview').length === 0) {
-                $('<div class="sm-logo-preview" style="margin-top:10px;">' +
-                  '<img id="sm_school_logo_preview" src="' + attachment.url + '" style="max-height:80px;" />' +
-                  '</div>').insertAfter('#sm_school_logo');
-            } else {
-                $('#sm_school_logo_preview').attr('src', attachment.url);
-            }
+/* --- Empty State --- */
+.sm-empty-state h3 {
+    color: #666;
+    margin-bottom: 8px;
+}
 
-            alert(sm_i18n.uploadSuccess || 'Upload successful!');
-        });
+.sm-empty-state p {
+    color: #999;
+    margin-bottom: 20px;
+}
 
-        frame.open();
-    });
+/* --- Form Header --- */
+.sm-form-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
 
-    // --- Student Picture Upload via Box ---
-    $('#sm_student_picture_box').on('click', function(e) {
-        e.preventDefault();
-        const inputField = $('#sm_student_picture'); // hidden input
+/* --- Action Buttons in Table --- */
+.wp-list-table .button-small {
+    margin-right: 5px;
+}
 
-        if (frame) { frame.open(); return; }
+.wp-list-table .button-small .dashicons {
+    font-size: 14px;
+    line-height: 26px;
+}
 
-        frame = wp.media({
-            title: sm_i18n.selectPicture || 'Select a picture',
-            button: { text: sm_i18n.selectPicture || 'Select a picture' },
-            multiple: false
-        });
+/* --- Header Actions --- */
+.sm-header-actions {
+    background: white;
+    padding: 15px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
 
-        frame.on('select', function() {
-            const attachment = frame.state().get('selection').first().toJSON();
-            inputField.val(attachment.url);
-
-            // show image preview inside the box
-            const img = $('#sm_student_picture_preview');
-            img.attr('src', attachment.url).show();
-
-            // remove the placeholder text
-            $('#sm_student_picture_box span').remove();
-
-            alert(sm_i18n.uploadSuccess || 'Upload successful!');
-        });
-
-        frame.open();
-    });
-
-    // Handle errors
-    $(document).on('sm_upload_error', function () {
-        alert(sm_i18n.uploadError || 'Upload failed. Please try again.');
-    });
-});
+/* --- Responsive adjustments --- */
+@media (max-width: 782px) {
+    #sm_student_picture_box {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .sm-header-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

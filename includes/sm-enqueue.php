@@ -11,24 +11,31 @@ class SM_Enqueue {
     }
 
     public function enqueue_admin_assets( $hook ) {
-        // Load only on plugin pages
-        if ( strpos( $hook, 'school-management' ) === false && strpos( $hook, 'school-management-students' ) === false ) {
+        // Define our plugin pages - more precise hook checking
+        $plugin_pages = [
+            'toplevel_page_school-management',                    // Dashboard
+            'school-management_page_school-management-students',  // Students
+            'school-management_page_school-management-settings',  // Settings
+        ];
+
+        // Load only on our plugin pages
+        if ( ! in_array( $hook, $plugin_pages ) ) {
             return;
         }
 
-        // WordPress Media Uploader
+        // WordPress Media Uploader (required for image uploads)
         wp_enqueue_media();
 
-        // Custom JS
+        // Custom JavaScript
         wp_enqueue_script(
             'sm-admin-js',
             SM_PLUGIN_URL . 'assets/js/sm-admin.js',
             [ 'jquery' ],
-            '1.0.0',
+            '1.0.1', // Increment version to force refresh
             true
         );
 
-        // Localize JS strings
+        // Localize JavaScript strings for translations
         wp_localize_script(
             'sm-admin-js',
             'sm_i18n',
@@ -37,15 +44,16 @@ class SM_Enqueue {
                 'uploadError'   => __( 'Upload failed. Please try again.', 'school-management' ),
                 'selectLogo'    => __( 'Select a logo', 'school-management' ),
                 'selectPicture' => __( 'Select a picture', 'school-management' ),
+                'usePicture'    => __( 'Use this picture', 'school-management' ),
             ]
         );
 
-        // Custom CSS (used for both admin and student pages)
+        // Custom CSS
         wp_enqueue_style(
             'sm-admin-css',
             SM_PLUGIN_URL . 'assets/css/sm-admin.css',
             [],
-            '1.0.0'
+            '1.0.1' // Increment version to force refresh
         );
     }
 }
