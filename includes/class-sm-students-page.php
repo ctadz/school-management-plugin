@@ -23,38 +23,27 @@ class SM_Students_Page {
             }
         }
 
-        // Handle form submission with validation
+        // Handle form submission
         if ( isset( $_POST['sm_save_student'] ) && check_admin_referer( 'sm_save_student_action', 'sm_save_student_nonce' ) ) {
-            
-            // Validate and sanitize input data
             $validation_result = self::validate_student_data( $_POST );
             
             if ( $validation_result['success'] ) {
                 $data = $validation_result['data'];
                 
                 if ( ! empty( $_POST['student_id'] ) ) {
-                    // Update existing student
                     $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['student_id'] ) ] );
                     if ( $updated !== false ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Student updated successfully.', 'school-management' ) . '</p></div>';
-                        // Redirect to list after successful update
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-students"; }, 2000);</script>';
-                    } else {
-                        echo '<div class="error notice"><p>' . esc_html__( 'Error updating student. Please try again.', 'school-management' ) . '</p></div>';
                     }
                 } else {
-                    // Add new student
                     $inserted = $wpdb->insert( $table, $data );
                     if ( $inserted ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Student added successfully.', 'school-management' ) . '</p></div>';
-                        // Redirect to list after successful insert
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-students"; }, 2000);</script>';
-                    } else {
-                        echo '<div class="error notice"><p>' . esc_html__( 'Error adding student. Please try again.', 'school-management' ) . '</p></div>';
                     }
                 }
             } else {
-                // Display validation errors
                 echo '<div class="error notice"><p><strong>' . esc_html__( 'Please correct the following errors:', 'school-management' ) . '</strong></p>';
                 echo '<ul style="margin-left: 20px;">';
                 foreach ( $validation_result['errors'] as $error ) {
@@ -101,12 +90,11 @@ class SM_Students_Page {
         $table = $wpdb->prefix . 'sm_students';
         $errors = [];
         
-        // Sanitize data first
         $name = sanitize_text_field( trim( $post_data['name'] ?? '' ) );
         $email = sanitize_email( trim( $post_data['email'] ?? '' ) );
         $phone = sanitize_text_field( trim( $post_data['phone'] ?? '' ) );
         $dob = sanitize_text_field( trim( $post_data['dob'] ?? '' ) );
-        $level = sanitize_text_field( trim( $post_data['level'] ?? '' ) );
+        $level_id = intval( $post_data['level_id'] ?? 0 );
         $picture = esc_url_raw( trim( $post_data['picture'] ?? '' ) );
         $blood_type = sanitize_text_field( trim( $post_data['blood_type'] ?? '' ) );
         $student_id = intval( $post_data['student_id'] ?? 0 );
@@ -140,16 +128,15 @@ class SM_Students_Page {
             $errors[] = __( 'Date of birth cannot be in the future.', 'school-management' );
         }
 
-        if ( empty( $level ) ) {
+        if ( $level_id <= 0 ) {
             $errors[] = __( 'Level is required.', 'school-management' );
         }
 
-        // Check for duplicate name (case-insensitive)
+        // Check for duplicate name
         if ( ! empty( $name ) ) {
             $duplicate_query = "SELECT id FROM $table WHERE LOWER(name) = LOWER(%s)";
             $query_params = [ $name ];
             
-            // If editing, exclude current student from duplicate check
             if ( $student_id > 0 ) {
                 $duplicate_query .= " AND id != %d";
                 $query_params[] = $student_id;
@@ -165,12 +152,11 @@ class SM_Students_Page {
             }
         }
 
-        // Check for duplicate email (case-insensitive)
+        // Check for duplicate email
         if ( ! empty( $email ) && is_email( $email ) ) {
             $duplicate_email_query = "SELECT id FROM $table WHERE LOWER(email) = LOWER(%s)";
             $email_params = [ $email ];
             
-            // If editing, exclude current student from duplicate check
             if ( $student_id > 0 ) {
                 $duplicate_email_query .= " AND id != %d";
                 $email_params[] = $student_id;
@@ -199,7 +185,6 @@ class SM_Students_Page {
             $errors[] = __( 'Please provide a valid picture URL.', 'school-management' );
         }
 
-        // Return validation result
         if ( empty( $errors ) ) {
             return [
                 'success' => true,
@@ -208,9 +193,9 @@ class SM_Students_Page {
                     'email'      => $email,
                     'phone'      => $phone,
                     'dob'        => $dob,
-                    'level'      => $level,
+                    'level_id'   => $level_id,
                     'picture'    => $picture,
-                    'blood_type' => $blood_type ?: null, // Store as NULL if empty
+                    'blood_type' => $blood_type ?: null,
                 ]
             ];
         } else {
@@ -241,20 +226,24 @@ class SM_Students_Page {
      */
     private static function render_students_list() {
         global $wpdb;
-        $table = $wpdb->prefix . 'sm_students';
+        $students_table = $wpdb->prefix . 'sm_students';
+        $levels_table = $wpdb->prefix . 'sm_levels';
 
         // Pagination setup
-        $per_page = 20; // Number of students per page
+        $per_page = 20;
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Get total count for pagination
-        $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $table" );
+        $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table" );
         $total_pages = ceil( $total_students / $per_page );
 
-        // Get students for current page
+        // Get students with level names
         $students = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT * FROM $table ORDER BY name ASC LIMIT %d OFFSET %d", 
+            "SELECT s.*, l.name as level_name 
+             FROM $students_table s 
+             LEFT JOIN $levels_table l ON s.level_id = l.id 
+             ORDER BY s.name ASC 
+             LIMIT %d OFFSET %d", 
             $per_page, 
             $offset 
         ) );
@@ -300,7 +289,7 @@ class SM_Students_Page {
                             <td><strong><?php echo esc_html( $student->name ); ?></strong></td>
                             <td><?php echo esc_html( $student->email ); ?></td>
                             <td><?php echo esc_html( $student->phone ); ?></td>
-                            <td><span class="sm-level-badge"><?php echo esc_html( $student->level ); ?></span></td>
+                            <td><span class="sm-level-badge"><?php echo esc_html( $student->level_name ?: '—' ); ?></span></td>
                             <td><?php echo esc_html( $student->blood_type ?: '—' ); ?></td>
                             <td><?php echo esc_html( date( 'M j, Y', strtotime( $student->created_at ) ) ); ?></td>
                             <td>
@@ -362,7 +351,11 @@ class SM_Students_Page {
      * Render student form (add/edit)
      */
     private static function render_student_form( $student = null ) {
+        global $wpdb;
         $is_edit = ! empty( $student );
+        
+        // Get active levels
+        $levels = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}sm_levels WHERE is_active = 1 ORDER BY sort_order ASC, name ASC" );
         
         // Pre-fill form with POST data if validation failed
         $form_data = [];
@@ -372,7 +365,7 @@ class SM_Students_Page {
                 'email'      => sanitize_email( $_POST['email'] ?? '' ),
                 'phone'      => sanitize_text_field( $_POST['phone'] ?? '' ),
                 'dob'        => sanitize_text_field( $_POST['dob'] ?? '' ),
-                'level'      => sanitize_text_field( $_POST['level'] ?? '' ),
+                'level_id'   => intval( $_POST['level_id'] ?? 0 ),
                 'picture'    => esc_url_raw( $_POST['picture'] ?? '' ),
                 'blood_type' => sanitize_text_field( $_POST['blood_type'] ?? '' ),
             ];
@@ -382,7 +375,7 @@ class SM_Students_Page {
                 'email'      => $student->email,
                 'phone'      => $student->phone,
                 'dob'        => $student->dob,
-                'level'      => $student->level,
+                'level_id'   => $student->level_id,
                 'picture'    => $student->picture,
                 'blood_type' => $student->blood_type,
             ];
@@ -406,7 +399,7 @@ class SM_Students_Page {
             <table class="form-table">
                 <tr>
                     <td colspan="2" style="position: relative;">
-                        <!-- Picture upload box -->
+                        <!-- Picture top-right -->
                         <div id="sm_student_picture_box">
                             <?php if ( ! empty( $form_data['picture'] ) ) : ?>
                                 <img id="sm_student_picture_preview" src="<?php echo esc_url( $form_data['picture'] ); ?>" alt="<?php esc_attr_e( 'Student Picture', 'school-management' ); ?>" />
@@ -464,17 +457,18 @@ class SM_Students_Page {
                         <label for="student_level"><?php esc_html_e( 'Level', 'school-management' ); ?> <span class="description" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <select id="student_level" name="level" required>
+                        <select id="student_level" name="level_id" required>
                             <option value=""><?php esc_html_e( 'Select Level', 'school-management' ); ?></option>
-                            <?php
-                            $levels = [ 'Beginner', 'Intermediate', 'Advanced', 'Expert' ];
-                            $selected_level = $form_data['level'] ?? '';
-                            foreach ( $levels as $level ) {
-                                echo '<option value="' . esc_attr( $level ) . '" ' . selected( $selected_level, $level, false ) . '>' . esc_html( $level ) . '</option>';
-                            }
-                            ?>
+                            <?php foreach ( $levels as $level ) : ?>
+                                <option value="<?php echo intval( $level->id ); ?>" <?php selected( $form_data['level_id'] ?? 0, $level->id ); ?>>
+                                    <?php echo esc_html( $level->name ); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
-                        <p class="description"><?php esc_html_e( 'Choose the appropriate skill level for course assignment.', 'school-management' ); ?></p>
+                        <p class="description">
+                            <?php esc_html_e( 'Choose the appropriate skill level for course assignment.', 'school-management' ); ?>
+                            <a href="?page=school-management-levels" target="_blank"><?php esc_html_e( 'Manage levels', 'school-management' ); ?></a>
+                        </p>
                     </td>
                 </tr>
 
