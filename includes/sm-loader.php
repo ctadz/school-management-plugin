@@ -25,5 +25,8 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-teachers-page.php';
 // Load Courses Page
 require_once SM_PLUGIN_DIR . 'includes/class-sm-courses-page.php';
 
+// Load Enrollments Page
+require_once SM_PLUGIN_DIR . 'includes/class-sm-enrollments-page.php';
+
 // Load Enqueue scripts
 require_once SM_PLUGIN_DIR . 'includes/sm-enqueue.php';

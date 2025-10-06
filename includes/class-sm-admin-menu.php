@@ -48,6 +48,36 @@ class SM_Admin_Menu {
             [ 'SM_Students_Page', 'render_students_page' ]
         );
 
+        // Courses submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Courses', 'school-management' ),
+            __( 'Courses', 'school-management' ),
+            'manage_options',
+            'school-management-courses',
+            [ 'SM_Courses_Page', 'render_courses_page' ]
+        );
+
+        // Enrollments submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Enrollments', 'school-management' ),
+            __( 'Enrollments', 'school-management' ),
+            'manage_options',
+            'school-management-enrollments',
+            [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
+        );
+
+        // Teachers submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Teachers', 'school-management' ),
+            __( 'Teachers', 'school-management' ),
+            'manage_options',
+            'school-management-teachers',
+            [ 'SM_Teachers_Page', 'render_teachers_page' ]
+        );
+
         // Levels submenu
         add_submenu_page(
             'school-management',
@@ -66,26 +96,6 @@ class SM_Admin_Menu {
             'manage_options',
             'school-management-payment-terms',
             [ 'SM_Payment_Terms_Page', 'render_payment_terms_page' ]
-        );
-
-        // Teachers submenu
-        add_submenu_page(
-            'school-management',
-            __( 'Teachers', 'school-management' ),
-            __( 'Teachers', 'school-management' ),
-            'manage_options',
-            'school-management-teachers',
-            [ 'SM_Teachers_Page', 'render_teachers_page' ]
-        );
-
-        // Courses submenu
-        add_submenu_page(
-            'school-management',
-            __( 'Courses', 'school-management' ),
-            __( 'Courses', 'school-management' ),
-            'manage_options',
-            'school-management-courses',
-            [ 'SM_Courses_Page', 'render_courses_page' ]
         );
 
         // Settings submenu
@@ -110,6 +120,7 @@ class SM_Admin_Menu {
         $levels_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_levels WHERE is_active = 1" );
         $teachers_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_teachers WHERE is_active = 1" );
         $courses_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_courses WHERE is_active = 1" );
+        $enrollments_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_enrollments WHERE status = 'active'" );
         
         ?>
         <div class="wrap">
@@ -139,6 +150,17 @@ class SM_Admin_Menu {
                     <a href="?page=school-management-courses" class="button" style="margin-top: 15px;"><?php esc_html_e( 'Manage Courses', 'school-management' ); ?></a>
                 </div>
 
+                <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #00a0d2; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 32px; color: #00a0d2;"><?php echo intval( $enrollments_count ); ?></h3>
+                            <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Enrollments', 'school-management' ); ?></p>
+                        </div>
+                        <span class="dashicons dashicons-welcome-learn-more" style="font-size: 48px; color: #00a0d2; opacity: 0.3;"></span>
+                    </div>
+                    <a href="?page=school-management-enrollments" class="button" style="margin-top: 15px;"><?php esc_html_e( 'Manage Enrollments', 'school-management' ); ?></a>
+                </div>
+
                 <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #f56e28; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div>
@@ -150,17 +172,6 @@ class SM_Admin_Menu {
                     <a href="?page=school-management-teachers" class="button" style="margin-top: 15px;"><?php esc_html_e( 'Manage Teachers', 'school-management' ); ?></a>
                 </div>
 
-                <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #9b51e0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div>
-                            <h3 style="margin: 0; font-size: 32px; color: #9b51e0;"><?php echo intval( $levels_count ); ?></h3>
-                            <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Levels', 'school-management' ); ?></p>
-                        </div>
-                        <span class="dashicons dashicons-chart-bar" style="font-size: 48px; color: #9b51e0; opacity: 0.3;"></span>
-                    </div>
-                    <a href="?page=school-management-levels" class="button" style="margin-top: 15px;"><?php esc_html_e( 'Manage Levels', 'school-management' ); ?></a>
-                </div>
-
             </div>
 
             <div style="margin-top: 40px; background: white; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -169,8 +180,8 @@ class SM_Admin_Menu {
                 <p>
                     <a href="?page=school-management-students&action=add" class="button button-primary"><?php esc_html_e( 'Add New Student', 'school-management' ); ?></a>
                     <a href="?page=school-management-courses&action=add" class="button button-primary"><?php esc_html_e( 'Add New Course', 'school-management' ); ?></a>
+                    <a href="?page=school-management-enrollments&action=add" class="button button-primary"><?php esc_html_e( 'New Enrollment', 'school-management' ); ?></a>
                     <a href="?page=school-management-teachers&action=add" class="button"><?php esc_html_e( 'Add New Teacher', 'school-management' ); ?></a>
-                    <a href="?page=school-management-levels&action=add" class="button"><?php esc_html_e( 'Add New Level', 'school-management' ); ?></a>
                     <a href="?page=school-management-settings" class="button"><?php esc_html_e( 'Settings', 'school-management' ); ?></a>
                 </p>
             </div>

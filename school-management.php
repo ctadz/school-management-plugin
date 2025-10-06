@@ -3,7 +3,7 @@
 Plugin Name: School Management
 Plugin URI:  https://github.com/ahmedsebaa/school-management-plugin
 Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
-Version:     0.2.2
+Version:     0.3.0
 Author:      Ahmed Sebaa
 Author URI:  https://github.com/ahmedsebaa
 License:     GPL-2.0+
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants.
 define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SM_VERSION', '0.2.2' );
+define( 'SM_VERSION', '0.3.0' );
 
 // Include the loader file.
 require_once SM_PLUGIN_DIR . 'includes/sm-loader.php';
@@ -39,10 +39,11 @@ function sm_activate_plugin() {
     $payment_terms_table = $wpdb->prefix . 'sm_payment_terms';
     $teachers_table = $wpdb->prefix . 'sm_teachers';
     $courses_table = $wpdb->prefix . 'sm_courses';
+    $enrollments_table = $wpdb->prefix . 'sm_enrollments';
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-    // --- Create Levels Table FIRST (since students reference it) ---
+    // --- Create Levels Table FIRST ---
     $sql_levels = "CREATE TABLE $levels_table (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
@@ -93,12 +94,9 @@ function sm_activate_plugin() {
     $columns = $wpdb->get_results("SHOW COLUMNS FROM $students_table", ARRAY_A);
     $existing_columns = array_column($columns, 'Field');
 
-    // If old 'level' column exists (text), migrate data to level_id
     if ( in_array('level', $existing_columns) && !in_array('level_id', $existing_columns) ) {
-        // Add level_id column
         $wpdb->query("ALTER TABLE $students_table ADD level_id mediumint(9) DEFAULT NULL AFTER dob");
         
-        // Migrate existing data
         $students = $wpdb->get_results("SELECT id, level FROM $students_table WHERE level IS NOT NULL");
         foreach ($students as $student) {
             $level_id = $wpdb->get_var($wpdb->prepare(
@@ -110,14 +108,10 @@ function sm_activate_plugin() {
             }
         }
         
-        // Drop old level column
         $wpdb->query("ALTER TABLE $students_table DROP COLUMN level");
-        
-        // Make level_id NOT NULL after migration
         $wpdb->query("ALTER TABLE $students_table MODIFY level_id mediumint(9) NOT NULL");
     }
 
-    // Add missing columns if needed
     if ( ! in_array('phone', $existing_columns) ) {
         $wpdb->query("ALTER TABLE $students_table ADD phone varchar(50) NOT NULL");
     }
@@ -146,7 +140,6 @@ function sm_activate_plugin() {
 
     dbDelta( $sql_payment_terms );
 
-    // Insert default payment terms if table is empty
     $terms_count = $wpdb->get_var( "SELECT COUNT(*) FROM $payment_terms_table" );
     if ( $terms_count == 0 ) {
         $default_terms = [
@@ -198,6 +191,7 @@ function sm_activate_plugin() {
         total_months int NOT NULL,
         price_per_month decimal(10,2) NOT NULL,
         total_price decimal(10,2) NOT NULL,
+        max_students int DEFAULT NULL,
         certification_type varchar(50) DEFAULT NULL,
         certification_other varchar(255) DEFAULT NULL,
         status varchar(20) DEFAULT 'upcoming',
@@ -215,16 +209,42 @@ function sm_activate_plugin() {
 
     dbDelta( $sql_courses );
 
-    // Add certification columns if they don't exist
+    // Add missing columns to courses table
     $course_columns = $wpdb->get_results("SHOW COLUMNS FROM $courses_table", ARRAY_A);
     $existing_course_columns = array_column($course_columns, 'Field');
     
+    if ( ! in_array('max_students', $existing_course_columns) ) {
+        $wpdb->query("ALTER TABLE $courses_table ADD max_students int DEFAULT NULL AFTER total_price");
+    }
     if ( ! in_array('certification_type', $existing_course_columns) ) {
-        $wpdb->query("ALTER TABLE $courses_table ADD certification_type varchar(50) DEFAULT NULL AFTER total_price");
+        $wpdb->query("ALTER TABLE $courses_table ADD certification_type varchar(50) DEFAULT NULL AFTER max_students");
     }
     if ( ! in_array('certification_other', $existing_course_columns) ) {
         $wpdb->query("ALTER TABLE $courses_table ADD certification_other varchar(255) DEFAULT NULL AFTER certification_type");
     }
+
+    // --- Create Enrollments Table ---
+    $sql_enrollments = "CREATE TABLE $enrollments_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        student_id mediumint(9) NOT NULL,
+        course_id mediumint(9) NOT NULL,
+        enrollment_date date NOT NULL,
+        start_date date NOT NULL,
+        end_date date DEFAULT NULL,
+        status varchar(20) DEFAULT 'active',
+        payment_status varchar(20) DEFAULT 'unpaid',
+        notes text,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id),
+        UNIQUE KEY unique_enrollment (student_id, course_id),
+        KEY student_id (student_id),
+        KEY course_id (course_id),
+        KEY status (status),
+        KEY payment_status (payment_status)
+    ) $charset_collate;";
+
+    dbDelta( $sql_enrollments );
 
     error_log('✅ School Management plugin activated. All tables created or updated successfully.');
 }
@@ -234,6 +254,5 @@ function sm_activate_plugin() {
  */
 register_deactivation_hook( __FILE__, 'sm_deactivate_plugin' );
 function sm_deactivate_plugin() {
-    // Keep data, just log deactivation
     error_log('ℹ️ School Management plugin deactivated. Data preserved.');
 }
