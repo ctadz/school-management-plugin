@@ -1,0 +1,1433 @@
+# Copyright (C) 2025 Ahmed Sebaa
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: School Management 0.3.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/school-management\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-10-06T13:46:57+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: school-management\n"
+
+#. Plugin Name of the plugin
+#: school-management.php
+#: includes/class-sm-admin-menu.php:22
+#: includes/class-sm-admin-menu.php:23
+msgid "School Management"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: school-management.php
+msgid "https://github.com/ahmedsebaa/school-management-plugin"
+msgstr ""
+
+#. Description of the plugin
+#: school-management.php
+msgid "A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school."
+msgstr ""
+
+#. Author of the plugin
+#: school-management.php
+msgid "Ahmed Sebaa"
+msgstr ""
+
+#. Author URI of the plugin
+#: school-management.php
+msgid "https://github.com/ahmedsebaa"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:34
+#: includes/class-sm-admin-menu.php:35
+msgid "Dashboard"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:44
+#: includes/class-sm-admin-menu.php:45
+msgid "Students"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:54
+#: includes/class-sm-admin-menu.php:55
+msgid "Courses"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:64
+#: includes/class-sm-admin-menu.php:65
+msgid "Enrollments"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:74
+#: includes/class-sm-admin-menu.php:75
+msgid "Teachers"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:84
+#: includes/class-sm-admin-menu.php:85
+msgid "Levels"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:94
+#: includes/class-sm-admin-menu.php:95
+#: includes/class-sm-payment-terms-page.php:162
+msgid "Payment Terms"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:104
+#: includes/class-sm-admin-menu.php:105
+#: includes/class-sm-admin-menu.php:185
+msgid "Settings"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:127
+msgid "School Management Dashboard"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:135
+msgid "Total Students"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:139
+#: includes/class-sm-students-page.php:66
+msgid "Manage Students"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:146
+msgid "Active Courses"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:150
+#: includes/class-sm-courses-page.php:66
+msgid "Manage Courses"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:157
+msgid "Active Enrollments"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:161
+#: includes/class-sm-enrollments-page.php:66
+msgid "Manage Enrollments"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:168
+msgid "Active Teachers"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:172
+#: includes/class-sm-teachers-page.php:77
+msgid "Manage Teachers"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:178
+msgid "Quick Actions"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:179
+msgid "Common actions to get started:"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:181
+#: includes/class-sm-students-page.php:260
+#: includes/class-sm-students-page.php:391
+msgid "Add New Student"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:182
+#: includes/class-sm-courses-page.php:266
+#: includes/class-sm-courses-page.php:424
+msgid "Add New Course"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:183
+#: includes/class-sm-enrollments-page.php:249
+#: includes/class-sm-enrollments-page.php:409
+msgid "New Enrollment"
+msgstr ""
+
+#: includes/class-sm-admin-menu.php:184
+#: includes/class-sm-teachers-page.php:217
+#: includes/class-sm-teachers-page.php:350
+msgid "Add New Teacher"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:20
+msgid "Course deleted successfully."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:22
+msgid "Error deleting course."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:36
+msgid "Course updated successfully."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:42
+msgid "Course added successfully."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:47
+#: includes/class-sm-enrollments-page.php:47
+#: includes/class-sm-levels-page.php:60
+#: includes/class-sm-payment-terms-page.php:56
+#: includes/class-sm-students-page.php:47
+#: includes/class-sm-teachers-page.php:58
+msgid "Please correct the following errors:"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:115
+msgid "Course name is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:117
+msgid "Course name must be at least 3 characters long."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:121
+msgid "Course description is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:125
+msgid "Language is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:129
+#: includes/class-sm-students-page.php:132
+msgid "Level is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:133
+msgid "Teacher is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:137
+msgid "Session duration is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:141
+msgid "Hours per week is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:145
+msgid "Total weeks is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:149
+msgid "Total months is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:153
+msgid "Price per month is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:157
+msgid "Total price is required."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:172
+#, php-format
+msgid "A course with the name \"%s\" already exists."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:179
+msgid "Invalid course status."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:186
+msgid "Invalid certification type."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:191
+msgid "Please specify the certification name when selecting \"Other\"."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:197
+msgid "Please provide a valid file URL."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:260
+msgid "Courses List"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:261
+#, php-format
+msgid "Total: %d courses"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:275
+#: includes/class-sm-courses-page.php:436
+msgid "Course Name"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:276
+#: includes/class-sm-courses-page.php:472
+msgid "Language"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:277
+#: includes/class-sm-courses-page.php:485
+#: includes/class-sm-students-page.php:273
+#: includes/class-sm-students-page.php:457
+msgid "Level"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:278
+#: includes/class-sm-courses-page.php:504
+msgid "Teacher"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:279
+msgid "Duration"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:280
+msgid "Price/Month"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:281
+#: includes/class-sm-enrollments-page.php:262
+#: includes/class-sm-levels-page.php:179
+#: includes/class-sm-levels-page.php:290
+#: includes/class-sm-payment-terms-page.php:181
+#: includes/class-sm-payment-terms-page.php:306
+#: includes/class-sm-teachers-page.php:232
+#: includes/class-sm-teachers-page.php:442
+msgid "Status"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:282
+#: includes/class-sm-enrollments-page.php:264
+#: includes/class-sm-levels-page.php:180
+#: includes/class-sm-payment-terms-page.php:182
+#: includes/class-sm-students-page.php:276
+#: includes/class-sm-teachers-page.php:233
+msgid "Actions"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:292
+#: includes/class-sm-courses-page.php:555
+msgid "weeks"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:304
+#: includes/class-sm-courses-page.php:631
+msgid "Upcoming"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:305
+#: includes/class-sm-courses-page.php:632
+msgid "In Progress"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:306
+#: includes/class-sm-courses-page.php:633
+#: includes/class-sm-enrollments-page.php:285
+#: includes/class-sm-enrollments-page.php:514
+msgid "Completed"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:307
+#: includes/class-sm-courses-page.php:634
+#: includes/class-sm-levels-page.php:193
+#: includes/class-sm-payment-terms-page.php:196
+#: includes/class-sm-teachers-page.php:255
+msgid "Inactive"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:325
+msgid "Are you sure you want to delete this course?"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:340
+#: includes/class-sm-enrollments-page.php:339
+#: includes/class-sm-students-page.php:324
+#: includes/class-sm-teachers-page.php:285
+msgid "« Previous"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:341
+#: includes/class-sm-enrollments-page.php:340
+#: includes/class-sm-students-page.php:325
+#: includes/class-sm-teachers-page.php:286
+msgid "Next »"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:354
+msgid "No Courses Yet"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:355
+msgid "Create your first course to get started."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:357
+msgid "Add First Course"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:421
+msgid "Back to Courses"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:424
+msgid "Edit Course"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:432
+msgid "Basic Information"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:440
+msgid "Course name must be unique."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:446
+#: includes/class-sm-levels-page.php:178
+#: includes/class-sm-levels-page.php:270
+#: includes/class-sm-payment-terms-page.php:179
+#: includes/class-sm-payment-terms-page.php:275
+msgid "Description"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:450
+msgid "Brief description of the course content and objectives."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:456
+msgid "Description File (PDF)"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:460
+msgid "Upload PDF"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:463
+msgid "View Current File"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:466
+msgid "Optional: Upload a detailed PDF description of the course."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:476
+msgid "Select Language"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:477
+msgid "French"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:478
+msgid "English"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:489
+#: includes/class-sm-students-page.php:461
+msgid "Select Level"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:497
+#: includes/class-sm-students-page.php:470
+msgid "Manage levels"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:508
+msgid "Select Teacher"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:516
+msgid "Manage teachers"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:522
+msgid "Duration & Schedule"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:526
+msgid "Session Duration"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:530
+#: includes/class-sm-courses-page.php:544
+msgid "hours"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:533
+msgid "minutes"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:534
+msgid "Duration of each individual class session (e.g., 1h 30min)."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:540
+msgid "Hours Per Week"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:545
+msgid "Total teaching hours per week (e.g., 3.5 for two 1h45min sessions)."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:551
+msgid "Total Weeks"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:556
+msgid "Total duration of the course in weeks."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:562
+msgid "Total Months"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:566
+msgid "months"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:567
+msgid "Total duration of the course in months."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:572
+msgid "Pricing"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:576
+msgid "Price Per Month"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:580
+msgid "Monthly tuition fee for this course."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:586
+msgid "Total Course Price"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:590
+msgid "Total price for the entire course duration."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:595
+msgid "Certification"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:599
+msgid "Certification Delivered"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:603
+msgid "No Certification"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:604
+msgid "School Diploma"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:605
+msgid "State Diploma"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:606
+msgid "Other"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:608
+msgid "Type of certification or diploma awarded upon course completion."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:614
+msgid "Certification Name"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:618
+msgid "Specify the name of the certification or entity that delivers it."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:623
+msgid "Status & Availability"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:627
+msgid "Course Status"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:636
+msgid "Current status of the course."
+msgstr ""
+
+#: includes/class-sm-courses-page.php:642
+#: includes/class-sm-enrollments-page.php:284
+#: includes/class-sm-enrollments-page.php:513
+#: includes/class-sm-levels-page.php:191
+#: includes/class-sm-payment-terms-page.php:194
+#: includes/class-sm-teachers-page.php:253
+msgid "Active"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:647
+msgid "Active (visible and available for enrollment)"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:655
+msgid "Update Course"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:655
+msgid "Add Course"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:660
+#: includes/class-sm-enrollments-page.php:554
+#: includes/class-sm-levels-page.php:308
+#: includes/class-sm-payment-terms-page.php:324
+#: includes/class-sm-students-page.php:502
+#: includes/class-sm-teachers-page.php:460
+msgid "Cancel"
+msgstr ""
+
+#: includes/class-sm-courses-page.php:664
+#: includes/class-sm-enrollments-page.php:558
+#: includes/class-sm-students-page.php:506
+#: includes/class-sm-teachers-page.php:464
+msgid "Required fields"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:20
+msgid "Enrollment deleted successfully."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:22
+msgid "Error deleting enrollment."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:36
+msgid "Enrollment updated successfully."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:42
+msgid "Enrollment added successfully."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:109
+msgid "Please select a student."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:113
+msgid "Please select a course."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:117
+msgid "Enrollment date is required."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:121
+msgid "Start date is required."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:126
+msgid "Start date cannot be before enrollment date."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:130
+msgid "End date cannot be before start date."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:145
+msgid "This student is already enrolled in this course."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:159
+msgid "Student level is too advanced for this course. Students can only enroll in courses at their level or above."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:175
+#, php-format
+msgid "This course is full. Maximum capacity: %d students."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:183
+msgid "Invalid enrollment status."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:189
+msgid "Invalid payment status."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:243
+msgid "Enrollments List"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:244
+#, php-format
+msgid "Total: %d enrollments"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:258
+#: includes/class-sm-enrollments-page.php:420
+msgid "Student"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:259
+#: includes/class-sm-enrollments-page.php:444
+msgid "Course"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:260
+msgid "Enrolled"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:261
+#: includes/class-sm-enrollments-page.php:489
+msgid "Start Date"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:263
+msgid "Payment"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:286
+#: includes/class-sm-enrollments-page.php:515
+msgid "Dropped"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:287
+#: includes/class-sm-enrollments-page.php:516
+msgid "Suspended"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:303
+#: includes/class-sm-enrollments-page.php:529
+msgid "Paid"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:304
+#: includes/class-sm-enrollments-page.php:527
+msgid "Unpaid"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:305
+msgid "Partial"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:306
+#: includes/class-sm-enrollments-page.php:530
+msgid "Overdue"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:324
+msgid "Are you sure you want to delete this enrollment?"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:353
+msgid "No Enrollments Yet"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:354
+msgid "Start enrolling students in courses."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:356
+msgid "Create First Enrollment"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:406
+msgid "Back to Enrollments"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:409
+msgid "Edit Enrollment"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:424
+msgid "Select Student"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:433
+msgid "Student cannot be changed after enrollment."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:436
+msgid "Add new student"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:448
+msgid "Select Course"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:468
+msgid "Course cannot be changed after enrollment."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:471
+msgid "Add new course"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:479
+msgid "Enrollment Date"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:483
+msgid "Date when the student enrolled in the course."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:493
+msgid "Date when the student begins attending the course."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:499
+msgid "End Date"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:503
+msgid "Optional: Date when the student completes or leaves the course."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:509
+msgid "Enrollment Status"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:523
+msgid "Payment Status"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:528
+msgid "Partial Payment"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:532
+msgid "Current payment status for this enrollment."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:538
+msgid "Notes"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:542
+msgid "Optional notes or comments about this enrollment."
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:549
+msgid "Update Enrollment"
+msgstr ""
+
+#: includes/class-sm-enrollments-page.php:549
+msgid "Create Enrollment"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:29
+#, php-format
+msgid "Cannot delete this level. It is being used by %d student(s) and %d course(s)."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:36
+msgid "Level deleted successfully."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:51
+msgid "Level updated successfully."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:56
+msgid "Level added successfully."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:79
+msgid "Manage Levels"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:114
+msgid "Level name is required."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:116
+msgid "Level name must be at least 2 characters long."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:131
+#, php-format
+msgid "A level with the name \"%s\" already exists."
+msgstr ""
+
+#: includes/class-sm-levels-page.php:161
+msgid "Course Levels"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:162
+msgid "Manage skill levels for courses and students"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:167
+#: includes/class-sm-levels-page.php:249
+msgid "Add New Level"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:176
+#: includes/class-sm-payment-terms-page.php:177
+msgid "Order"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:177
+#: includes/class-sm-levels-page.php:260
+msgid "Level Name"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:208
+msgid "Are you sure you want to delete this level?"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:246
+msgid "Back to Levels"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:249
+msgid "Edit Level"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:264
+msgid "E.g., Beginner, Intermediate, Advanced"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:274
+msgid "Brief description of this level"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:280
+#: includes/class-sm-payment-terms-page.php:296
+msgid "Sort Order"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:284
+msgid "Lower numbers appear first in lists"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:295
+msgid "Active (available for courses and students)"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:303
+msgid "Update Level"
+msgstr ""
+
+#: includes/class-sm-levels-page.php:303
+msgid "Add Level"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:26
+#, php-format
+msgid "Cannot delete this payment term. It is being used by %d teacher(s)."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:32
+msgid "Payment term deleted successfully."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:47
+msgid "Payment term updated successfully."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:52
+msgid "Payment term added successfully."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:75
+msgid "Manage Payment Terms"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:111
+msgid "Payment term name is required."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:116
+msgid "Percentage must be between 0 and 100."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:131
+#, php-format
+msgid "A payment term with the name \"%s\" already exists."
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:163
+msgid "Manage payment schedules for teachers"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:168
+#: includes/class-sm-payment-terms-page.php:254
+msgid "Add New Payment Term"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:178
+#: includes/class-sm-payment-terms-page.php:265
+#: includes/class-sm-students-page.php:270
+#: includes/class-sm-teachers-page.php:227
+msgid "Name"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:180
+#: includes/class-sm-payment-terms-page.php:285
+msgid "Percentage"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:211
+msgid "Are you sure you want to delete this payment term?"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:251
+msgid "Back to Payment Terms"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:254
+msgid "Edit Payment Term"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:269
+msgid "E.g., Monthly, Weekly, 50/50"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:279
+msgid "Brief description of this payment term"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:290
+msgid "Payment percentage (e.g., 50 for 50/50, 33.33 for 1/3)"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:300
+msgid "Lower numbers appear first"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:311
+msgid "Active (available for selection)"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:319
+msgid "Update Payment Term"
+msgstr ""
+
+#: includes/class-sm-payment-terms-page.php:319
+msgid "Add Payment Term"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:20
+msgid "General Settings"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:28
+msgid "School Name"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:36
+msgid "Address"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:44
+#: includes/class-sm-students-page.php:272
+#: includes/class-sm-teachers-page.php:229
+msgid "Phone"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:52
+#: includes/class-sm-students-page.php:271
+#: includes/class-sm-teachers-page.php:228
+msgid "Email"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:60
+msgid "School Logo"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:68
+msgid "Date Format"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:76
+msgid "Time Format"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:84
+msgid "First Day of the Week"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:121
+msgid "Upload Logo"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:133
+msgid "Use PHP date format, e.g., Y-m-d, d/m/Y, m/d/Y"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:140
+msgid "Use PHP time format, e.g., H:i, g:i a"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:148
+msgid "Sunday"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:149
+msgid "Monday"
+msgstr ""
+
+#: includes/class-sm-settings-page.php:151
+msgid "Choose the first day of the week for calendars."
+msgstr ""
+
+#: includes/class-sm-settings-page.php:159
+msgid "School Management Settings"
+msgstr ""
+
+#: includes/class-sm-students-page.php:20
+msgid "Student deleted successfully."
+msgstr ""
+
+#: includes/class-sm-students-page.php:22
+msgid "Error deleting student."
+msgstr ""
+
+#: includes/class-sm-students-page.php:36
+msgid "Student updated successfully."
+msgstr ""
+
+#: includes/class-sm-students-page.php:42
+msgid "Student added successfully."
+msgstr ""
+
+#: includes/class-sm-students-page.php:104
+msgid "Student name is required."
+msgstr ""
+
+#: includes/class-sm-students-page.php:106
+msgid "Student name must be at least 2 characters long."
+msgstr ""
+
+#: includes/class-sm-students-page.php:108
+msgid "Student name cannot exceed 100 characters."
+msgstr ""
+
+#: includes/class-sm-students-page.php:112
+#: includes/class-sm-teachers-page.php:128
+msgid "Email address is required."
+msgstr ""
+
+#: includes/class-sm-students-page.php:114
+#: includes/class-sm-teachers-page.php:130
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/class-sm-students-page.php:118
+#: includes/class-sm-teachers-page.php:134
+msgid "Phone number is required."
+msgstr ""
+
+#: includes/class-sm-students-page.php:120
+msgid "Please enter a valid phone number (minimum 8 digits)."
+msgstr ""
+
+#: includes/class-sm-students-page.php:124
+msgid "Date of birth is required."
+msgstr ""
+
+#: includes/class-sm-students-page.php:126
+msgid "Please enter a valid date of birth."
+msgstr ""
+
+#: includes/class-sm-students-page.php:128
+msgid "Date of birth cannot be in the future."
+msgstr ""
+
+#: includes/class-sm-students-page.php:149
+#, php-format
+msgid "A student with the name \"%s\" already exists. Please use a different name."
+msgstr ""
+
+#: includes/class-sm-students-page.php:169
+#, php-format
+msgid "The email address \"%s\" is already registered. Please use a different email."
+msgstr ""
+
+#: includes/class-sm-students-page.php:179
+msgid "Please select a valid blood type."
+msgstr ""
+
+#: includes/class-sm-students-page.php:185
+#: includes/class-sm-teachers-page.php:159
+msgid "Please provide a valid picture URL."
+msgstr ""
+
+#: includes/class-sm-students-page.php:254
+msgid "Students List"
+msgstr ""
+
+#: includes/class-sm-students-page.php:255
+#, php-format
+msgid "Total: %d students"
+msgstr ""
+
+#: includes/class-sm-students-page.php:269
+#: includes/class-sm-teachers-page.php:226
+msgid "Picture"
+msgstr ""
+
+#: includes/class-sm-students-page.php:274
+#: includes/class-sm-students-page.php:477
+msgid "Blood Type"
+msgstr ""
+
+#: includes/class-sm-students-page.php:275
+msgid "Registered"
+msgstr ""
+
+#: includes/class-sm-students-page.php:297
+#: includes/class-sm-students-page.php:391
+msgid "Edit Student"
+msgstr ""
+
+#: includes/class-sm-students-page.php:308
+msgid "Delete Student"
+msgstr ""
+
+#: includes/class-sm-students-page.php:309
+msgid "Are you sure you want to delete this student? This action cannot be undone."
+msgstr ""
+
+#: includes/class-sm-students-page.php:341
+msgid "No Students Yet"
+msgstr ""
+
+#: includes/class-sm-students-page.php:342
+msgid "Start building your student database by adding your first student."
+msgstr ""
+
+#: includes/class-sm-students-page.php:344
+msgid "Add First Student"
+msgstr ""
+
+#: includes/class-sm-students-page.php:388
+msgid "Back to Students"
+msgstr ""
+
+#: includes/class-sm-students-page.php:405
+#: includes/class-sm-students-page.php:408
+msgid "Student Picture"
+msgstr ""
+
+#: includes/class-sm-students-page.php:407
+#: includes/class-sm-teachers-page.php:365
+msgid "Click to upload"
+msgstr ""
+
+#: includes/class-sm-students-page.php:417
+msgid "Full Name"
+msgstr ""
+
+#: includes/class-sm-students-page.php:421
+msgid "Each student must have a unique name."
+msgstr ""
+
+#: includes/class-sm-students-page.php:427
+#: includes/class-sm-teachers-page.php:393
+msgid "Email Address"
+msgstr ""
+
+#: includes/class-sm-students-page.php:431
+msgid "Used for communications and must be unique."
+msgstr ""
+
+#: includes/class-sm-students-page.php:437
+#: includes/class-sm-teachers-page.php:403
+msgid "Phone Number"
+msgstr ""
+
+#: includes/class-sm-students-page.php:441
+msgid "Contact number for emergencies and notifications."
+msgstr ""
+
+#: includes/class-sm-students-page.php:447
+msgid "Date of Birth"
+msgstr ""
+
+#: includes/class-sm-students-page.php:451
+msgid "Required for age verification and records."
+msgstr ""
+
+#: includes/class-sm-students-page.php:469
+msgid "Choose the appropriate skill level for course assignment."
+msgstr ""
+
+#: includes/class-sm-students-page.php:481
+msgid "Select Blood Type"
+msgstr ""
+
+#: includes/class-sm-students-page.php:490
+msgid "Blood type information for emergency situations."
+msgstr ""
+
+#: includes/class-sm-students-page.php:497
+msgid "Update Student"
+msgstr ""
+
+#: includes/class-sm-students-page.php:497
+msgid "Add Student"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:26
+#, php-format
+msgid "Cannot delete this teacher. They are assigned to %d course(s)."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:32
+msgid "Teacher deleted successfully."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:47
+msgid "Teacher updated successfully."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:53
+msgid "Teacher added successfully."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:116
+msgid "First name is required."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:118
+msgid "First name must be at least 2 characters long."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:122
+msgid "Last name is required."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:124
+msgid "Last name must be at least 2 characters long."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:138
+msgid "Payment term is required."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:153
+#, php-format
+msgid "The email address \"%s\" is already registered."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:211
+msgid "Teachers List"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:212
+#, php-format
+msgid "Total: %d teachers"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:230
+#: includes/class-sm-teachers-page.php:412
+msgid "Payment Term"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:231
+#: includes/class-sm-teachers-page.php:432
+msgid "Hourly Rate"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:270
+msgid "Are you sure you want to delete this teacher?"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:299
+msgid "No Teachers Yet"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:300
+msgid "Add your first teacher to get started."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:302
+msgid "Add First Teacher"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:347
+msgid "Back to Teachers"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:350
+msgid "Edit Teacher"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:363
+#: includes/class-sm-teachers-page.php:366
+msgid "Teacher Picture"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:375
+msgid "First Name"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:384
+msgid "Last Name"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:397
+msgid "Email must be unique for each teacher."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:416
+msgid "Select Payment Term"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:424
+msgid "How this teacher will be paid."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:425
+msgid "Manage payment terms"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:436
+msgid "Payment rate per hour (optional)."
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:447
+msgid "Active (available for course assignment)"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:455
+msgid "Update Teacher"
+msgstr ""
+
+#: includes/class-sm-teachers-page.php:455
+msgid "Add Teacher"
+msgstr ""
+
+#: includes/sm-enqueue.php:48
+msgid "Upload successful!"
+msgstr ""
+
+#: includes/sm-enqueue.php:49
+msgid "Upload failed. Please try again."
+msgstr ""
+
+#: includes/sm-enqueue.php:50
+msgid "Select a logo"
+msgstr ""
+
+#: includes/sm-enqueue.php:51
+msgid "Select a picture"
+msgstr ""
+
+#: includes/sm-enqueue.php:52
+msgid "Select a file"
+msgstr ""
+
+#: includes/sm-enqueue.php:53
+msgid "Use this picture"
+msgstr ""
+
+#: includes/sm-enqueue.php:54
+msgid "Use this file"
+msgstr ""
