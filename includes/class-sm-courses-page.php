@@ -456,17 +456,49 @@ class SM_Courses_Page {
                         <label for="course_description_file"><?php esc_html_e( 'Description File (PDF)', 'school-management' ); ?></label>
                     </th>
                     <td>
-                        <input type="text" id="course_description_file" name="description_file" value="<?php echo esc_attr( $form_data['description_file'] ?? '' ); ?>" class="regular-text" readonly />
-                        <button type="button" class="button sm-upload-file" data-target="course_description_file"><?php esc_html_e( 'Upload PDF', 'school-management' ); ?></button>
-                        <?php if ( ! empty( $form_data['description_file'] ) ) : ?>
-                            <br/><a href="<?php echo esc_url( $form_data['description_file'] ); ?>" target="_blank" class="button button-small" style="margin-top: 5px;">
-                                <?php esc_html_e( 'View Current File', 'school-management' ); ?>
-                            </a>
+                        <input type="hidden" id="course_description_file" name="description_file" value="<?php echo esc_attr( $form_data['description_file'] ?? '' ); ?>" />
+        
+                        <?php if ( ! empty( $form_data['description_file'] ) ) : 
+                            $file_url = $form_data['description_file'];
+                            $file_name = basename( parse_url( $file_url, PHP_URL_PATH ) );
+                        ?>
+                            <div style="padding: 15px; background: #f0f0f1; border: 1px solid #c3c4c7; border-radius: 4px; margin-bottom: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <span class="dashicons dashicons-media-document" style="font-size: 24px; color: #d63638;"></span>
+                                    <div style="flex: 1;">
+                                        <strong><?php echo esc_html( $file_name ); ?></strong>
+                                        <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;"><?php esc_html_e( 'PDF Document', 'school-management' ); ?></p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 5px;">
+                                    <a href="<?php echo esc_url( $file_url ); ?>" target="_blank" class="button button-small">
+                                        <span class="dashicons dashicons-visibility" style="vertical-align: middle;"></span>
+                                        <?php esc_html_e( 'View', 'school-management' ); ?>
+                                    </a>
+                                    <a href="<?php echo esc_url( $file_url ); ?>" download class="button button-small">
+                                        <span class="dashicons dashicons-download" style="vertical-align: middle;"></span>
+                                        <?php esc_html_e( 'Download', 'school-management' ); ?>
+                                    </a>
+                                    <button type="button" class="button button-small sm-remove-file" data-target="course_description_file" style="color: #d63638;">
+                                        <span class="dashicons dashicons-trash" style="vertical-align: middle;"></span>
+                                        <?php esc_html_e( 'Remove', 'school-management' ); ?>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="button sm-upload-file" data-target="course_description_file">
+                                <span class="dashicons dashicons-update" style="vertical-align: middle;"></span>
+                                <?php esc_html_e( 'Replace PDF', 'school-management' ); ?>
+                            </button>
+                        <?php else : ?>
+                            <button type="button" class="button sm-upload-file" data-target="course_description_file">
+                                <span class="dashicons dashicons-upload" style="vertical-align: middle;"></span>
+                                <?php esc_html_e( 'Upload PDF', 'school-management' ); ?>
+                            </button>
                         <?php endif; ?>
+        
                         <p class="description"><?php esc_html_e( 'Optional: Upload a detailed PDF description of the course.', 'school-management' ); ?></p>
                     </td>
                 </tr>
-
                 <tr>
                     <th scope="row">
                         <label for="course_language"><?php esc_html_e( 'Language', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
@@ -665,6 +697,7 @@ class SM_Courses_Page {
             </p>
             <script>
             jQuery(document).ready(function($) {
+                // Certification type toggle
                 $('#course_certification_type').on('change', function() {
                     if ($(this).val() === 'other') {
                         $('#certification_other_row').show();
@@ -672,6 +705,15 @@ class SM_Courses_Page {
                     } else {
                         $('#certification_other_row').hide();
                         $('#course_certification_other').attr('required', false);
+                    }
+                });
+
+                // Remove file button
+                $('.sm-remove-file').on('click', function() {
+                    if (confirm('<?php esc_html_e( 'Are you sure you want to remove this file?', 'school-management' ); ?>')) {
+                        var targetId = $(this).data('target');
+                        $('#' + targetId).val('');
+                        location.reload(); // Reload to update the UI
                     }
                 });
             });

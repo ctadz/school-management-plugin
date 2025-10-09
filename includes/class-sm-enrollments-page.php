@@ -25,25 +25,31 @@ class SM_Enrollments_Page {
 
         // Handle form submission
         if ( isset( $_POST['sm_save_enrollment'] ) && check_admin_referer( 'sm_save_enrollment_action', 'sm_save_enrollment_nonce' ) ) {
-    
-            // TEMPORARY TEST - bypass validation
-            $data = [
-                'student_id' => intval( $_POST['student_id'] ?? 0 ),
-                'course_id' => intval( $_POST['course_id'] ?? 0 ),
-                'enrollment_date' => sanitize_text_field( $_POST['enrollment_date'] ?? '' ),
-                'start_date' => sanitize_text_field( $_POST['start_date'] ?? '' ),
-                'end_date' => sanitize_text_field( $_POST['end_date'] ?? '' ) ?: null,
-                'status' => sanitize_text_field( $_POST['status'] ?? 'active' ),
-                'payment_status' => sanitize_text_field( $_POST['payment_status'] ?? 'unpaid' ),
-                'notes' => sanitize_textarea_field( $_POST['notes'] ?? '' ),
-            ];
-    
-            $inserted = $wpdb->insert( $table, $data );
-    
-            if ( $inserted ) {
-                echo '<div class="updated notice"><p>SUCCESS! Enrollment created. ID: ' . $wpdb->insert_id . '</p></div>';
+            $validation_result = self::validate_enrollment_data( $_POST );
+            
+            if ( $validation_result['success'] ) {
+                $data = $validation_result['data'];
+                
+                if ( ! empty( $_POST['enrollment_id'] ) ) {
+                    $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['enrollment_id'] ) ] );
+                    if ( $updated !== false ) {
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment updated successfully.', 'school-management' ) . '</p></div>';
+                        echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-enrollments"; }, 2000);</script>';
+                    }
+                } else {
+                    $inserted = $wpdb->insert( $table, $data );
+                    if ( $inserted ) {
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment added successfully.', 'school-management' ) . '</p></div>';
+                        echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-enrollments"; }, 2000);</script>';
+                    }
+                }
             } else {
-                echo '<div class="error notice"><p>DATABASE ERROR: ' . $wpdb->last_error . '</p></div>';
+                echo '<div class="error notice"><p><strong>' . esc_html__( 'Please correct the following errors:', 'school-management' ) . '</strong></p>';
+                echo '<ul style="margin-left: 20px;">';
+                foreach ( $validation_result['errors'] as $error ) {
+                    echo '<li>' . esc_html( $error ) . '</li>';
+                }
+                echo '</ul></div>';
             }
         }
 
