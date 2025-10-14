@@ -68,6 +68,16 @@ class SM_Admin_Menu {
             [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
         );
 
+        // Payments submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Payments', 'school-management' ),
+            __( 'Payments', 'school-management' ),
+            'manage_options',
+            'school-management-payments',
+            [ 'SM_Payments_Page', 'render_payments_page' ]
+        );
+
         // Teachers submenu
         add_submenu_page(
             'school-management',

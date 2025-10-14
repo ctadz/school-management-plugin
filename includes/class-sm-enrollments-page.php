@@ -7,6 +7,132 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SM_Enrollments_Page {
 
     /**
+     * Create enrollment fees (insurance + books)
+     */
+    private static function create_enrollment_fees( $enrollment_id, $post_data ) {
+        global $wpdb;
+        $enrollment_fees_table = $wpdb->prefix . 'sm_enrollment_fees';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        
+        $enrollment = $wpdb->get_row( $wpdb->prepare(
+            "SELECT student_id, enrollment_date FROM $enrollments_table WHERE id = %d",
+            $enrollment_id
+        ) );
+        
+        if ( ! $enrollment ) {
+            return;
+        }
+        
+        $insurance_fee = floatval( $post_data['insurance_fee'] ?? 0 );
+        $book_fee = floatval( $post_data['book_fee'] ?? 0 );
+        $enrollment_date = $enrollment->enrollment_date;
+        
+        // Check if this is student's first enrollment (for insurance)
+        $previous_enrollments = $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $enrollments_table WHERE student_id = %d AND id < %d",
+            $enrollment->student_id,
+            $enrollment_id
+        ) );
+        
+        // Add insurance fee only if first enrollment AND amount > 0
+        if ( $previous_enrollments == 0 && $insurance_fee > 0 ) {
+            $wpdb->insert( $enrollment_fees_table, [
+                'enrollment_id' => $enrollment_id,
+                'fee_type' => 'insurance',
+                'amount' => $insurance_fee,
+                'status' => 'unpaid',
+                'due_date' => $enrollment_date,
+            ] );
+        }
+        
+        // Add book fee if amount > 0
+        if ( $book_fee > 0 ) {
+            $wpdb->insert( $enrollment_fees_table, [
+                'enrollment_id' => $enrollment_id,
+                'fee_type' => 'books',
+                'amount' => $book_fee,
+                'status' => 'unpaid',
+                'due_date' => $enrollment_date,
+            ] );
+        }
+    }
+
+    /**
+     * Create payment schedule based on payment plan
+     */
+    private static function create_payment_schedule( $enrollment_id, $post_data ) {
+        global $wpdb;
+        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+        
+        $enrollment = $wpdb->get_row( $wpdb->prepare(
+            "SELECT e.*, c.price_per_month, c.total_months 
+             FROM $enrollments_table e
+             LEFT JOIN $courses_table c ON e.course_id = c.id
+             WHERE e.id = %d",
+            $enrollment_id
+        ) );
+        
+        if ( ! $enrollment ) {
+            return;
+        }
+        
+        $payment_plan = sanitize_text_field( $post_data['payment_plan'] ?? 'monthly' );
+        $price_per_month = floatval( $enrollment->price_per_month );
+        $total_months = intval( $enrollment->total_months );
+        $start_date = $enrollment->start_date;
+        
+        $installments = [];
+        
+        switch ( $payment_plan ) {
+            case 'monthly':
+                // One payment per month
+                for ( $i = 0; $i < $total_months; $i++ ) {
+                    $installments[] = [
+                        'number' => $i + 1,
+                        'amount' => $price_per_month,
+                        'due_date' => date( 'Y-m-d', strtotime( "+$i months", strtotime( $start_date ) ) ),
+                    ];
+                }
+                break;
+                
+            case 'quarterly':
+                // Payment every 3 months
+                $num_quarters = ceil( $total_months / 3 );
+                for ( $i = 0; $i < $num_quarters; $i++ ) {
+                    $months_in_quarter = min( 3, $total_months - ( $i * 3 ) );
+                    $installments[] = [
+                        'number' => $i + 1,
+                        'amount' => $price_per_month * $months_in_quarter,
+                        'due_date' => date( 'Y-m-d', strtotime( "+" . ( $i * 3 ) . " months", strtotime( $start_date ) ) ),
+                    ];
+                }
+                break;
+                
+            case 'full':
+                // Single payment for entire course
+                $installments[] = [
+                    'number' => 1,
+                    'amount' => $price_per_month * $total_months,
+                    'due_date' => $start_date,
+                ];
+                break;
+        }
+        
+        // Insert installments into database
+        foreach ( $installments as $installment ) {
+            $wpdb->insert( $payment_schedules_table, [
+                'enrollment_id' => $enrollment_id,
+                'installment_number' => $installment['number'],
+                'expected_amount' => $installment['amount'],
+                'due_date' => $installment['due_date'],
+                'status' => 'pending',
+                'paid_amount' => 0,
+            ] );
+        }
+    }
+    /**
      * Render the Enrollments page
      */
     public static function render_enrollments_page() {
@@ -26,20 +152,29 @@ class SM_Enrollments_Page {
         // Handle form submission
         if ( isset( $_POST['sm_save_enrollment'] ) && check_admin_referer( 'sm_save_enrollment_action', 'sm_save_enrollment_nonce' ) ) {
             $validation_result = self::validate_enrollment_data( $_POST );
-            
+    
             if ( $validation_result['success'] ) {
                 $data = $validation_result['data'];
-                
-                if ( ! empty( $_POST['enrollment_id'] ) ) {
-                    $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['enrollment_id'] ) ] );
+                $enrollment_id = intval( $_POST['enrollment_id'] ?? 0 );
+        
+                if ( $enrollment_id > 0 ) {
+                    // Update existing enrollment
+                    $updated = $wpdb->update( $table, $data, [ 'id' => $enrollment_id ] );
                     if ( $updated !== false ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment updated successfully.', 'school-management' ) . '</p></div>';
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-enrollments"; }, 2000);</script>';
                     }
                 } else {
+                    // Insert new enrollment
                     $inserted = $wpdb->insert( $table, $data );
                     if ( $inserted ) {
-                        echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment added successfully.', 'school-management' ) . '</p></div>';
+                        $new_enrollment_id = $wpdb->insert_id;
+                
+                        // Create enrollment fees and payment schedules
+                        self::create_enrollment_fees( $new_enrollment_id, $_POST );
+                        self::create_payment_schedule( $new_enrollment_id, $_POST );
+                
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment added successfully with payment schedule generated.', 'school-management' ) . '</p></div>';
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-enrollments"; }, 2000);</script>';
                     }
                 }
@@ -52,7 +187,6 @@ class SM_Enrollments_Page {
                 echo '</ul></div>';
             }
         }
-
         // Determine view
         $action = $_GET['action'] ?? 'list';
         $enrollment = null;
@@ -200,6 +334,7 @@ class SM_Enrollments_Page {
                     'end_date' => $end_date ?: null,
                     'status' => $status,
                     'payment_status' => $payment_status,
+                    'payment_plan' => sanitize_text_field( $post_data['payment_plan'] ?? 'monthly' ),  // ADD THIS LINE
                     'notes' => $notes,
                 ]
             ];
@@ -504,6 +639,54 @@ class SM_Enrollments_Page {
                     </td>
                 </tr>
 
+                <?php if ( ! $is_edit ) : // Only show for new enrollments ?>
+                <tr>
+                    <td colspan="2"><hr style="margin: 20px 0; border: none; border-top: 2px solid #0073aa;"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <h3 style="margin: 10px 0;"><?php esc_html_e( 'Payment Information', 'school-management' ); ?></h3>
+                        <p class="description"><?php esc_html_e( 'Set enrollment fees and payment schedule for this enrollment.', 'school-management' ); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="insurance_fee"><?php esc_html_e( 'Insurance Fee', 'school-management' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="insurance_fee" name="insurance_fee" value="<?php echo esc_attr( $form_data['insurance_fee'] ?? '0' ); ?>" step="0.01" min="0" style="width: 200px;" />
+                        <p class="description"><?php esc_html_e( 'One-time insurance fee (only charged for student\'s first enrollment).', 'school-management' ); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="book_fee"><?php esc_html_e( 'Book Fee', 'school-management' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="book_fee" name="book_fee" value="<?php echo esc_attr( $form_data['book_fee'] ?? '0' ); ?>" step="0.01" min="0" style="width: 200px;" />
+                        <p class="description"><?php esc_html_e( 'Book and materials fee for this course.', 'school-management' ); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="payment_plan"><?php esc_html_e( 'Payment Plan', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                    </th>
+                    <td>
+                        <select id="payment_plan" name="payment_plan" required>
+                            <option value="monthly" <?php selected( $form_data['payment_plan'] ?? 'monthly', 'monthly' ); ?>><?php esc_html_e( 'Monthly Payments', 'school-management' ); ?></option>
+                            <option value="quarterly" <?php selected( $form_data['payment_plan'] ?? '', 'quarterly' ); ?>><?php esc_html_e( 'Quarterly Payments (Every 3 months)', 'school-management' ); ?></option>
+                            <option value="full" <?php selected( $form_data['payment_plan'] ?? '', 'full' ); ?>><?php esc_html_e( 'Full Payment (One-time)', 'school-management' ); ?></option>
+                        </select>
+                        <p class="description"><?php esc_html_e( 'Choose how the student will pay for the course.', 'school-management' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;"></td>
+                </tr>
+                <?php endif; ?>
                 <tr>
                     <th scope="row">
                         <label for="enrollment_status"><?php esc_html_e( 'Enrollment Status', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
