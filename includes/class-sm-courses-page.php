@@ -97,6 +97,7 @@ class SM_Courses_Page {
         $language = sanitize_text_field( trim( $post_data['language'] ?? '' ) );
         $level_id = intval( $post_data['level_id'] ?? 0 );
         $teacher_id = intval( $post_data['teacher_id'] ?? 0 );
+        $classroom_id = ! empty( $post_data['classroom_id'] ) ? intval( $post_data['classroom_id'] ) : null;
         $session_duration_hours = intval( $post_data['session_duration_hours'] ?? 0 );
         $session_duration_minutes = intval( $post_data['session_duration_minutes'] ?? 0 );
         $hours_per_week = floatval( $post_data['hours_per_week'] ?? 0 );
@@ -207,6 +208,7 @@ class SM_Courses_Page {
                     'language' => $language,
                     'level_id' => $level_id,
                     'teacher_id' => $teacher_id,
+                    'classroom_id' => $classroom_id,
                     'session_duration_hours' => $session_duration_hours,
                     'session_duration_minutes' => $session_duration_minutes,
                     'hours_per_week' => $hours_per_week,
@@ -242,18 +244,22 @@ class SM_Courses_Page {
         $total_courses = $wpdb->get_var( "SELECT COUNT(*) FROM $courses_table" );
         $total_pages = ceil( $total_courses / $per_page );
 
-        // Get courses with level and teacher names
+        // Get courses with level, teacher, and classroom names
         $courses = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT c.*, l.name as level_name, CONCAT(t.first_name, ' ', t.last_name) as teacher_name 
+            "SELECT c.*, 
+                    l.name as level_name, 
+                    CONCAT(t.first_name, ' ', t.last_name) as teacher_name,
+                    cr.name as classroom_name
              FROM $courses_table c 
              LEFT JOIN $levels_table l ON c.level_id = l.id 
              LEFT JOIN $teachers_table t ON c.teacher_id = t.id 
+             LEFT JOIN {$wpdb->prefix}sm_classrooms cr ON c.classroom_id = cr.id
              ORDER BY c.name ASC 
              LIMIT %d OFFSET %d", 
             $per_page, 
             $offset 
         ) );
-
+ 
         ?>
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
@@ -276,6 +282,7 @@ class SM_Courses_Page {
                         <th><?php esc_html_e( 'Language', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Level', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Teacher', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Classroom', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Duration', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Price/Month', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Status', 'school-management' ); ?></th>
@@ -289,6 +296,7 @@ class SM_Courses_Page {
                             <td><?php echo esc_html( $course->language ); ?></td>
                             <td><?php echo esc_html( $course->level_name ?: '—' ); ?></td>
                             <td><?php echo esc_html( $course->teacher_name ?: '—' ); ?></td>
+                            <td><?php echo esc_html( $course->classroom_name ?: '—' ); ?></td>
                             <td><?php echo esc_html( $course->total_weeks . ' ' . __( 'weeks', 'school-management' ) ); ?></td>
                             <td><?php echo esc_html( number_format( $course->price_per_month, 2 ) ); ?></td>
                             <td>
@@ -370,7 +378,8 @@ class SM_Courses_Page {
         // Get levels and teachers
         $levels = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}sm_levels WHERE is_active = 1 ORDER BY sort_order ASC, name ASC" );
         $teachers = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}sm_teachers WHERE is_active = 1 ORDER BY last_name ASC, first_name ASC" );
-        
+        $classrooms = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}sm_classrooms WHERE is_active = 1 ORDER BY name ASC" );
+
         $form_data = [];
         if ( isset( $_POST['sm_save_course'] ) ) {
             $form_data = [
@@ -380,6 +389,7 @@ class SM_Courses_Page {
                 'language' => sanitize_text_field( $_POST['language'] ?? '' ),
                 'level_id' => intval( $_POST['level_id'] ?? 0 ),
                 'teacher_id' => intval( $_POST['teacher_id'] ?? 0 ),
+                'classroom_id' => intval( $_POST['classroom_id'] ?? 0 ),
                 'session_duration_hours' => intval( $_POST['session_duration_hours'] ?? 0 ),
                 'session_duration_minutes' => intval( $_POST['session_duration_minutes'] ?? 0 ),
                 'hours_per_week' => floatval( $_POST['hours_per_week'] ?? 0 ),
@@ -400,6 +410,7 @@ class SM_Courses_Page {
                 'language' => $course->language,
                 'level_id' => $course->level_id,
                 'teacher_id' => $course->teacher_id,
+                'classroom_id' => $course->classroom_id,
                 'session_duration_hours' => $course->session_duration_hours,
                 'session_duration_minutes' => $course->session_duration_minutes,
                 'hours_per_week' => $course->hours_per_week,
@@ -546,6 +557,29 @@ class SM_Courses_Page {
                         </select>
                         <p class="description">
                             <a href="?page=school-management-teachers" target="_blank"><?php esc_html_e( 'Manage teachers', 'school-management' ); ?></a>
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="course_classroom"><?php esc_html_e( 'Classroom', 'school-management' ); ?></label>
+                    </th>
+                    <td>
+                        <select id="course_classroom" name="classroom_id">
+                            <option value=""><?php esc_html_e( 'No Classroom Assigned', 'school-management' ); ?></option>
+                            <?php foreach ( $classrooms as $classroom ) : ?>
+                                <option value="<?php echo intval( $classroom->id ); ?>" <?php selected( $form_data['classroom_id'] ?? 0, $classroom->id ); ?>>
+                                    <?php echo esc_html( $classroom->name ); ?>
+                                    <?php if ( $classroom->location ) : ?>
+                                        - <?php echo esc_html( $classroom->location ); ?>
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">
+                            <?php esc_html_e( 'Optional: Assign this course to a specific classroom.', 'school-management' ); ?>
+                            <a href="?page=school-management-classrooms" target="_blank"><?php esc_html_e( 'Manage classrooms', 'school-management' ); ?></a>
                         </p>
                     </td>
                 </tr>

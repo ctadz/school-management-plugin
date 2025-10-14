@@ -40,6 +40,7 @@ function sm_activate_plugin() {
     $teachers_table = $wpdb->prefix . 'sm_teachers';
     $courses_table = $wpdb->prefix . 'sm_courses';
     $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+    $classrooms_table = $wpdb->prefix . 'sm_classrooms';
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -209,19 +210,44 @@ function sm_activate_plugin() {
 
     dbDelta( $sql_courses );
 
-    // Add missing columns to courses table
-    $course_columns = $wpdb->get_results("SHOW COLUMNS FROM $courses_table", ARRAY_A);
-    $existing_course_columns = array_column($course_columns, 'Field');
-    
-    if ( ! in_array('max_students', $existing_course_columns) ) {
-        $wpdb->query("ALTER TABLE $courses_table ADD max_students int DEFAULT NULL AFTER total_price");
-    }
-    if ( ! in_array('certification_type', $existing_course_columns) ) {
-        $wpdb->query("ALTER TABLE $courses_table ADD certification_type varchar(50) DEFAULT NULL AFTER max_students");
-    }
-    if ( ! in_array('certification_other', $existing_course_columns) ) {
-        $wpdb->query("ALTER TABLE $courses_table ADD certification_other varchar(255) DEFAULT NULL AFTER certification_type");
-    }
+        // Add missing columns to courses table
+        $course_columns = $wpdb->get_results("SHOW COLUMNS FROM $courses_table", ARRAY_A);
+        $existing_course_columns = array_column($course_columns, 'Field');
+        
+        if ( ! in_array('max_students', $existing_course_columns) ) {
+            $wpdb->query("ALTER TABLE $courses_table ADD max_students int DEFAULT NULL AFTER total_price");
+        }
+        if ( ! in_array('certification_type', $existing_course_columns) ) {
+            $wpdb->query("ALTER TABLE $courses_table ADD certification_type varchar(50) DEFAULT NULL AFTER max_students");
+        }
+        if ( ! in_array('certification_other', $existing_course_columns) ) {
+            $wpdb->query("ALTER TABLE $courses_table ADD certification_other varchar(255) DEFAULT NULL AFTER certification_type");
+        }
+
+    // --- Create Classrooms Table ---
+    $sql_classrooms = "CREATE TABLE $classrooms_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        name varchar(100) NOT NULL,
+        capacity int DEFAULT 0,
+        location varchar(255) DEFAULT NULL,
+        facilities text,
+        is_active tinyint(1) DEFAULT 1,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY  (id),
+        UNIQUE KEY unique_classroom_name (name)
+    ) $charset_collate;";
+
+dbDelta( $sql_classrooms );
+
+        // Add classroom_id to courses table if not exists
+        $course_columns = $wpdb->get_results("SHOW COLUMNS FROM $courses_table", ARRAY_A);
+        $existing_course_columns = array_column($course_columns, 'Field');
+
+        if ( ! in_array('classroom_id', $existing_course_columns) ) {
+            $wpdb->query("ALTER TABLE $courses_table ADD classroom_id mediumint(9) DEFAULT NULL AFTER teacher_id");
+            $wpdb->query("ALTER TABLE $courses_table ADD KEY classroom_id (classroom_id)");
+        }
+
 
     // --- Create Enrollments Table ---
     $sql_enrollments = "CREATE TABLE $enrollments_table (
