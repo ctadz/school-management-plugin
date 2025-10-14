@@ -244,10 +244,83 @@ function sm_activate_plugin() {
         KEY payment_status (payment_status)
     ) $charset_collate;";
 
-    dbDelta( $sql_enrollments );
+dbDelta( $sql_enrollments );
+
+    // Add payment_plan column to enrollments if not exists
+    $enrollment_columns = $wpdb->get_results("SHOW COLUMNS FROM $enrollments_table", ARRAY_A);
+    $existing_enrollment_columns = array_column($enrollment_columns, 'Field');
+    
+    if ( ! in_array('payment_plan', $existing_enrollment_columns) ) {
+        $wpdb->query("ALTER TABLE $enrollments_table ADD payment_plan varchar(20) DEFAULT 'monthly' AFTER payment_status");
+    }
+
+    // --- Create Enrollment Fees Table ---
+    $enrollment_fees_table = $wpdb->prefix . 'sm_enrollment_fees';
+    $sql_enrollment_fees = "CREATE TABLE $enrollment_fees_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        enrollment_id mediumint(9) NOT NULL,
+        fee_type varchar(20) NOT NULL,
+        amount decimal(10,2) NOT NULL,
+        status varchar(20) DEFAULT 'unpaid',
+        due_date date NOT NULL,
+        paid_date date DEFAULT NULL,
+        notes text,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY  (id),
+        KEY enrollment_id (enrollment_id),
+        KEY fee_type (fee_type),
+        KEY status (status)
+    ) $charset_collate;";
+
+    dbDelta( $sql_enrollment_fees );
+
+    // --- Create Payment Schedules Table ---
+    $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+    $sql_payment_schedules = "CREATE TABLE $payment_schedules_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        enrollment_id mediumint(9) NOT NULL,
+        installment_number int NOT NULL,
+        expected_amount decimal(10,2) NOT NULL,
+        due_date date NOT NULL,
+        status varchar(20) DEFAULT 'pending',
+        paid_amount decimal(10,2) DEFAULT 0,
+        paid_date date DEFAULT NULL,
+        notes text,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id),
+        KEY enrollment_id (enrollment_id),
+        KEY due_date (due_date),
+        KEY status (status)
+    ) $charset_collate;";
+
+    dbDelta( $sql_payment_schedules );
+
+    // --- Create Payments Table ---
+    $payments_table = $wpdb->prefix . 'sm_payments';
+    $sql_payments = "CREATE TABLE $payments_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        enrollment_id mediumint(9) NOT NULL,
+        payment_type varchar(20) NOT NULL,
+        reference_id mediumint(9) DEFAULT NULL,
+        amount decimal(10,2) NOT NULL,
+        payment_date date NOT NULL,
+        payment_method varchar(50) DEFAULT NULL,
+        reference_number varchar(100) DEFAULT NULL,
+        notes text,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY  (id),
+        KEY enrollment_id (enrollment_id),
+        KEY payment_type (payment_type),
+        KEY reference_id (reference_id),
+        KEY payment_date (payment_date)
+    ) $charset_collate;";
+
+    dbDelta( $sql_payments );
 
     error_log('✅ School Management plugin activated. All tables created or updated successfully.');
 }
+
 
 /**
  * Plugin deactivation hook

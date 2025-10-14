@@ -39,21 +39,33 @@ class SM_Levels_Page {
         }
 
         // Handle form submission
-        if ( isset( $_POST['sm_save_level'] ) && check_admin_referer( 'sm_save_level_action', 'sm_save_level_nonce' ) ) {
+        if ( ( isset( $_POST['sm_save_level'] ) || isset( $_POST['sm_save_and_new'] ) ) && check_admin_referer( 'sm_save_level_action', 'sm_save_level_nonce' ) ) {
             $validation_result = self::validate_level_data( $_POST );
-            
+    
             if ( $validation_result['success'] ) {
                 $data = $validation_result['data'];
-                
+                $save_and_new = isset( $_POST['sm_save_and_new'] );
+        
                 if ( ! empty( $_POST['level_id'] ) ) {
+                    // Edit mode
                     $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['level_id'] ) ] );
                     if ( $updated !== false ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Level updated successfully.', 'school-management' ) . '</p></div>';
+                        echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-levels"; }, 1500);</script>';
                     }
                 } else {
+                    // Add mode
                     $inserted = $wpdb->insert( $table, $data );
                     if ( $inserted ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Level added successfully.', 'school-management' ) . '</p></div>';
+                
+                        if ( $save_and_new ) {
+                            // Redirect to add new level page
+                            echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-levels&action=add"; }, 1500);</script>';
+                        } else {
+                            // Redirect to levels list
+                            echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-levels"; }, 1500);</script>';
+                        }
                     }
                 }
             } else {
@@ -299,12 +311,28 @@ class SM_Levels_Page {
             </table>
 
             <p class="submit">
-                <?php submit_button( 
-                    $is_edit ? __( 'Update Level', 'school-management' ) : __( 'Add Level', 'school-management' ), 
-                    'primary', 
-                    'sm_save_level', 
-                    false 
-                ); ?>
+                <?php if ( $is_edit ) : ?>
+                    <?php submit_button( 
+                        __( 'Update Level', 'school-management' ), 
+                        'primary', 
+                        'sm_save_level', 
+                        false 
+                    ); ?>
+                <?php else : ?>
+                    <?php submit_button( 
+                        __( 'Save & Exit', 'school-management' ), 
+                        'primary', 
+                        'sm_save_level', 
+                        false 
+                    ); ?>
+                    <?php submit_button( 
+                        __( 'Save & Add New', 'school-management' ), 
+                        'secondary', 
+                        'sm_save_and_new', 
+                        false,
+                        [ 'style' => 'margin-left: 5px;' ]
+                    ); ?>
+                <?php endif; ?>
                 <a href="?page=school-management-levels" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'school-management' ); ?></a>
             </p>
         </form>
