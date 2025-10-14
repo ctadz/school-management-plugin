@@ -58,6 +58,16 @@ class SM_Admin_Menu {
             [ 'SM_Courses_Page', 'render_courses_page' ]
         );
 
+        // Classrooms submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Classrooms', 'school-management' ),
+            __( 'Classrooms', 'school-management' ),
+            'manage_options',
+            'school-management-classrooms',
+            [ 'SM_Classrooms_Page', 'render_classrooms_page' ]
+        );
+
         // Enrollments submenu
         add_submenu_page(
             'school-management',
