@@ -10,7 +10,8 @@ class SM_Admin_Menu {
      * Initialize hooks
      */
     public static function init() {
-        add_action( 'admin_menu', [ __CLASS__, 'add_menus' ] );
+        add_action( 'admin_menu', [ __CLASS__, 'add_menus' ], 10 );
+        add_action( 'admin_menu', [ __CLASS__, 'add_settings_menu' ], 100 ); // Very late priority
     }
 
     /**
@@ -117,8 +118,12 @@ class SM_Admin_Menu {
             'school-management-payment-terms',
             [ 'SM_Payment_Terms_Page', 'render_payment_terms_page' ]
         );
+    }
 
-        // Settings submenu
+        /**
+     * Add settings menu last (runs after calendar add-on menus)
+     */
+    public static function add_settings_menu() {
         add_submenu_page(
             'school-management',
             __( 'Settings', 'school-management' ),
