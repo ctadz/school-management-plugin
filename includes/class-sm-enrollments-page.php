@@ -136,6 +136,11 @@ class SM_Enrollments_Page {
      * Render the Enrollments page
      */
     public static function render_enrollments_page() {
+        // Security check
+        if ( ! current_user_can( 'manage_enrollments' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+        }
+        
         global $wpdb;
         $table = $wpdb->prefix . 'sm_enrollments';
 

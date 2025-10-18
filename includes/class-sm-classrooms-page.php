@@ -10,6 +10,11 @@ class SM_Classrooms_Page {
      * Render the Classrooms page
      */
     public static function render_classrooms_page() {
+        // Security check
+        if ( ! current_user_can( 'manage_classrooms' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+        }
+
         global $wpdb;
         $table = $wpdb->prefix . 'sm_classrooms';
 

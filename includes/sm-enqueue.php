@@ -20,6 +20,7 @@ class SM_Enqueue {
             'school-management_page_school-management-teachers',       // Teachers
             'school-management_page_school-management-courses',        // Courses
             'school-management_page_school-management-enrollments',    // Enrollments
+            'school-management_page_school-management-payments',       // Payments 
             'school-management_page_school-management-settings',       // Settings
         ];
 

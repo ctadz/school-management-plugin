@@ -10,6 +10,11 @@ class SM_Payment_Terms_Page {
      * Render the Payment Terms page
      */
     public static function render_payment_terms_page() {
+        // Security check
+        if ( ! current_user_can( 'manage_payments' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+        }
+
         global $wpdb;
         $table = $wpdb->prefix . 'sm_payment_terms';
 
