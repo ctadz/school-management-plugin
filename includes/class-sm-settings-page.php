@@ -154,6 +154,11 @@ class SM_Settings_Page {
 
     // Render the settings page
     public static function render_settings_page() {
+        // Security check - Settings ONLY for Site Administrators
+        if ( ! current_user_can( 'manage_school_settings' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+        }
+
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'School Management Settings', 'school-management' ); ?></h1>

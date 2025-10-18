@@ -4,6 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Load roles management
+require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
+
+// Load admin redirect and cleanup
+require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-redirect.php';
+
 // Load Admin Menu
 require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-menu.php';
 

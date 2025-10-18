@@ -10,6 +10,11 @@ class SM_Payments_Page {
      * Render the Payments page
      */
     public static function render_payments_page() {
+        // Security check
+        if ( ! current_user_can( 'manage_payments' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+        }
+
         global $wpdb;
 
         // Determine view
