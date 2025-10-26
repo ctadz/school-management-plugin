@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class SM_Courses_Page {
-
     /**
      * Render the Courses page
      */
@@ -742,15 +741,7 @@ class SM_Courses_Page {
                     }
                 });
 
-                // Remove file button
-                $('.sm-remove-file').on('click', function() {
-                    if (confirm('<?php esc_html_e( 'Are you sure you want to remove this file?', 'school-management' ); ?>')) {
-                        var targetId = $(this).data('target');
-                        $('#' + targetId).val('');
-                        location.reload(); // Reload to update the UI
-                    }
-                });
-            });
+           });
             </script>
 
         </form>

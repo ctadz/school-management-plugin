@@ -10,22 +10,32 @@ class SM_Enqueue {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
     }
 
-    public function enqueue_admin_assets( $hook ) {
-        // Define our plugin pages - more precise hook checking
-        $plugin_pages = [
-            'toplevel_page_school-management',                         // Dashboard
-            'school-management_page_school-management-students',       // Students
-            'school-management_page_school-management-levels',         // Levels
-            'school-management_page_school-management-payment-terms',  // Payment Terms
-            'school-management_page_school-management-teachers',       // Teachers
-            'school-management_page_school-management-courses',        // Courses
-            'school-management_page_school-management-enrollments',    // Enrollments
-            'school-management_page_school-management-payments',       // Payments 
-            'school-management_page_school-management-settings',       // Settings
+public function enqueue_admin_assets( $hook ) {
+        // List of our page slugs (these don't change with translation)
+        $our_pages = [
+            'school-management',           // Main dashboard
+            'school-management-students',
+            'school-management-courses',
+            'school-management-teachers',
+            'school-management-levels',
+            'school-management-classrooms',
+            'school-management-enrollments',
+            'school-management-payment-terms',
+            'school-management-payments',
+            'school-management-settings',
         ];
-
-        // Load only on our plugin pages
-        if ( ! in_array( $hook, $plugin_pages ) ) {
+        
+        // Check if current hook contains any of our page slugs
+        $is_our_page = false;
+        foreach ( $our_pages as $page_slug ) {
+            if ( strpos( $hook, $page_slug ) !== false ) {
+                $is_our_page = true;
+                break;
+            }
+        }
+        
+        // Not our page, don't load assets
+        if ( ! $is_our_page ) {
             return;
         }
 
@@ -37,7 +47,7 @@ class SM_Enqueue {
             'sm-admin-js',
             SM_PLUGIN_URL . 'assets/js/sm-admin.js',
             [ 'jquery' ],
-            '1.0.2', // Increment version
+            '1.0.3', // Incremented version
             true
         );
 
@@ -61,7 +71,7 @@ class SM_Enqueue {
             'sm-admin-css',
             SM_PLUGIN_URL . 'assets/css/sm-admin.css',
             [],
-            '1.0.2' // Increment version
+            '1.0.3' // Incremented version
         );
     }
 }
