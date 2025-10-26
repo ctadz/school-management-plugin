@@ -40,5 +40,8 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-enrollments-page.php';
 // Load Payments Page
 require_once SM_PLUGIN_DIR . 'includes/class-sm-payments-page.php';
 
+// Load Payment Sync
+require_once SM_PLUGIN_DIR . 'includes/class-sm-payment-sync.php';
+
 // Load Enqueue scripts
 require_once SM_PLUGIN_DIR . 'includes/sm-enqueue.php';
