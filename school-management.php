@@ -3,12 +3,12 @@
 Plugin Name: School Management
 Plugin URI:  https://github.com/ahmedsebaa/school-management-plugin
 Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
-Version:     0.4.0
+Version:     0.4.2
 Author:      Ahmed Sebaa
 Author URI:  https://github.com/ahmedsebaa
 License:     GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: school-management
+Text Domain: CTADZ-school-management
 Domain Path: /languages
 */
 
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants.
 define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SM_VERSION', '0.4.0' );
+define( 'SM_VERSION', '0.4.2' );
 
 // Include the loader file.
 require_once SM_PLUGIN_DIR . 'includes/sm-loader.php';
@@ -230,6 +230,27 @@ function sm_activate_plugin() {
         if ( ! in_array('certification_other', $existing_course_columns) ) {
             $wpdb->query("ALTER TABLE $courses_table ADD certification_other varchar(255) DEFAULT NULL AFTER certification_type");
         }
+        // ========================================
+        // PAYMENT MODEL COLUMN MIGRATION (v0.4.1)
+        // ========================================
+        // Fix: Rename payment_models (plural) to payment_model (singular)
+        // This ensures consistency with the payment model connection system
+        
+        // Check if we have the wrong column name (payment_models - plural)
+        if ( in_array('payment_models', $existing_course_columns) ) {
+            // Rename payment_models to payment_model (preserve existing data)
+            $wpdb->query("ALTER TABLE $courses_table CHANGE payment_models payment_model VARCHAR(50) DEFAULT 'monthly_installments'");
+            error_log('✅ SM Migration: Renamed payment_models to payment_model in courses table');
+        }
+        // If neither exists, add the correct column
+        elseif ( ! in_array('payment_model', $existing_course_columns) ) {
+            // Add payment_model column for flexible payment options
+            $wpdb->query("ALTER TABLE $courses_table ADD payment_model VARCHAR(50) DEFAULT 'monthly_installments' AFTER total_price");
+            error_log('✅ SM Migration: Added payment_model column to courses table');
+        }
+        
+        // Ensure all existing courses have a payment_model value
+        $wpdb->query("UPDATE $courses_table SET payment_model = 'monthly_installments' WHERE payment_model IS NULL OR payment_model = ''");
 
     // --- Create Classrooms Table ---
     $sql_classrooms = "CREATE TABLE $classrooms_table (

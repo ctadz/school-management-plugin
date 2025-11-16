@@ -109,7 +109,23 @@ class SM_Courses_Page {
         $certification_other = sanitize_text_field( trim( $post_data['certification_other'] ?? '' ) );
         $is_active = isset( $post_data['is_active'] ) ? 1 : 0;
         $course_id = intval( $post_data['course_id'] ?? 0 );
-
+        
+        // Sanitize payment models (checkboxes acting as exclusive selection)
+        $payment_model = '';
+        if ( ! empty( $post_data['payment_models'] ) && is_array( $post_data['payment_models'] ) ) {
+            // Take the first (and should be only) selected model
+            $selected = sanitize_text_field( $post_data['payment_models'][0] );
+            $valid_models = [ 'full_payment', 'monthly_installments', 'monthly_subscription' ];
+            if ( in_array( $selected, $valid_models ) ) {
+                $payment_model = $selected;
+            }
+        }
+        
+        // Set default if nothing selected
+        if ( empty( $payment_model ) ) {
+            $payment_model = 'monthly_installments';
+        }        
+        
         // Required field validation
         if ( empty( $name ) ) {
             $errors[] = __( 'Course name is required.', 'school-management' );
@@ -155,6 +171,11 @@ class SM_Courses_Page {
 
         if ( $total_price <= 0 ) {
             $errors[] = __( 'Total price is required.', 'school-management' );
+        }
+        
+        // Validate payment models
+        if ( empty( $payment_model ) ) {
+            $errors[] = __( 'Please select a payment model.', 'CTADZ-school-management' );
         }
 
         // Check for duplicate course name
@@ -215,6 +236,7 @@ class SM_Courses_Page {
                     'total_months' => $total_months,
                     'price_per_month' => $price_per_month,
                     'total_price' => $total_price,
+                    'payment_model' => $payment_model,
                     'certification_type' => $certification_type ?: null,
                     'certification_other' => $certification_other ?: null,
                     'status' => $status,
@@ -234,38 +256,85 @@ class SM_Courses_Page {
         $courses_table = $wpdb->prefix . 'sm_courses';
         $levels_table = $wpdb->prefix . 'sm_levels';
         $teachers_table = $wpdb->prefix . 'sm_teachers';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+
+        // Get filter parameter
+        $filter_payment_model = isset( $_GET['filter_payment_model'] ) ? sanitize_text_field( $_GET['filter_payment_model'] ) : '';
 
         // Pagination
         $per_page = 20;
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        $total_courses = $wpdb->get_var( "SELECT COUNT(*) FROM $courses_table" );
+        // Build WHERE clause for filtering
+        $where_clause = '';
+        if ( ! empty( $filter_payment_model ) ) {
+            $where_clause = $wpdb->prepare( "WHERE c.payment_model = %s", $filter_payment_model );
+        }
+
+        // Get total courses count (with filter applied)
+        $total_courses = $wpdb->get_var( "SELECT COUNT(*) FROM $courses_table c $where_clause" );
         $total_pages = ceil( $total_courses / $per_page );
 
-        // Get courses with level, teacher, and classroom names
-        $courses = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT c.*, 
-                    l.name as level_name, 
-                    CONCAT(t.first_name, ' ', t.last_name) as teacher_name,
-                    cr.name as classroom_name
-             FROM $courses_table c 
-             LEFT JOIN $levels_table l ON c.level_id = l.id 
-             LEFT JOIN $teachers_table t ON c.teacher_id = t.id 
-             LEFT JOIN {$wpdb->prefix}sm_classrooms cr ON c.classroom_id = cr.id
-             ORDER BY c.name ASC 
-             LIMIT %d OFFSET %d", 
-            $per_page, 
-            $offset 
-        ) );
+        // Get courses with level, teacher, classroom names, and enrollment count
+        $query = "
+            SELECT c.*, 
+                   l.name as level_name, 
+                   CONCAT(t.first_name, ' ', t.last_name) as teacher_name,
+                   cr.name as classroom_name,
+                   COUNT(DISTINCT e.id) as enrollment_count
+            FROM $courses_table c 
+            LEFT JOIN $levels_table l ON c.level_id = l.id 
+            LEFT JOIN $teachers_table t ON c.teacher_id = t.id 
+            LEFT JOIN {$wpdb->prefix}sm_classrooms cr ON c.classroom_id = cr.id
+            LEFT JOIN $enrollments_table e ON c.id = e.course_id AND e.status != 'cancelled'
+            $where_clause
+            GROUP BY c.id
+            ORDER BY c.name ASC 
+            LIMIT %d OFFSET %d
+        ";
+        
+        $courses = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
  
         ?>
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Courses List', 'school-management' ); ?></h2>
-                <p class="description"><?php printf( esc_html__( 'Total: %d courses', 'school-management' ), $total_courses ); ?></p>
+                <p class="description">
+                    <?php 
+                    if ( ! empty( $filter_payment_model ) ) {
+                        $filter_labels = [
+                            'full_payment' => __( 'Full Payment', 'school-management' ),
+                            'monthly_installments' => __( 'Monthly Installments', 'school-management' ),
+                            'monthly_subscription' => __( 'Monthly Subscription', 'school-management' ),
+                        ];
+                        printf( 
+                            esc_html__( 'Showing %d courses with payment model: %s', 'school-management' ), 
+                            $total_courses,
+                            '<strong>' . esc_html( $filter_labels[ $filter_payment_model ] ?? $filter_payment_model ) . '</strong>'
+                        );
+                        echo ' <a href="?page=school-management-courses" style="margin-left: 10px;">' . esc_html__( '[Clear filter]', 'school-management' ) . '</a>';
+                    } else {
+                        printf( esc_html__( 'Total: %d courses', 'school-management' ), $total_courses );
+                    }
+                    ?>
+                </p>
             </div>
-            <div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <!-- Payment Model Filter -->
+                <select id="filter_payment_model" onchange="window.location.href='?page=school-management-courses&filter_payment_model=' + this.value;">
+                    <option value=""><?php esc_html_e( 'All Payment Models', 'school-management' ); ?></option>
+                    <option value="full_payment" <?php selected( $filter_payment_model, 'full_payment' ); ?>>
+                        <?php esc_html_e( 'Full Payment', 'school-management' ); ?>
+                    </option>
+                    <option value="monthly_installments" <?php selected( $filter_payment_model, 'monthly_installments' ); ?>>
+                        <?php esc_html_e( 'Monthly Installments', 'school-management' ); ?>
+                    </option>
+                    <option value="monthly_subscription" <?php selected( $filter_payment_model, 'monthly_subscription' ); ?>>
+                        <?php esc_html_e( 'Monthly Subscription', 'school-management' ); ?>
+                    </option>
+                </select>
+                
                 <a href="?page=school-management-courses&action=add" class="button button-primary">
                     <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
                     <?php esc_html_e( 'Add New Course', 'school-management' ); ?>
@@ -281,9 +350,10 @@ class SM_Courses_Page {
                         <th><?php esc_html_e( 'Language', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Level', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Teacher', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Classroom', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Duration', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Payment Model', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Price/Month', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Enrollments', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Status', 'school-management' ); ?></th>
                         <th style="width: 150px;"><?php esc_html_e( 'Actions', 'school-management' ); ?></th>
                     </tr>
@@ -295,9 +365,50 @@ class SM_Courses_Page {
                             <td><?php echo esc_html( $course->language ); ?></td>
                             <td><?php echo esc_html( $course->level_name ?: '—' ); ?></td>
                             <td><?php echo esc_html( $course->teacher_name ?: '—' ); ?></td>
-                            <td><?php echo esc_html( $course->classroom_name ?: '—' ); ?></td>
                             <td><?php echo esc_html( $course->total_weeks . ' ' . __( 'weeks', 'school-management' ) ); ?></td>
+                            <td>
+                                <?php
+                                // Payment model display with icons and colors
+                                $payment_model_display = [
+                                    'full_payment' => [
+                                        'label' => __( 'Full Payment', 'school-management' ),
+                                        'icon' => 'dashicons-money-alt',
+                                        'color' => '#46b450',
+                                        'bg' => '#ecf7ed',
+                                    ],
+                                    'monthly_installments' => [
+                                        'label' => __( 'Installments', 'school-management' ),
+                                        'icon' => 'dashicons-calendar-alt',
+                                        'color' => '#00a0d2',
+                                        'bg' => '#e5f5fa',
+                                    ],
+                                    'monthly_subscription' => [
+                                        'label' => __( 'Subscription', 'school-management' ),
+                                        'icon' => 'dashicons-update',
+                                        'color' => '#f0ad4e',
+                                        'bg' => '#fef8e7',
+                                    ],
+                                ];
+                                
+                                $model = $course->payment_model ?? 'monthly_installments';
+                                $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
+                                ?>
+                                <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: <?php echo esc_attr( $display['bg'] ); ?>; border-radius: 4px; font-size: 12px;">
+                                    <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>" style="font-size: 14px; color: <?php echo esc_attr( $display['color'] ); ?>; margin-right: 5px;"></span>
+                                    <strong style="color: <?php echo esc_attr( $display['color'] ); ?>;"><?php echo esc_html( $display['label'] ); ?></strong>
+                                </span>
+                            </td>
                             <td><?php echo esc_html( number_format( $course->price_per_month, 2 ) ); ?></td>
+                            <td>
+                                <?php
+                                $count = intval( $course->enrollment_count );
+                                if ( $count > 0 ) {
+                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'student', 'students', $count, 'school-management' ) ) . '</span>';
+                                } else {
+                                    echo '<span style="color: #999;">' . esc_html__( 'No enrollments', 'school-management' ) . '</span>';
+                                }
+                                ?>
+                            </td>
                             <td>
                                 <?php
                                 $status_colors = [
@@ -341,8 +452,13 @@ class SM_Courses_Page {
             <?php
             // Pagination
             if ( $total_pages > 1 ) {
+                $base_url = remove_query_arg( 'paged' );
+                if ( ! empty( $filter_payment_model ) ) {
+                    $base_url = add_query_arg( 'filter_payment_model', $filter_payment_model, $base_url );
+                }
+                
                 $pagination_args = [
-                    'base' => add_query_arg( 'paged', '%#%' ),
+                    'base' => add_query_arg( 'paged', '%#%', $base_url ),
                     'format' => '',
                     'prev_text' => __( '« Previous', 'school-management' ),
                     'next_text' => __( 'Next »', 'school-management' ),
@@ -358,11 +474,22 @@ class SM_Courses_Page {
         <?php else : ?>
             <div class="sm-empty-state" style="text-align: center; padding: 60px 20px; background: #fafafa; border: 1px dashed #ddd; border-radius: 4px;">
                 <span class="dashicons dashicons-book" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 16px;"></span>
-                <h3><?php esc_html_e( 'No Courses Yet', 'school-management' ); ?></h3>
-                <p><?php esc_html_e( 'Create your first course to get started.', 'school-management' ); ?></p>
-                <a href="?page=school-management-courses&action=add" class="button button-primary">
-                    <?php esc_html_e( 'Add First Course', 'school-management' ); ?>
-                </a>
+                <h3><?php esc_html_e( 'No Courses Found', 'school-management' ); ?></h3>
+                <p>
+                    <?php 
+                    if ( ! empty( $filter_payment_model ) ) {
+                        esc_html_e( 'No courses match the selected payment model filter.', 'school-management' );
+                        echo '<br><a href="?page=school-management-courses">' . esc_html__( 'View all courses', 'school-management' ) . '</a>';
+                    } else {
+                        esc_html_e( 'Create your first course to get started.', 'school-management' );
+                    }
+                    ?>
+                </p>
+                <?php if ( empty( $filter_payment_model ) ) : ?>
+                    <a href="?page=school-management-courses&action=add" class="button button-primary">
+                        <?php esc_html_e( 'Add First Course', 'school-management' ); ?>
+                    </a>
+                <?php endif; ?>
             </div>
         <?php endif;
     }
@@ -400,6 +527,7 @@ class SM_Courses_Page {
                 'certification_other' => sanitize_text_field( $_POST['certification_other'] ?? '' ),
                 'status' => sanitize_text_field( $_POST['status'] ?? 'upcoming' ),
                 'is_active' => isset( $_POST['is_active'] ),
+                'payment_model' => isset( $_POST['payment_models'] ) && is_array( $_POST['payment_models'] ) ? $_POST['payment_models'][0] : 'monthly_installments',
             ];
         } elseif ( $course ) {
             $form_data = [
@@ -421,6 +549,7 @@ class SM_Courses_Page {
                 'certification_other' => $course->certification_other,
                 'status' => $course->status,
                 'is_active' => $course->is_active,
+                'payment_model' => $course->payment_model ?? 'monthly_installments',
             ];
         }
         
@@ -636,9 +765,56 @@ class SM_Courses_Page {
 
             <h3><?php esc_html_e( 'Pricing', 'school-management' ); ?></h3>
             <table class="form-table">
+                <!-- PAYMENT MODELS - FIRST! -->
                 <tr>
                     <th scope="row">
-                        <label for="course_price_per_month"><?php esc_html_e( 'Price Per Month', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label><?php esc_html_e( 'Payment Models', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                    </th>
+                    <td>
+                        <?php
+                        // Get existing payment models (comma-separated string)
+                        $existing_models = isset( $form_data['payment_model'] ) ? [ $form_data['payment_model'] ] : ['monthly_installments'];
+                        $existing_models = array_map( 'trim', $existing_models );
+                        ?>
+                        
+                        <fieldset>
+                            <legend class="screen-reader-text"><?php esc_html_e( 'Select available payment models', 'CTADZ-school-management' ); ?></legend>
+                            
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" name="payment_models[]" value="full_payment" <?php checked( in_array( 'full_payment', $existing_models ) ); ?> />
+                                <strong><?php esc_html_e( 'Full Payment', 'CTADZ-school-management' ); ?></strong>
+                                <span style="color: #666; display: block; margin-left: 25px;">
+                                    <?php esc_html_e( 'Student pays entire course price upfront in one payment', 'CTADZ-school-management' ); ?>
+                                </span>
+                            </label>
+                            
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" name="payment_models[]" value="monthly_installments" <?php checked( in_array( 'monthly_installments', $existing_models ) ); ?> />
+                                <strong><?php esc_html_e( 'Monthly Installments', 'CTADZ-school-management' ); ?></strong>
+                                <span style="color: #666; display: block; margin-left: 25px;">
+                                    <?php esc_html_e( 'Student commits to full course duration, pays monthly on anniversary date (mandatory)', 'CTADZ-school-management' ); ?>
+                                </span>
+                            </label>
+                            
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" name="payment_models[]" value="monthly_subscription" <?php checked( in_array( 'monthly_subscription', $existing_models ) ); ?> />
+                                <strong><?php esc_html_e( 'Monthly Subscription', 'CTADZ-school-management' ); ?></strong>
+                                <span style="color: #666; display: block; margin-left: 25px;">
+                                    <?php esc_html_e( 'Ongoing monthly payments, student can stop anytime (flexible, no commitment)', 'CTADZ-school-management' ); ?>
+                                </span>
+                            </label>
+                        </fieldset>
+                        
+                        <p class="description" style="margin-top: 10px;">
+                            <strong><?php esc_html_e( 'Select payment model(s) first - fields below will adjust accordingly.', 'CTADZ-school-management' ); ?></strong>
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- PRICE PER MONTH - Always visible -->
+                <tr>
+                    <th scope="row">
+                        <label for="course_price_per_month"><?php esc_html_e( 'Price Per Month', 'school-management' ); ?> <span class="sm-required-star" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_price_per_month" name="price_per_month" value="<?php echo esc_attr( $form_data['price_per_month'] ?? 0 ); ?>" min="0" step="0.01" required />
@@ -646,13 +822,14 @@ class SM_Courses_Page {
                     </td>
                 </tr>
 
-                <tr>
+                <!-- TOTAL COURSE PRICE - Hidden for subscription-only -->
+                <tr id="total_price_row">
                     <th scope="row">
-                        <label for="course_total_price"><?php esc_html_e( 'Total Course Price', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_total_price"><?php esc_html_e( 'Total Course Price', 'school-management' ); ?> <span class="sm-required-star" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_total_price" name="total_price" value="<?php echo esc_attr( $form_data['total_price'] ?? 0 ); ?>" min="0" step="0.01" required />
-                        <p class="description"><?php esc_html_e( 'Total price for the entire course duration.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Total price for the entire course duration (for full payment or installments).', 'school-management' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -728,23 +905,130 @@ class SM_Courses_Page {
             <p class="description">
                 <span style="color: #d63638;">*</span> <?php esc_html_e( 'Required fields', 'school-management' ); ?>
             </p>
-            <script>
-            jQuery(document).ready(function($) {
-                // Certification type toggle
-                $('#course_certification_type').on('change', function() {
-                    if ($(this).val() === 'other') {
-                        $('#certification_other_row').show();
-                        $('#course_certification_other').attr('required', true);
-                    } else {
-                        $('#certification_other_row').hide();
-                        $('#course_certification_other').attr('required', false);
-                    }
-                });
-
-           });
-            </script>
 
         </form>
+
+        <script>
+        jQuery(document).ready(function($) {
+            console.log('Payment models JS loaded!');
+            console.log('Checkboxes found:', $('input[name="payment_models[]"]').length);
+            
+            // Get elements
+            var $paymentCheckboxes = $('input[name="payment_models[]"]');
+            var $totalMonthsRow = $('#course_total_months').closest('tr');
+            var $totalPriceRow = $('#total_price_row');
+            var $pricePerMonthRow = $('#course_price_per_month').closest('tr');
+            var $totalMonthsInput = $('#course_total_months');
+            var $totalPriceInput = $('#course_total_price');
+            var $pricePerMonthInput = $('#course_price_per_month');
+            
+            // Make checkboxes exclusive (like radio buttons)
+            $paymentCheckboxes.on('change', function() {
+                if ($(this).is(':checked')) {
+                    // Uncheck all others
+                    $paymentCheckboxes.not(this).prop('checked', false);
+                }
+                updateFieldRequirements();
+            });
+            
+            function updateFieldRequirements() {
+                // Get selected payment model (only one should be selected)
+                var selectedModel = $paymentCheckboxes.filter(':checked').val();
+                
+                if (selectedModel === 'full_payment') {
+                    // FULL PAYMENT: Show only Total Price
+                    $pricePerMonthRow.hide();
+                    $totalMonthsRow.show();
+                    $totalPriceRow.show();
+                    
+                    $pricePerMonthInput.prop('required', false);
+                    $totalMonthsInput.prop('required', true);
+                    $totalPriceInput.prop('required', true);
+                    
+                    // Set price per month = total price / months (for database consistency)
+                    var totalPrice = parseFloat($totalPriceInput.val()) || 0;
+                    var totalMonths = parseInt($totalMonthsInput.val()) || 1;
+                    if (totalMonths > 0 && totalPrice > 0) {
+                        $pricePerMonthInput.val((totalPrice / totalMonths).toFixed(2));
+                    }
+                    
+                } else if (selectedModel === 'monthly_installments') {
+                    // MONTHLY INSTALLMENTS: Show both Price Per Month AND Total Price
+                    $pricePerMonthRow.show();
+                    $totalMonthsRow.show();
+                    $totalPriceRow.show();
+                    
+                    $pricePerMonthInput.prop('required', true);
+                    $totalMonthsInput.prop('required', true);
+                    $totalPriceInput.prop('required', true);
+                    
+                } else if (selectedModel === 'monthly_subscription') {
+                    // MONTHLY SUBSCRIPTION: Show only Price Per Month
+                    $pricePerMonthRow.show();
+                    $totalMonthsRow.hide();
+                    $totalPriceRow.hide();
+                    
+                    $pricePerMonthInput.prop('required', true);
+                    $totalMonthsInput.prop('required', false);
+                    $totalPriceInput.prop('required', false);
+                    
+                    // Set defaults for hidden fields (for database)
+                    $totalMonthsInput.val(1);
+                    var monthlyPrice = parseFloat($pricePerMonthInput.val()) || 0;
+                    $totalPriceInput.val(monthlyPrice.toFixed(2));
+                    
+                } else {
+                    // Nothing selected - show all fields
+                    $pricePerMonthRow.show();
+                    $totalMonthsRow.show();
+                    $totalPriceRow.show();
+                    
+                    $pricePerMonthInput.prop('required', true);
+                    $totalMonthsInput.prop('required', true);
+                    $totalPriceInput.prop('required', true);
+                }
+            }
+            
+            // Keep total price synced for subscription
+            $pricePerMonthInput.on('input', function() {
+                var selectedModel = $paymentCheckboxes.filter(':checked').val();
+                
+                if (selectedModel === 'monthly_subscription') {
+                    var monthlyPrice = parseFloat($(this).val()) || 0;
+                    $totalPriceInput.val(monthlyPrice.toFixed(2));
+                }
+            });
+            
+            // Auto-calculate for full payment
+            $totalPriceInput.on('input', function() {
+                var selectedModel = $paymentCheckboxes.filter(':checked').val();
+                
+                if (selectedModel === 'full_payment') {
+                    var totalPrice = parseFloat($(this).val()) || 0;
+                    var totalMonths = parseInt($totalMonthsInput.val()) || 1;
+                    if (totalMonths > 0 && totalPrice > 0) {
+                        $pricePerMonthInput.val((totalPrice / totalMonths).toFixed(2));
+                    }
+                }
+            });
+            
+            $totalMonthsInput.on('input', function() {
+                var selectedModel = $paymentCheckboxes.filter(':checked').val();
+                
+                if (selectedModel === 'full_payment') {
+                    var totalPrice = parseFloat($totalPriceInput.val()) || 0;
+                    var totalMonths = parseInt($(this).val()) || 1;
+                    if (totalMonths > 0 && totalPrice > 0) {
+                        $pricePerMonthInput.val((totalPrice / totalMonths).toFixed(2));
+                    }
+                }
+            });
+            
+            // Run on page load
+            updateFieldRequirements();
+        });
+        </script>
+
         <?php
     }
 }
