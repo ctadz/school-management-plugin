@@ -1,9 +1,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: School Management 0.4.0\n"
+"Project-Id-Version: School Management 0.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/school-management\n"
-"POT-Creation-Date: 2025-10-18T12:47:55+00:00\n"
+"POT-Creation-Date: 2025-10-06T13:46:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,8 +26,8 @@ msgid ""
 "A WordPress plugin to manage students, courses, schedules, attendance, and "
 "payments for a private school."
 msgstr ""
-"Un plugin WordPress pour gérer les étudiants, les cours, les horaires, les "
-"présences et les paiements pour une école privée."
+"Un plugin WordPress pour gérer les étudiants, les cours, les horaires, la "
+"fréquentation et les paiements pour une école privée."
 
 #. Author of the plugin
 msgid "Ahmed Sebaa"
@@ -43,40 +43,26 @@ msgstr "Tableau de bord"
 msgid "Students"
 msgstr "Étudiants"
 
-msgid "Teachers"
-msgstr "Enseignants"
-
 msgid "Courses"
 msgstr "Cours"
+
+msgid "Enrollments"
+msgstr "Inscription"
+
+msgid "Teachers"
+msgstr "Enseignants"
 
 msgid "Levels"
 msgstr "Niveaux"
 
-msgid "Classrooms"
-msgstr "Salles de classe"
-
-msgid "Enrollments"
-msgstr "Inscriptions"
-
 msgid "Payment Terms"
 msgstr "Conditions de paiement"
-
-msgid "Payments"
-msgstr "Paiements"
 
 msgid "Settings"
 msgstr "Paramètres"
 
-msgid "You do not have sufficient permissions to access this page."
-msgstr ""
-"Vous ne disposez pas des autorisations suffisantes pour accéder à cette "
-"page."
-
-msgid "School Management System"
-msgstr "Système de gestion scolaire"
-
-msgid "Management Dashboard"
-msgstr "Tableau de bord de gestion"
+msgid "School Management Dashboard"
+msgstr "Tableau de bord de gestion de l'école"
 
 msgid "Total Students"
 msgstr "Nombre total d'étudiants"
@@ -84,23 +70,11 @@ msgstr "Nombre total d'étudiants"
 msgid "Manage Students"
 msgstr "Gérer les étudiants"
 
-msgid "Active Teachers"
-msgstr "Enseignants actifs"
-
-msgid "Manage Teachers"
-msgstr "Gérer les enseignants"
-
 msgid "Active Courses"
 msgstr "Cours actifs"
 
 msgid "Manage Courses"
 msgstr "Gérer les cours"
-
-msgid "Course Levels"
-msgstr "Niveaux de cours"
-
-msgid "Manage Levels"
-msgstr "Gérer les niveaux"
 
 msgid "Active Enrollments"
 msgstr "Inscriptions actives"
@@ -108,41 +82,17 @@ msgstr "Inscriptions actives"
 msgid "Manage Enrollments"
 msgstr "Gérer les inscriptions"
 
-msgid "Manage Classrooms"
-msgstr "Gérer les salles de classe"
+msgid "Active Teachers"
+msgstr "Enseignants actifs"
 
-msgid "Manage Terms"
-msgstr "Gérer les conditions"
-
-msgid "Outstanding Balance"
-msgstr "Solde impayé"
-
-msgid "Manage Payments"
-msgstr "Gérer les paiements"
-
-msgid "Active Schedules"
-msgstr "Horaires actifs"
-
-msgid "Manage Schedules"
-msgstr "Gérer les horaires"
-
-msgid "Upcoming Events"
-msgstr "Événements à venir"
-
-msgid "Manage Events"
-msgstr "Gérer les événements"
-
-msgid "School Calendar"
-msgstr "Calendrier scolaire"
-
-msgid "View Calendar"
-msgstr "Voir le calendrier"
+msgid "Manage Teachers"
+msgstr "Gérer les enseignants"
 
 msgid "Quick Actions"
 msgstr "Actions rapides"
 
 msgid "Common actions to get started:"
-msgstr "Actions courantes pour commencer :"
+msgstr "Actions courantes pour commencer:"
 
 msgid "Add New Student"
 msgstr "Ajouter un nouvel étudiant"
@@ -156,171 +106,38 @@ msgstr "Nouvelle inscription"
 msgid "Add New Teacher"
 msgstr "Ajouter un nouvel enseignant"
 
-msgid "Add Classroom"
-msgstr "Ajouter une salle de classe"
-
-msgid "View Payments"
-msgstr "Afficher les paiements"
-
-msgid "Thank you for using %s"
-msgstr "Merci d'utiliser %s"
-
-msgid "Cannot delete this classroom. It is being used by %d course(s)."
-msgstr ""
-"Impossible de supprimer cette classe. Il est utilisé par le(s) cours %d."
-
-msgid "Classroom deleted successfully."
-msgstr "Salle de classe supprimée avec succès."
-
-msgid "Classroom updated successfully."
-msgstr "La salle de classe a été mise à jour avec succès."
-
-msgid "Classroom added successfully."
-msgstr "Salle de classe ajoutée avec succès."
-
-msgid "Please correct the following errors:"
-msgstr "Veuillez corriger les erreurs suivantes :"
-
-msgid "Classroom name is required."
-msgstr "Le nom de la classe est obligatoire."
-
-msgid "Classroom name must be at least 2 characters long."
-msgstr "Le nom de la classe doit comporter au moins 2 caractères."
-
-msgid "Capacity cannot be negative."
-msgstr "La capacité ne peut pas être négative."
-
-msgid "A classroom with the name \"%s\" already exists."
-msgstr "Une salle de classe portant le nom « %s » existe déjà."
-
-msgid "Classrooms List"
-msgstr "Liste des salles de classe"
-
-msgid "Total: %d classrooms"
-msgstr "Total : %d salles de classe"
-
-msgid "Add New Classroom"
-msgstr "Ajouter une nouvelle salle de classe"
-
-msgid "Classroom Name"
-msgstr "Nom de la classe"
-
-msgid "Capacity"
-msgstr "Capacité"
-
-msgid "Location"
-msgstr "Emplacement"
-
-msgid "Status"
-msgstr "Statut"
-
-msgid "Actions"
-msgstr "Actes"
-
-msgid "students"
-msgstr "étudiants"
-
-msgid "course(s)"
-msgstr "cours"
-
-msgid "Active"
-msgstr "Actif"
-
-msgid "Inactive"
-msgstr "Inactif"
-
-msgid "Are you sure you want to delete this classroom?"
-msgstr "Êtes-vous sûr de vouloir supprimer cette classe ?"
-
-msgid "« Previous"
-msgstr "\" Précédent"
-
-msgid "Next »"
-msgstr "Suivant \""
-
-msgid "No Classrooms Yet"
-msgstr "Pas encore de salles de classe"
-
-msgid "Add classrooms to assign courses to physical locations."
-msgstr ""
-"Ajoutez des salles de classe pour attribuer des cours à des emplacements "
-"physiques."
-
-msgid "Add First Classroom"
-msgstr "Ajouter une première salle de classe"
-
-msgid "Back to Classrooms"
-msgstr "Retour aux salles de classe"
-
-msgid "Edit Classroom"
-msgstr "Modifier la salle de classe"
-
-msgid "E.g., Room 101, Lab A, Auditorium"
-msgstr "Par exemple, salle 101, laboratoire A, auditorium"
-
-msgid "Maximum number of students this classroom can accommodate."
-msgstr "Nombre maximum d'élèves que cette classe peut accueillir."
-
-msgid "Location/Building"
-msgstr "Emplacement/Bâtiment"
-
-msgid "E.g., Building A - Floor 2, Main Campus"
-msgstr "Par exemple, bâtiment A – étage 2, campus principal"
-
-msgid "Facilities/Equipment"
-msgstr "Installations/équipement"
-
-msgid "List available equipment: projector, computers, whiteboard, etc."
-msgstr ""
-"Lister le matériel disponible : projecteur, ordinateurs, tableau blanc, etc."
-
-msgid "Active (available for course assignment)"
-msgstr "Actif (disponible pour les devoirs de cours)"
-
-msgid "Update Classroom"
-msgstr "Mettre à jour la salle de classe"
-
-msgid "Save & Exit"
-msgstr "Enregistrer et quitter"
-
-msgid "Save & Add New"
-msgstr "Enregistrer et ajouter un nouveau"
-
-msgid "Cancel"
-msgstr "Annuler"
-
-msgid "Required fields"
-msgstr "Champs obligatoires"
-
 msgid "Course deleted successfully."
 msgstr "Cours supprimé avec succès."
 
 msgid "Error deleting course."
-msgstr "Erreur lors de la suppression du cours."
+msgstr "Erreur de suppression du cours."
 
 msgid "Course updated successfully."
-msgstr "Cours mis à jour avec succès."
+msgstr "Le cours mis à jour avec succès."
 
 msgid "Course added successfully."
-msgstr "Cours ajouté avec succès."
+msgstr "Le cours a ajouté avec succès."
+
+msgid "Please correct the following errors:"
+msgstr "Veuillez corriger les erreurs suivantes:"
 
 msgid "Course name is required."
-msgstr "Le nom du cours est obligatoire."
+msgstr "Le nom du cours est requis."
 
 msgid "Course name must be at least 3 characters long."
-msgstr "Le nom du cours doit comporter au moins 3 caractères."
+msgstr "Le nom de cours doit comporter au moins 3 caractères."
 
 msgid "Course description is required."
-msgstr "Une description du cours est requise."
+msgstr "La description du cours est requise."
 
 msgid "Language is required."
 msgstr "La langue est requise."
 
 msgid "Level is required."
-msgstr "Le niveau est requis."
+msgstr "Un niveau est requis."
 
 msgid "Teacher is required."
-msgstr "Un enseignant est requis."
+msgstr "L'enseignant est requis."
 
 msgid "Session duration is required."
 msgstr "La durée de la session est requise."
@@ -329,41 +146,41 @@ msgid "Hours per week is required."
 msgstr "Des heures par semaine sont nécessaires."
 
 msgid "Total weeks is required."
-msgstr "Le nombre total de semaines est requis."
+msgstr "Des semaines totales sont nécessaires."
 
 msgid "Total months is required."
-msgstr "Le nombre total de mois est requis."
+msgstr "Des mois totaux sont nécessaires."
 
 msgid "Price per month is required."
-msgstr "Un prix par mois est requis."
+msgstr "Le prix par mois est requis."
 
 msgid "Total price is required."
 msgstr "Le prix total est requis."
 
 msgid "A course with the name \"%s\" already exists."
-msgstr "Un cours portant le nom « %s » existe déjà."
+msgstr "Un cours avec le nom \"%s\" existe déjà."
 
 msgid "Invalid course status."
-msgstr "Statut du cours invalide."
+msgstr "Statut de cours non valide."
 
 msgid "Invalid certification type."
-msgstr "Type de certification invalide."
+msgstr "Type de certification non valide."
 
 msgid "Please specify the certification name when selecting \"Other\"."
 msgstr ""
-"Veuillez préciser le nom de la certification lors de la sélection « Autre »."
+"Veuillez spécifier le nom de certification lors de la sélection \"autre\"."
 
 msgid "Please provide a valid file URL."
 msgstr "Veuillez fournir une URL de fichier valide."
 
 msgid "Courses List"
-msgstr "Liste des cours"
+msgstr "Liste de cours"
 
 msgid "Total: %d courses"
-msgstr "Total : %d cours"
+msgstr "Total: ___Format_0___ Cours"
 
 msgid "Course Name"
-msgstr "Nom du cours"
+msgstr "Nom de cours"
 
 msgid "Language"
 msgstr "Langue"
@@ -374,14 +191,17 @@ msgstr "Niveau"
 msgid "Teacher"
 msgstr "Professeur"
 
-msgid "Classroom"
-msgstr "Classe"
-
 msgid "Duration"
 msgstr "Durée"
 
 msgid "Price/Month"
-msgstr "Prix/Mois"
+msgstr "Prix ​​/ mois"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Actions"
+msgstr "Actes"
 
 msgid "weeks"
 msgstr "semaines"
@@ -395,17 +215,26 @@ msgstr "En cours"
 msgid "Completed"
 msgstr "Complété"
 
+msgid "Inactive"
+msgstr "Inactif"
+
 msgid "Are you sure you want to delete this course?"
-msgstr "Êtes-vous sûr de vouloir supprimer ce cours ?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce cours?"
+
+msgid "« Previous"
+msgstr "\" Précédent"
+
+msgid "Next »"
+msgstr "Suivant \""
 
 msgid "No Courses Yet"
-msgstr "Aucun cours pour l'instant"
+msgstr "Pas de cours encore"
 
 msgid "Create your first course to get started."
 msgstr "Créez votre premier cours pour commencer."
 
 msgid "Add First Course"
-msgstr "Ajouter un premier cours"
+msgstr "Ajouter le premier cours"
 
 msgid "Back to Courses"
 msgstr "Retour aux cours"
@@ -426,31 +255,19 @@ msgid "Brief description of the course content and objectives."
 msgstr "Brève description du contenu et des objectifs du cours."
 
 msgid "Description File (PDF)"
-msgstr "Fichier de description (PDF)"
-
-msgid "PDF Document"
-msgstr "Document PDF"
-
-msgid "View"
-msgstr "Voir"
-
-msgid "Download"
-msgstr "Télécharger"
-
-msgid "Remove"
-msgstr "Retirer"
-
-msgid "Replace PDF"
-msgstr "Remplacer le PDF"
+msgstr "Description Fichier (PDF)"
 
 msgid "Upload PDF"
-msgstr "Télécharger le PDF"
+msgstr "Télécharger PDF"
+
+msgid "View Current File"
+msgstr "Afficher le fichier actuel"
 
 msgid "Optional: Upload a detailed PDF description of the course."
-msgstr "Facultatif : Téléchargez une description PDF détaillée du cours."
+msgstr "Facultatif: Téléchargez une description détaillée du PDF du cours."
 
 msgid "Select Language"
-msgstr "Sélectionnez la langue"
+msgstr "Sélectionner la langue"
 
 msgid "French"
 msgstr "Français"
@@ -459,31 +276,22 @@ msgid "English"
 msgstr "Anglais"
 
 msgid "Select Level"
-msgstr "Sélectionnez le niveau"
+msgstr "Sélectionner le niveau"
 
 msgid "Manage levels"
 msgstr "Gérer les niveaux"
 
 msgid "Select Teacher"
-msgstr "Sélectionner un enseignant"
+msgstr "Sélectionner l'enseignant"
 
 msgid "Manage teachers"
 msgstr "Gérer les enseignants"
 
-msgid "No Classroom Assigned"
-msgstr "Aucune salle de classe attribuée"
-
-msgid "Optional: Assign this course to a specific classroom."
-msgstr "Facultatif : attribuez ce cours à une classe spécifique."
-
-msgid "Manage classrooms"
-msgstr "Gérer les salles de classe"
-
 msgid "Duration & Schedule"
-msgstr "Durée et calendrier"
+msgstr "Durée et horaire"
 
 msgid "Session Duration"
-msgstr "Durée de la séance"
+msgstr "Durée de la session"
 
 msgid "hours"
 msgstr "heures"
@@ -492,17 +300,19 @@ msgid "minutes"
 msgstr "minutes"
 
 msgid "Duration of each individual class session (e.g., 1h 30min)."
-msgstr "Durée de chaque séance de cours individuelle (par exemple 1h30)."
+msgstr ""
+"Durée de chaque session de classe individuelle (par exemple, 1h 30min)."
 
 msgid "Hours Per Week"
 msgstr "Heures par semaine"
 
 msgid "Total teaching hours per week (e.g., 3.5 for two 1h45min sessions)."
 msgstr ""
-"Heures totales de cours par semaine (ex. 3,5 pour deux séances de 1h45)."
+"Total des heures d'enseignement par semaine (par exemple, 3,5 pour deux "
+"séances de 1h45min)."
 
 msgid "Total Weeks"
-msgstr "Nombre total de semaines"
+msgstr "Total des semaines"
 
 msgid "Total duration of the course in weeks."
 msgstr "Durée totale du cours en semaines."
@@ -517,7 +327,7 @@ msgid "Total duration of the course in months."
 msgstr "Durée totale du cours en mois."
 
 msgid "Pricing"
-msgstr "Tarifs"
+msgstr "Prix"
 
 msgid "Price Per Month"
 msgstr "Prix ​​par mois"
@@ -532,40 +342,43 @@ msgid "Total price for the entire course duration."
 msgstr "Prix ​​total pour toute la durée du cours."
 
 msgid "Certification"
-msgstr "Attestation"
+msgstr "Certification"
 
 msgid "Certification Delivered"
-msgstr "Certification délivrée"
+msgstr "Certification livrée"
 
 msgid "No Certification"
 msgstr "Aucune certification"
 
 msgid "School Diploma"
-msgstr "Diplôme d'études"
+msgstr "Diplôme d'école"
 
 msgid "State Diploma"
-msgstr "Diplôme d'Etat"
+msgstr "Diplôme d'État"
 
 msgid "Other"
 msgstr "Autre"
 
 msgid "Type of certification or diploma awarded upon course completion."
-msgstr "Type de certification ou de diplôme décerné à la fin du cours."
+msgstr "Type de certification ou diplôme attribué à l'achèvement du cours."
 
 msgid "Certification Name"
-msgstr "Nom du certificat"
+msgstr "Nom de certification"
 
 msgid "Specify the name of the certification or entity that delivers it."
-msgstr "Précisez le nom de la certification ou de l'entité qui la délivre."
+msgstr "Spécifiez le nom de la certification ou de l'entité qui le livre."
 
 msgid "Status & Availability"
 msgstr "Statut et disponibilité"
 
 msgid "Course Status"
-msgstr "Statut du cours"
+msgstr "Statut de cours"
 
 msgid "Current status of the course."
-msgstr "Statut actuel du cours."
+msgstr "État actuel du cours."
+
+msgid "Active"
+msgstr "Actif"
 
 msgid "Active (visible and available for enrollment)"
 msgstr "Actif (visible et disponible pour l'inscription)"
@@ -574,22 +387,25 @@ msgid "Update Course"
 msgstr "Mettre à jour le cours"
 
 msgid "Add Course"
-msgstr "Ajouter un cours"
+msgstr "Ajouter"
 
-msgid "Are you sure you want to remove this file?"
-msgstr "Êtes-vous sûr de vouloir supprimer ce fichier ?"
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Required fields"
+msgstr "Champs requis"
 
 msgid "Enrollment deleted successfully."
-msgstr "Inscription supprimée avec succès."
+msgstr "Les inscriptions ont été supprimées avec succès."
 
 msgid "Error deleting enrollment."
-msgstr "Erreur lors de la suppression de l'inscription."
+msgstr "Erreur de suppression des inscriptions."
 
 msgid "Enrollment updated successfully."
 msgstr "Inscription mise à jour avec succès."
 
-msgid "Enrollment added successfully with payment schedule generated."
-msgstr "Inscription ajoutée avec succès avec calendrier de paiement généré."
+msgid "Enrollment added successfully."
+msgstr "L'inscription a ajouté avec succès."
 
 msgid "Please select a student."
 msgstr "Veuillez sélectionner un étudiant."
@@ -598,16 +414,16 @@ msgid "Please select a course."
 msgstr "Veuillez sélectionner un cours."
 
 msgid "Enrollment date is required."
-msgstr "La date d’inscription est requise."
+msgstr "La date d'inscription est requise."
 
 msgid "Start date is required."
 msgstr "La date de début est requise."
 
 msgid "Start date cannot be before enrollment date."
-msgstr "La date de début ne peut pas être antérieure à la date d’inscription."
+msgstr "La date de début ne peut pas être avant la date d'inscription."
 
 msgid "End date cannot be before start date."
-msgstr "La date de fin ne peut pas être antérieure à la date de début."
+msgstr "La date de fin ne peut pas être avant la date de début."
 
 msgid "This student is already enrolled in this course."
 msgstr "Cet étudiant est déjà inscrit à ce cours."
@@ -616,23 +432,23 @@ msgid ""
 "Student level is too advanced for this course. Students can only enroll in "
 "courses at their level or above."
 msgstr ""
-"Le niveau de l'étudiant est trop avancé pour ce cours. Les étudiants ne "
-"peuvent s'inscrire qu'à des cours de leur niveau ou supérieur."
+"Le niveau des étudiants est trop avancé pour ce cours. Les étudiants ne "
+"peuvent s'inscrire qu'aux cours à leur niveau ou supérieur."
 
 msgid "This course is full. Maximum capacity: %d students."
-msgstr "Ce cours est complet. Capacité maximale : %d étudiants."
+msgstr "Ce cours est plein. Capacité maximale: %d étudiants."
 
 msgid "Invalid enrollment status."
-msgstr "Statut d'inscription invalide."
+msgstr "Statut d'inscription non valide."
 
 msgid "Invalid payment status."
-msgstr "Statut de paiement invalide."
+msgstr "Statut de paiement non valide."
 
 msgid "Enrollments List"
 msgstr "Liste des inscriptions"
 
 msgid "Total: %d enrollments"
-msgstr "Total : %d inscriptions"
+msgstr "Total: %d inscriptions"
 
 msgid "Student"
 msgstr "Étudiant"
@@ -668,13 +484,13 @@ msgid "Overdue"
 msgstr "En retard"
 
 msgid "Are you sure you want to delete this enrollment?"
-msgstr "Êtes-vous sûr de vouloir supprimer cette inscription ?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette inscription?"
 
 msgid "No Enrollments Yet"
-msgstr "Aucune inscription pour l'instant"
+msgstr "Aucune inscription"
 
 msgid "Start enrolling students in courses."
-msgstr "Commencez à inscrire les étudiants aux cours."
+msgstr "Commencez à inscrire les étudiants dans les cours."
 
 msgid "Create First Enrollment"
 msgstr "Créer une première inscription"
@@ -686,7 +502,7 @@ msgid "Edit Enrollment"
 msgstr "Modifier l'inscription"
 
 msgid "Select Student"
-msgstr "Sélectionner un étudiant"
+msgstr "Sélectionner l'étudiant"
 
 msgid "Student cannot be changed after enrollment."
 msgstr "L'étudiant ne peut pas être modifié après l'inscription."
@@ -695,7 +511,7 @@ msgid "Add new student"
 msgstr "Ajouter un nouvel étudiant"
 
 msgid "Select Course"
-msgstr "Sélectionnez un cours"
+msgstr "Sélectionner le cours"
 
 msgid "Course cannot be changed after enrollment."
 msgstr "Le cours ne peut pas être modifié après l'inscription."
@@ -707,59 +523,22 @@ msgid "Enrollment Date"
 msgstr "Date d'inscription"
 
 msgid "Date when the student enrolled in the course."
-msgstr "Date à laquelle l'étudiant s'est inscrit au cours."
+msgstr "Date lorsque l'étudiant s'est inscrit au cours."
 
 msgid "Date when the student begins attending the course."
-msgstr "Date à laquelle l'étudiant commence à suivre le cours."
+msgstr "Date lorsque l'étudiant commence à suivre le cours."
 
 msgid "End Date"
 msgstr "Date de fin"
 
 msgid "Optional: Date when the student completes or leaves the course."
-msgstr "Facultatif : Date à laquelle l'étudiant termine ou quitte le cours."
-
-msgid "Payment Information"
-msgstr "Informations de paiement"
-
-msgid "Set enrollment fees and payment schedule for this enrollment."
-msgstr ""
-"Définissez les frais d’inscription et le calendrier de paiement pour cette "
-"inscription."
-
-msgid "Insurance Fee"
-msgstr "Frais d'assurance"
-
-msgid "One-time insurance fee (only charged for student's first enrollment)."
-msgstr ""
-"Frais d'assurance uniques (facturés uniquement pour la première inscription "
-"de l'étudiant)."
-
-msgid "Book Fee"
-msgstr "Frais de livre"
-
-msgid "Book and materials fee for this course."
-msgstr "Frais de livres et de matériel pour ce cours."
-
-msgid "Payment Plan"
-msgstr "Plan de paiement"
-
-msgid "Monthly Payments"
-msgstr "Paiements mensuels"
-
-msgid "Quarterly Payments (Every 3 months)"
-msgstr "Paiements trimestriels (tous les 3 mois)"
-
-msgid "Full Payment (One-time)"
-msgstr "Paiement intégral (une seule fois)"
-
-msgid "Choose how the student will pay for the course."
-msgstr "Choisissez comment l'étudiant paiera le cours."
+msgstr "Facultatif: date à la fin de l'étudiant ou quitte le cours."
 
 msgid "Enrollment Status"
 msgstr "Statut d'inscription"
 
 msgid "Payment Status"
-msgstr "Statut du paiement"
+msgstr "Statut de paiement"
 
 msgid "Partial Payment"
 msgstr "Paiement partiel"
@@ -768,7 +547,7 @@ msgid "Current payment status for this enrollment."
 msgstr "Statut de paiement actuel pour cette inscription."
 
 msgid "Notes"
-msgstr "Remarques"
+msgstr "Notes"
 
 msgid "Optional notes or comments about this enrollment."
 msgstr "Notes ou commentaires facultatifs sur cette inscription."
@@ -777,14 +556,14 @@ msgid "Update Enrollment"
 msgstr "Mettre à jour l'inscription"
 
 msgid "Create Enrollment"
-msgstr "Créer une inscription"
+msgstr "Créer des inscriptions"
 
 msgid ""
 "Cannot delete this level. It is being used by %d student(s) and %d "
 "course(s)."
 msgstr ""
-"Impossible de supprimer ce niveau. Il est utilisé par le(s) étudiant(s) %d "
-"et le(s) cours %d."
+"Impossible de supprimer ce niveau. Il est utilisé par %d étudiant (s) et %d "
+"cours (s)."
 
 msgid "Level deleted successfully."
 msgstr "Niveau supprimé avec succès."
@@ -795,17 +574,23 @@ msgstr "Niveau mis à jour avec succès."
 msgid "Level added successfully."
 msgstr "Niveau ajouté avec succès."
 
+msgid "Manage Levels"
+msgstr "Gérer les niveaux"
+
 msgid "Level name is required."
-msgstr "Le nom du niveau est obligatoire."
+msgstr "Le nom de niveau est requis."
 
 msgid "Level name must be at least 2 characters long."
-msgstr "Le nom du niveau doit comporter au moins 2 caractères."
+msgstr "Le nom de niveau doit comporter au moins 2 caractères."
 
 msgid "A level with the name \"%s\" already exists."
-msgstr "Un niveau portant le nom \"%s\" existe déjà."
+msgstr "Un niveau avec le nom \"%s\" existe déjà."
+
+msgid "Course Levels"
+msgstr "Niveau de cours"
 
 msgid "Manage skill levels for courses and students"
-msgstr "Gérer les niveaux de compétences des cours et des étudiants"
+msgstr "Gérer les niveaux de compétence pour les cours et les étudiants"
 
 msgid "Add New Level"
 msgstr "Ajouter un nouveau niveau"
@@ -814,10 +599,10 @@ msgid "Order"
 msgstr "Commande"
 
 msgid "Level Name"
-msgstr "Nom du niveau"
+msgstr "Nom de niveau"
 
 msgid "Are you sure you want to delete this level?"
-msgstr "Êtes-vous sûr de vouloir supprimer ce niveau ?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce niveau?"
 
 msgid "Back to Levels"
 msgstr "Retour aux niveaux"
@@ -832,10 +617,10 @@ msgid "Brief description of this level"
 msgstr "Brève description de ce niveau"
 
 msgid "Sort Order"
-msgstr "Ordre de tri"
+msgstr "Tri"
 
 msgid "Lower numbers appear first in lists"
-msgstr "Les nombres inférieurs apparaissent en premier dans les listes"
+msgstr "Les nombres plus bas apparaissent en premier dans les listes"
 
 msgid "Active (available for courses and students)"
 msgstr "Actif (disponible pour les cours et les étudiants)"
@@ -843,37 +628,40 @@ msgstr "Actif (disponible pour les cours et les étudiants)"
 msgid "Update Level"
 msgstr "Niveau de mise à jour"
 
+msgid "Add Level"
+msgstr "Ajouter un niveau"
+
 msgid "Cannot delete this payment term. It is being used by %d teacher(s)."
 msgstr ""
-"Impossible de supprimer cette condition de paiement. Il est utilisé par le "
-"ou les enseignants %d."
+"Impossible de supprimer ce terme de paiement. Il est utilisé par %d "
+"enseignant (s)."
 
 msgid "Payment term deleted successfully."
-msgstr "Conditions de paiement supprimées avec succès."
+msgstr "Terme de paiement supprimé avec succès."
 
 msgid "Payment term updated successfully."
-msgstr "Conditions de paiement mises à jour avec succès."
+msgstr "Terme de paiement mis à jour avec succès."
 
 msgid "Payment term added successfully."
-msgstr "Conditions de paiement ajoutées avec succès."
+msgstr "Terme de paiement ajouté avec succès."
 
 msgid "Manage Payment Terms"
 msgstr "Gérer les conditions de paiement"
 
 msgid "Payment term name is required."
-msgstr "Le nom des conditions de paiement est requis."
+msgstr "Le nom du terme de paiement est requis."
 
 msgid "Percentage must be between 0 and 100."
 msgstr "Le pourcentage doit être compris entre 0 et 100."
 
 msgid "A payment term with the name \"%s\" already exists."
-msgstr "Il existe déjà une condition de paiement portant le nom \"%s\"."
+msgstr "Un terme de paiement avec le nom \"%s\" existe déjà."
 
 msgid "Manage payment schedules for teachers"
-msgstr "Gérer les échéanciers de paiement des enseignants"
+msgstr "Gérer les horaires de paiement pour les enseignants"
 
 msgid "Add New Payment Term"
-msgstr "Ajouter une nouvelle condition de paiement"
+msgstr "Ajouter un nouveau terme de paiement"
 
 msgid "Name"
 msgstr "Nom"
@@ -882,200 +670,34 @@ msgid "Percentage"
 msgstr "Pourcentage"
 
 msgid "Are you sure you want to delete this payment term?"
-msgstr "Êtes-vous sûr de vouloir supprimer ce délai de paiement ?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce terme de paiement?"
 
 msgid "Back to Payment Terms"
 msgstr "Retour aux conditions de paiement"
 
 msgid "Edit Payment Term"
-msgstr "Modifier les conditions de paiement"
+msgstr "Modifier la durée de paiement"
 
 msgid "E.g., Monthly, Weekly, 50/50"
 msgstr "Par exemple, mensuel, hebdomadaire, 50/50"
 
 msgid "Brief description of this payment term"
-msgstr "Brève description de ce délai de paiement"
+msgstr "Brève description de ce terme de paiement"
 
 msgid "Payment percentage (e.g., 50 for 50/50, 33.33 for 1/3)"
 msgstr "Pourcentage de paiement (par exemple, 50 pour 50/50, 33,33 pour 1/3)"
 
 msgid "Lower numbers appear first"
-msgstr "Les nombres inférieurs apparaissent en premier"
+msgstr "Les nombres plus bas apparaissent en premier"
 
 msgid "Active (available for selection)"
 msgstr "Actif (disponible pour la sélection)"
 
 msgid "Update Payment Term"
-msgstr "Mettre à jour les conditions de paiement"
+msgstr "Mettre à jour le terme de paiement"
 
 msgid "Add Payment Term"
-msgstr "Ajouter une condition de paiement"
-
-msgid "Payments Management"
-msgstr "Gestion des paiements"
-
-msgid "Payments Overview"
-msgstr "Aperçu des paiements"
-
-msgid "Active enrollments: %d"
-msgstr "Inscriptions actives : %d"
-
-msgid "Progress"
-msgstr "Progrès"
-
-msgid "Total Expected"
-msgstr "Total attendu"
-
-msgid "Total Paid"
-msgstr "Total payé"
-
-msgid "No Active Enrollments"
-msgstr "Aucune inscription active"
-
-msgid "Enroll students in courses to start tracking payments."
-msgstr ""
-"Inscrivez les étudiants à des cours pour commencer à suivre les paiements."
-
-msgid "Enrollment not found."
-msgstr "Inscription introuvable."
-
-msgid "Payment Details"
-msgstr "Détails du paiement"
-
-msgid "Back to Payments"
-msgstr "Retour aux paiements"
-
-msgid "Enrollment Information"
-msgstr "Informations d'inscription"
-
-msgid "Student:"
-msgstr "Étudiant:"
-
-msgid "Course:"
-msgstr "Cours:"
-
-msgid "Payment Plan:"
-msgstr "Plan de paiement :"
-
-msgid "Enrollment Date:"
-msgstr "Date d'inscription :"
-
-msgid "Payment Summary"
-msgstr "Récapitulatif des paiements"
-
-msgid "Balance Due"
-msgstr "Solde dû"
-
-msgid "Enrollment Fees"
-msgstr "Frais d'inscription"
-
-msgid "Fee Type"
-msgstr "Type de frais"
-
-msgid "Amount"
-msgstr "Montant"
-
-msgid "Due Date"
-msgstr "Date d'échéance"
-
-msgid "Paid Date"
-msgstr "Date de paiement"
-
-msgid "Payment Schedule"
-msgstr "Calendrier de paiement"
-
-msgid "Record Payment"
-msgstr "Enregistrer le paiement"
-
-msgid "Installment"
-msgstr "Tranche"
-
-msgid "Expected Amount"
-msgstr "Montant attendu"
-
-msgid "Paid Amount"
-msgstr "Montant payé"
-
-msgid "Pending"
-msgstr "En attente"
-
-msgid "Payment History"
-msgstr "Historique des paiements"
-
-msgid "Date"
-msgstr "Date"
-
-msgid "Type"
-msgstr "Taper"
-
-msgid "Method"
-msgstr "Méthode"
-
-msgid "Reference"
-msgstr "Référence"
-
-msgid "Payment recorded successfully."
-msgstr "Paiement enregistré avec succès."
-
-msgid "Please fill all required fields."
-msgstr "Veuillez remplir tous les champs obligatoires."
-
-msgid "Back to Payment Details"
-msgstr "Retour aux détails du paiement"
-
-msgid "Payment Type"
-msgstr "Type de paiement"
-
-msgid "Select Type"
-msgstr "Sélectionnez le type"
-
-msgid "Enrollment Fee"
-msgstr "Frais d'inscription"
-
-msgid "Course Installment"
-msgstr "Versement du cours"
-
-msgid "Other Payment"
-msgstr "Autre paiement"
-
-msgid "Payment For"
-msgstr "Paiement pour"
-
-msgid "Select..."
-msgstr "Sélectionner..."
-
-msgid "Payment Date"
-msgstr "Date de paiement"
-
-msgid "Payment Method"
-msgstr "Mode de paiement"
-
-msgid "Select Method"
-msgstr "Sélectionnez la méthode"
-
-msgid "Cash"
-msgstr "Espèces"
-
-msgid "Check"
-msgstr "Vérifier"
-
-msgid "Bank Transfer"
-msgstr "Virement bancaire"
-
-msgid "Card"
-msgstr "Carte"
-
-msgid "Reference Number"
-msgstr "Numéro de référence"
-
-msgid "Auto-generated on save"
-msgstr "Généré automatiquement lors de l'enregistrement"
-
-msgid "Format: YYYYMMDD_StudentName_PaymentType"
-msgstr "Format : AAAAMMJJ_StudentName_PaymentType"
-
-msgid "School Admin"
-msgstr "Administrateur de l'école"
+msgstr "Ajouter un terme de paiement"
 
 msgid "General Settings"
 msgstr "Paramètres généraux"
@@ -1093,13 +715,13 @@ msgid "Email"
 msgstr "E-mail"
 
 msgid "School Logo"
-msgstr "Logo de l'école"
+msgstr "Logo scolaire"
 
 msgid "Date Format"
-msgstr "Format des dates"
+msgstr "Format de date"
 
 msgid "Time Format"
-msgstr "Format de l'heure"
+msgstr "Format de temps"
 
 msgid "First Day of the Week"
 msgstr "Premier jour de la semaine"
@@ -1108,10 +730,10 @@ msgid "Upload Logo"
 msgstr "Télécharger le logo"
 
 msgid "Use PHP date format, e.g., Y-m-d, d/m/Y, m/d/Y"
-msgstr "Utilisez le format de date PHP, par exemple, Y-m-d, d/m/Y, m/d/Y"
+msgstr "Utilisez le format de date PHP, par ex., Y-M-D, D / M / Y, M / D / Y"
 
 msgid "Use PHP time format, e.g., H:i, g:i a"
-msgstr "Utilisez le format d'heure PHP, par exemple H:i, g:i a"
+msgstr "Utilisez le format de temps PHP, par exemple, H: I, G: I A"
 
 msgid "Sunday"
 msgstr "Dimanche"
@@ -1123,28 +745,28 @@ msgid "Choose the first day of the week for calendars."
 msgstr "Choisissez le premier jour de la semaine pour les calendriers."
 
 msgid "School Management Settings"
-msgstr "Paramètres de gestion scolaire"
+msgstr "Cadre de gestion des écoles"
 
 msgid "Student deleted successfully."
-msgstr "L'élève a été supprimé avec succès."
+msgstr "L'étudiant a supprimé avec succès."
 
 msgid "Error deleting student."
-msgstr "Erreur lors de la suppression de l'élève."
+msgstr "Erreur de suppression de l'élève."
 
 msgid "Student updated successfully."
-msgstr "L'élève a été mis à jour avec succès."
+msgstr "L'élève a mis à jour avec succès."
 
 msgid "Student added successfully."
-msgstr "Étudiant ajouté avec succès."
+msgstr "L'élève a ajouté avec succès."
 
 msgid "Student name is required."
-msgstr "Le nom de l’étudiant est obligatoire."
+msgstr "Le nom de l'étudiant est requis."
 
 msgid "Student name must be at least 2 characters long."
-msgstr "Le nom de l’étudiant doit comporter au moins 2 caractères."
+msgstr "Le nom de l'élève doit comporter au moins 2 caractères."
 
 msgid "Student name cannot exceed 100 characters."
-msgstr "Le nom de l'étudiant ne peut pas dépasser 100 caractères."
+msgstr "Le nom de l'élève ne peut pas dépasser 100 caractères."
 
 msgid "Email address is required."
 msgstr "L'adresse e-mail est requise."
@@ -1159,26 +781,25 @@ msgid "Please enter a valid phone number (minimum 8 digits)."
 msgstr "Veuillez saisir un numéro de téléphone valide (minimum 8 chiffres)."
 
 msgid "Date of birth is required."
-msgstr "La date de naissance est requise."
+msgstr "La date de naissance est nécessaire."
 
 msgid "Please enter a valid date of birth."
 msgstr "Veuillez saisir une date de naissance valide."
 
 msgid "Date of birth cannot be in the future."
-msgstr "La date de naissance ne peut pas être postérieure."
+msgstr "La date de naissance ne peut pas être à l'avenir."
 
 msgid ""
 "A student with the name \"%s\" already exists. Please use a different name."
 msgstr ""
-"Un élève portant le nom « %s » existe déjà. Veuillez utiliser un nom "
-"différent."
+"Un élève avec le nom \"%s\" existe déjà. Veuillez utiliser un nom différent."
 
 msgid ""
 "The email address \"%s\" is already registered. Please use a different "
 "email."
 msgstr ""
-"L'adresse email \"%s\" est déjà enregistrée. Veuillez utiliser une autre "
-"adresse e-mail."
+"L'adresse e-mail \"%s\" est déjà enregistrée. Veuillez utiliser un autre "
+"e-mail."
 
 msgid "Please select a valid blood type."
 msgstr "Veuillez sélectionner un groupe sanguin valide."
@@ -1190,7 +811,7 @@ msgid "Students List"
 msgstr "Liste des étudiants"
 
 msgid "Total: %d students"
-msgstr "Total : %d étudiants"
+msgstr "Total: %d étudiants"
 
 msgid "Picture"
 msgstr "Image"
@@ -1202,23 +823,23 @@ msgid "Registered"
 msgstr "Inscrit"
 
 msgid "Edit Student"
-msgstr "Modifier l'élève"
+msgstr "Éditer l'étudiant"
 
 msgid "Delete Student"
-msgstr "Supprimer un élève"
+msgstr "Supprimer l'étudiant"
 
 msgid ""
 "Are you sure you want to delete this student? This action cannot be undone."
 msgstr ""
-"Êtes-vous sûr de vouloir supprimer cet élève ? Cette action ne peut pas être"
-" annulée."
+"Êtes-vous sûr de vouloir supprimer cet étudiant? Cette action ne peut pas "
+"être annulée."
 
 msgid "No Students Yet"
-msgstr "Aucun étudiant pour l'instant"
+msgstr "Aucun étudiant encore"
 
 msgid "Start building your student database by adding your first student."
 msgstr ""
-"Commencez à créer votre base de données d'étudiants en ajoutant votre "
+"Commencez à construire votre base de données d'étudiants en ajoutant votre "
 "premier étudiant."
 
 msgid "Add First Student"
@@ -1228,7 +849,7 @@ msgid "Back to Students"
 msgstr "Retour aux étudiants"
 
 msgid "Student Picture"
-msgstr "Photo d'étudiant"
+msgstr "Photo"
 
 msgid "Click to upload"
 msgstr "Cliquez pour télécharger"
@@ -1237,7 +858,7 @@ msgid "Full Name"
 msgstr "Nom et prénom"
 
 msgid "Each student must have a unique name."
-msgstr "Chaque élève doit avoir un nom unique."
+msgstr "Chaque étudiant doit avoir un nom unique."
 
 msgid "Email Address"
 msgstr "Adresse email"
@@ -1255,17 +876,17 @@ msgid "Date of Birth"
 msgstr "Date de naissance"
 
 msgid "Required for age verification and records."
-msgstr "Nécessaire pour la vérification de l’âge et les dossiers."
+msgstr "Requis pour la vérification et les dossiers de l'âge."
 
 msgid "Choose the appropriate skill level for course assignment."
 msgstr ""
-"Choisissez le niveau de compétence approprié pour l’attribution du cours."
+"Choisissez le niveau de compétence approprié pour l'attribution des cours."
 
 msgid "Select Blood Type"
-msgstr "Sélectionnez le groupe sanguin"
+msgstr "Sélectionner le thèse sanguine"
 
 msgid "Blood type information for emergency situations."
-msgstr "Informations sur le groupe sanguin pour les situations d'urgence."
+msgstr "Informations sur les tâches sanguines pour les situations d'urgence."
 
 msgid "Update Student"
 msgstr "Mettre à jour l'étudiant"
@@ -1275,56 +896,55 @@ msgstr "Ajouter un étudiant"
 
 msgid "Cannot delete this teacher. They are assigned to %d course(s)."
 msgstr ""
-"Impossible de supprimer cet enseignant. Ils sont affectés à un ou plusieurs "
-"cours %d."
+"Ne peut pas supprimer ce professeur. Ils sont affectés à %d cours (s)."
 
 msgid "Teacher deleted successfully."
-msgstr "L'enseignant a été supprimé avec succès."
+msgstr "L'enseignant a supprimé avec succès."
 
 msgid "Teacher updated successfully."
-msgstr "L'enseignant a été mis à jour avec succès."
+msgstr "L'enseignant a mis à jour avec succès."
 
 msgid "Teacher added successfully."
 msgstr "L'enseignant a ajouté avec succès."
 
 msgid "First name is required."
-msgstr "Le prénom est obligatoire."
+msgstr "Le prénom est requis."
 
 msgid "First name must be at least 2 characters long."
 msgstr "Le prénom doit comporter au moins 2 caractères."
 
 msgid "Last name is required."
-msgstr "Le nom de famille est obligatoire."
+msgstr "Le nom de famille est requis."
 
 msgid "Last name must be at least 2 characters long."
 msgstr "Le nom de famille doit comporter au moins 2 caractères."
 
 msgid "Payment term is required."
-msgstr "Un délai de paiement est requis."
+msgstr "La durée de paiement est requise."
 
 msgid "The email address \"%s\" is already registered."
-msgstr "L'adresse email \"%s\" est déjà enregistrée."
+msgstr "L'adresse e-mail \"%s\" est déjà enregistrée."
 
 msgid "Teachers List"
 msgstr "Liste des enseignants"
 
 msgid "Total: %d teachers"
-msgstr "Total : %d enseignants"
+msgstr "Total: %d enseignants"
 
 msgid "Payment Term"
-msgstr "Conditions de paiement"
+msgstr "Trimestre de paiement"
 
 msgid "Hourly Rate"
 msgstr "Taux horaire"
 
 msgid "Are you sure you want to delete this teacher?"
-msgstr "Êtes-vous sûr de vouloir supprimer cet enseignant ?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce professeur?"
 
 msgid "No Teachers Yet"
-msgstr "Pas encore d'enseignants"
+msgstr "Pas encore de professeurs"
 
 msgid "Add your first teacher to get started."
-msgstr "Ajoutez votre premier enseignant pour commencer."
+msgstr "Ajoutez votre premier professeur pour commencer."
 
 msgid "Add First Teacher"
 msgstr "Ajouter le premier enseignant"
@@ -1333,7 +953,7 @@ msgid "Back to Teachers"
 msgstr "Retour aux enseignants"
 
 msgid "Edit Teacher"
-msgstr "Modifier l'enseignant"
+msgstr "Éditer le professeur"
 
 msgid "Teacher Picture"
 msgstr "Photo de l'enseignant"
@@ -1345,10 +965,10 @@ msgid "Last Name"
 msgstr "Nom de famille"
 
 msgid "Email must be unique for each teacher."
-msgstr "L'e-mail doit être unique pour chaque enseignant."
+msgstr "Le courrier électronique doit être unique pour chaque enseignant."
 
 msgid "Select Payment Term"
-msgstr "Sélectionnez les conditions de paiement"
+msgstr "Sélectionnez le terme de paiement"
 
 msgid "How this teacher will be paid."
 msgstr "Comment cet enseignant sera payé."
@@ -1359,6 +979,9 @@ msgstr "Gérer les conditions de paiement"
 msgid "Payment rate per hour (optional)."
 msgstr "Taux de paiement par heure (facultatif)."
 
+msgid "Active (available for course assignment)"
+msgstr "Actif (disponible pour l'attribution de cours)"
+
 msgid "Update Teacher"
 msgstr "Mettre à jour l'enseignant"
 
@@ -1366,7 +989,7 @@ msgid "Add Teacher"
 msgstr "Ajouter un enseignant"
 
 msgid "Upload successful!"
-msgstr "Téléchargement réussi !"
+msgstr "Télécharger réussi!"
 
 msgid "Upload failed. Please try again."
 msgstr "Le téléchargement a échoué. Veuillez réessayer."
@@ -1384,4 +1007,4 @@ msgid "Use this picture"
 msgstr "Utilisez cette image"
 
 msgid "Use this file"
-msgstr "Utiliser ce fichier"
+msgstr "Utilisez ce fichier"

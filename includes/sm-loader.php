@@ -10,6 +10,10 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
 // Load admin redirect and cleanup
 require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-redirect.php';
 
+// Load Helper Functions
+require_once SM_PLUGIN_DIR . 'includes/sm-helpers.php';
+
+
 // Load Admin Menu
 require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-menu.php';
 
@@ -39,6 +43,9 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-enrollments-page.php';
 
 // Load Payments Page
 require_once SM_PLUGIN_DIR . 'includes/class-sm-payments-page.php';
+
+// Load Payment Sync
+require_once SM_PLUGIN_DIR . 'includes/class-sm-payment-sync.php';
 
 // Load Enqueue scripts
 require_once SM_PLUGIN_DIR . 'includes/sm-enqueue.php';
