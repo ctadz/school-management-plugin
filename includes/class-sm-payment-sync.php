@@ -58,11 +58,11 @@ class SM_Payment_Sync {
         } elseif ( $total_paid == 0 ) {
             // Check if overdue
             $oldest_unpaid = $wpdb->get_var( $wpdb->prepare(
-                "SELECT MIN(payment_date) 
+                "SELECT MIN(due_date) 
                  FROM $schedules_table 
                  WHERE enrollment_id = %d 
                  AND paid_amount < expected_amount 
-                 AND payment_date < CURDATE()",
+                 AND due_date < CURDATE()",
                 $enrollment_id
             ) );
             

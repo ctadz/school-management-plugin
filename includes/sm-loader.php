@@ -10,6 +10,10 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
 // Load admin redirect and cleanup
 require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-redirect.php';
 
+// Load Helper Functions
+require_once SM_PLUGIN_DIR . 'includes/sm-helpers.php';
+
+
 // Load Admin Menu
 require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-menu.php';
 

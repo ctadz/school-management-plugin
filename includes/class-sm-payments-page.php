@@ -506,6 +506,9 @@ class SM_Payments_Page {
                         }
                     }
 
+                    // Trigger enrollment payment status sync
+                    do_action( 'sm_payment_updated', $enrollment_id );
+
                     echo '<div class="updated notice"><p>' . esc_html__( 'Payment recorded successfully.', 'school-management' ) . '</p></div>';
                     echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-payments&action=view&enrollment_id=' . $enrollment_id . '"; }, 1500);</script>';
                 }

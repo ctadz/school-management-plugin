@@ -8,9 +8,10 @@ class SM_Enqueue {
 
     public function __construct() {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+        add_action( 'admin_head', [ $this, 'admin_custom_styles' ] );
     }
 
-public function enqueue_admin_assets( $hook ) {
+    public function enqueue_admin_assets( $hook ) {
         // List of our page slugs (these don't change with translation)
         $our_pages = [
             'school-management',           // Main dashboard
@@ -66,6 +67,19 @@ public function enqueue_admin_assets( $hook ) {
             ]
         );
 
+        // ===== NEW: AJAX Localization for Enrollment Payment Model Connection =====
+        // Localize script for AJAX calls (enrollments page)
+        wp_localize_script( 'jquery', 'smAjax', [
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+            'nonce' => wp_create_nonce( 'sm_enrollment_nonce' ),
+            'strings' => [
+                'loading' => __( 'Loading...', 'school-management' ),
+                'error' => __( 'An error occurred. Please try again.', 'school-management' ),
+                'selectCourse' => __( 'Please select a course first', 'school-management' ),
+            ]
+        ] );
+        // ===== END NEW =====
+
         // Custom CSS
         wp_enqueue_style(
             'sm-admin-css',
@@ -73,6 +87,89 @@ public function enqueue_admin_assets( $hook ) {
             [],
             '1.0.3' // Incremented version
         );
+    }
+
+    /**
+     * Add custom admin styles
+     * NEW: Styles for course payment info display
+     */
+    public function admin_custom_styles() {
+        // Only output on school management pages
+        $screen = get_current_screen();
+        if ( ! $screen || strpos( $screen->id, 'school-management' ) === false ) {
+            return;
+        }
+        ?>
+        <style>
+            /* ===== Course Payment Info Box Styles ===== */
+            .sm-course-payment-info {
+                background: #f0f6fc;
+                border-left: 4px solid #0073aa;
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 4px;
+            }
+            
+            .sm-course-payment-info h4 {
+                margin: 0 0 10px 0;
+                color: #0073aa;
+                font-size: 14px;
+            }
+            
+            .sm-course-payment-info p {
+                margin: 5px 0;
+                font-size: 13px;
+            }
+            
+            .sm-course-payment-info .sm-payment-model-badge {
+                display: inline-block;
+                background: #0073aa;
+                color: white;
+                padding: 4px 10px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 10px;
+            }
+            
+            .sm-course-payment-info.subscription {
+                background: #fff8e5;
+                border-left-color: #f0b500;
+            }
+            
+            .sm-course-payment-info.subscription .sm-payment-model-badge {
+                background: #f0b500;
+                color: #1d2327;
+            }
+            
+            .sm-payment-plan-option[disabled] {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            
+            /* Loading spinner for AJAX */
+            .sm-loading {
+                display: inline-block;
+                margin-left: 10px;
+            }
+            
+            .sm-loading::after {
+                content: "";
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                border: 2px solid #f3f3f3;
+                border-top: 2px solid #0073aa;
+                border-radius: 50%;
+                animation: sm-spin 1s linear infinite;
+            }
+            
+            @keyframes sm-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+        <?php
     }
 }
 

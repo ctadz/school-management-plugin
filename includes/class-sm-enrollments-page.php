@@ -328,6 +328,16 @@ class SM_Enrollments_Page {
             $errors[] = __( 'Invalid payment status.', 'school-management' );
         }
 
+        // Validate payment plan against course payment model (only for new enrollments)
+        if ( $enrollment_id == 0 && $course_id > 0 ) {
+            $payment_plan = sanitize_text_field( $post_data['payment_plan'] ?? 'monthly' );
+            $validation_result = sm_validate_enrollment_payment_plan( $course_id, $payment_plan );
+            
+            if ( is_wp_error( $validation_result ) ) {
+                $errors[] = $validation_result->get_error_message();
+            }
+        }
+
         if ( empty( $errors ) ) {
             return [
                 'success' => true,
@@ -675,6 +685,18 @@ class SM_Enrollments_Page {
                     </td>
                 </tr>
 
+                <!-- Course Payment Information Display -->
+                <tr id="course_payment_info_row" style="display:none;">
+                    <td colspan="2">
+                        <div id="course_payment_info" class="sm-course-payment-info">
+                            <div class="sm-payment-model-badge"></div>
+                            <h4><?php esc_html_e( 'Course Payment Requirements', 'school-management' ); ?></h4>
+                            <p class="sm-course-name"></p>
+                            <p class="sm-payment-details"></p>
+                        </div>
+                    </td>
+                </tr>
+
                 <tr>
                     <th scope="row">
                         <label for="payment_plan"><?php esc_html_e( 'Payment Plan', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
@@ -745,6 +767,146 @@ class SM_Enrollments_Page {
             <p class="description">
                 <span style="color: #d63638;">*</span> <?php esc_html_e( 'Required fields', 'school-management' ); ?>
             </p>
+
+        <script>
+        jQuery(document).ready(function($) {
+            <?php if ( ! $is_edit ) : // Only for new enrollments ?>
+            
+            // Handle course selection change
+            $('#enrollment_course').on('change', function() {
+                var courseId = $(this).val();
+                
+                // Hide and reset course payment info
+                $('#course_payment_info_row').hide();
+                $('#course_payment_info').removeClass('subscription');
+                
+                if (!courseId) {
+                    // Reset payment plan to default options
+                    resetPaymentPlanOptions();
+                    return;
+                }
+                
+                // Show loading state (don't destroy the dropdown!)
+                var $paymentPlan = $('#payment_plan');
+                var $paymentPlanTd = $paymentPlan.closest('td');
+                
+                // Disable dropdown and show loading indicator
+                $paymentPlan.prop('disabled', true);
+                $paymentPlan.html('<option><?php esc_html_e( 'Loading payment options...', 'school-management' ); ?></option>');
+                
+                // Remove any existing description
+                $paymentPlanTd.find('.description').remove();
+                
+                // Make AJAX call to get course payment info
+                $.ajax({
+                    url: smAjax.ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'sm_get_course_payment_info',
+                        nonce: smAjax.nonce,
+                        course_id: courseId
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            updateCoursePaymentInfo(response.data);
+                            updatePaymentPlanOptions(response.data);
+                        } else {
+                            alert(response.data.message || smAjax.strings.error);
+                            resetPaymentPlanOptions();
+                        }
+                    },
+                    error: function() {
+                        alert(smAjax.strings.error);
+                        resetPaymentPlanOptions();
+                    }
+                });
+            });
+            
+            // Function to update course payment info display
+            function updateCoursePaymentInfo(data) {
+                var $infoBox = $('#course_payment_info');
+                var $infoRow = $('#course_payment_info_row');
+                
+                // Update badge
+                $infoBox.find('.sm-payment-model-badge').text(data.payment_model_label);
+                
+                // Update course name
+                $infoBox.find('.sm-course-name').html('<strong>' + data.course_name + '</strong>');
+                
+                // Update payment details
+                var detailsHtml = '';
+                if (data.payment_model === 'full_payment') {
+                    detailsHtml = '<?php esc_html_e( 'This course requires full payment upfront:', 'school-management' ); ?> <strong>' + data.total_price + '</strong>';
+                } else if (data.payment_model === 'monthly_installments') {
+                    detailsHtml = data.price_per_month + '<?php esc_html_e( '/month for ', 'school-management' ); ?>' + data.total_months + '<?php esc_html_e( ' months (Total: ', 'school-management' ); ?>' + data.total_price + ')';
+                } else if (data.payment_model === 'monthly_subscription') {
+                    detailsHtml = '<?php esc_html_e( 'Flexible monthly subscription: ', 'school-management' ); ?><strong>' + data.price_per_month + '<?php esc_html_e( '/month', 'school-management' ); ?></strong><br><em><?php esc_html_e( 'Student can cancel anytime', 'school-management' ); ?></em>';
+                    $infoBox.addClass('subscription');
+                }
+                $infoBox.find('.sm-payment-details').html(detailsHtml);
+                
+                // Show the info box
+                $infoRow.show();
+            }
+            
+            // Function to update payment plan dropdown options
+            function updatePaymentPlanOptions(data) {
+                var $paymentPlan = $('#payment_plan');
+                var $paymentPlanTd = $paymentPlan.closest('td');
+                
+                // Clear current options
+                $paymentPlan.empty();
+                
+                // Re-enable the dropdown
+                $paymentPlan.prop('disabled', false);
+                
+                // Add options based on available plans
+                $.each(data.available_plans, function(index, plan) {
+                    var optionText = data.plan_descriptions[plan] || plan;
+                    $paymentPlan.append('<option value="' + plan + '">' + optionText + '</option>');
+                });
+                
+                // Remove any existing description
+                $paymentPlanTd.find('.description').remove();
+                
+                // Add description
+                var descriptionHtml = '<p class="description">';
+                if (data.available_plans.length === 1) {
+                    descriptionHtml += '<?php esc_html_e( 'This course only allows this payment method.', 'school-management' ); ?>';
+                } else {
+                    descriptionHtml += '<?php esc_html_e( 'Choose how the student will pay for the course.', 'school-management' ); ?>';
+                }
+                descriptionHtml += '</p>';
+                
+                // Append description after the select element
+                $paymentPlan.after(descriptionHtml);
+            }
+            
+            // Function to reset payment plan options to default
+            function resetPaymentPlanOptions() {
+                var $paymentPlan = $('#payment_plan');
+                var $paymentPlanTd = $paymentPlan.closest('td');
+                
+                // Re-enable dropdown
+                $paymentPlan.prop('disabled', false);
+                
+                // Reset to default options
+                $paymentPlan.empty();
+                $paymentPlan.append('<option value="monthly"><?php esc_html_e( 'Monthly Payments', 'school-management' ); ?></option>');
+                $paymentPlan.append('<option value="quarterly"><?php esc_html_e( 'Quarterly Payments (Every 3 months)', 'school-management' ); ?></option>');
+                $paymentPlan.append('<option value="full"><?php esc_html_e( 'Full Payment (One-time)', 'school-management' ); ?></option>');
+                
+                // Remove existing description
+                $paymentPlanTd.find('.description').remove();
+                
+                // Add default description
+                var descriptionHtml = '<p class="description"><?php esc_html_e( 'Choose how the student will pay for the course.', 'school-management' ); ?></p>';
+                $paymentPlan.after(descriptionHtml);
+            }
+            
+            <?php endif; ?>
+        });
+        </script>
         </form>
         <?php
     }
