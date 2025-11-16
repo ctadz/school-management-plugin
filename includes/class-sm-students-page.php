@@ -228,6 +228,8 @@ class SM_Students_Page {
         global $wpdb;
         $students_table = $wpdb->prefix . 'sm_students';
         $levels_table = $wpdb->prefix . 'sm_levels';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
 
         // Pagination setup
         $per_page = 20;
@@ -237,16 +239,33 @@ class SM_Students_Page {
         $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table" );
         $total_pages = ceil( $total_students / $per_page );
 
-        // Get students with level names
-        $students = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT s.*, l.name as level_name 
-             FROM $students_table s 
-             LEFT JOIN $levels_table l ON s.level_id = l.id 
-             ORDER BY s.name ASC 
-             LIMIT %d OFFSET %d", 
-            $per_page, 
-            $offset 
-        ) );
+        // Get students with level names, enrollment count, and payment info
+        $query = "
+            SELECT s.*, 
+                   l.name as level_name,
+                   COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) as active_enrollments,
+                   SUM(CASE 
+                       WHEN ps.status = 'pending' AND ps.due_date < CURDATE() 
+                       THEN (ps.expected_amount - ps.paid_amount)
+                       WHEN ps.status = 'partial' AND ps.due_date < CURDATE()
+                       THEN (ps.expected_amount - ps.paid_amount)
+                       ELSE 0 
+                   END) as overdue_amount,
+                   SUM(CASE 
+                       WHEN ps.status IN ('pending', 'partial')
+                       THEN (ps.expected_amount - ps.paid_amount)
+                       ELSE 0 
+                   END) as total_outstanding
+            FROM $students_table s
+            LEFT JOIN $levels_table l ON s.level_id = l.id
+            LEFT JOIN $enrollments_table e ON s.id = e.student_id
+            LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
+            GROUP BY s.id
+            ORDER BY s.name ASC
+            LIMIT %d OFFSET %d
+        ";
+        
+        $students = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
 
         ?>
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -271,13 +290,42 @@ class SM_Students_Page {
                         <th><?php esc_html_e( 'Email', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Phone', 'school-management' ); ?></th>
                         <th><?php esc_html_e( 'Level', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Blood Type', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Registered', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Enrollments', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Payment Status', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Balance', 'school-management' ); ?></th>
                         <th style="width: 150px;"><?php esc_html_e( 'Actions', 'school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ( $students as $student ) : ?>
+                        <?php
+                        $active_enrollments = intval( $student->active_enrollments );
+                        $overdue_amount = floatval( $student->overdue_amount );
+                        $total_outstanding = floatval( $student->total_outstanding );
+                        
+                        // Determine payment status
+                        if ( $overdue_amount > 0 ) {
+                            $payment_status = 'overdue';
+                            $status_label = __( 'Overdue', 'school-management' );
+                            $status_color = '#d63638';
+                            $status_bg = '#fef2f2';
+                        } elseif ( $total_outstanding > 0 ) {
+                            $payment_status = 'partial';
+                            $status_label = __( 'Pending', 'school-management' );
+                            $status_color = '#f0ad4e';
+                            $status_bg = '#fef8e7';
+                        } elseif ( $active_enrollments > 0 ) {
+                            $payment_status = 'paid';
+                            $status_label = __( 'Paid Up', 'school-management' );
+                            $status_color = '#46b450';
+                            $status_bg = '#ecf7ed';
+                        } else {
+                            $payment_status = 'none';
+                            $status_label = __( 'No Enrollments', 'school-management' );
+                            $status_color = '#999';
+                            $status_bg = '#f5f5f5';
+                        }
+                        ?>
                         <tr>
                             <td>
                                 <?php if ( $student->picture ) : ?>
@@ -290,8 +338,31 @@ class SM_Students_Page {
                             <td><?php echo esc_html( $student->email ); ?></td>
                             <td><?php echo esc_html( $student->phone ); ?></td>
                             <td><span class="sm-level-badge"><?php echo esc_html( $student->level_name ?: '—' ); ?></span></td>
-                            <td><?php echo esc_html( $student->blood_type ?: '—' ); ?></td>
-                            <td><?php echo esc_html( date( 'M j, Y', strtotime( $student->created_at ) ) ); ?></td>
+                            <td>
+                                <?php if ( $active_enrollments > 0 ) : ?>
+                                    <span style="color: #2271b1;">
+                                        <strong><?php echo esc_html( $active_enrollments ); ?></strong>
+                                        <?php echo esc_html( _n( 'course', 'courses', $active_enrollments, 'school-management' ) ); ?>
+                                    </span>
+                                <?php else : ?>
+                                    <span style="color: #999;"><?php esc_html_e( 'None', 'school-management' ); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span style="display: inline-flex; align-items: center; padding: 3px 8px; background: <?php echo esc_attr( $status_bg ); ?>; border-radius: 3px; font-size: 11px;">
+                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: <?php echo esc_attr( $status_color ); ?>; margin-right: 5px;"></span>
+                                    <strong style="color: <?php echo esc_attr( $status_color ); ?>;"><?php echo esc_html( $status_label ); ?></strong>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if ( $total_outstanding > 0 ) : ?>
+                                    <strong style="color: <?php echo $overdue_amount > 0 ? '#d63638' : '#f0ad4e'; ?>;">
+                                        <?php echo esc_html( number_format( $total_outstanding, 2 ) ); ?> DZD
+                                    </strong>
+                                <?php else : ?>
+                                    <span style="color: #999;">—</span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <a href="?page=school-management-students&action=edit&student_id=<?php echo intval( $student->id ); ?>" 
                                    class="button button-small" title="<?php esc_attr_e( 'Edit Student', 'school-management' ); ?>">
