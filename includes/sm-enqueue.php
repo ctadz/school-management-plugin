@@ -57,13 +57,13 @@ class SM_Enqueue {
             'sm-admin-js',
             'sm_i18n',
             [
-                'uploadSuccess' => __( 'Upload successful!', 'school-management' ),
-                'uploadError'   => __( 'Upload failed. Please try again.', 'school-management' ),
-                'selectLogo'    => __( 'Select a logo', 'school-management' ),
-                'selectPicture' => __( 'Select a picture', 'school-management' ),
-                'selectFile'    => __( 'Select a file', 'school-management' ),
-                'usePicture'    => __( 'Use this picture', 'school-management' ),
-                'useFile'       => __( 'Use this file', 'school-management' ),
+                'uploadSuccess' => __( 'Upload successful!', 'CTADZ-school-management' ),
+                'uploadError'   => __( 'Upload failed. Please try again.', 'CTADZ-school-management' ),
+                'selectLogo'    => __( 'Select a logo', 'CTADZ-school-management' ),
+                'selectPicture' => __( 'Select a picture', 'CTADZ-school-management' ),
+                'selectFile'    => __( 'Select a file', 'CTADZ-school-management' ),
+                'usePicture'    => __( 'Use this picture', 'CTADZ-school-management' ),
+                'useFile'       => __( 'Use this file', 'CTADZ-school-management' ),
             ]
         );
 
@@ -73,9 +73,9 @@ class SM_Enqueue {
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'sm_enrollment_nonce' ),
             'strings' => [
-                'loading' => __( 'Loading...', 'school-management' ),
-                'error' => __( 'An error occurred. Please try again.', 'school-management' ),
-                'selectCourse' => __( 'Please select a course first', 'school-management' ),
+                'loading' => __( 'Loading...', 'CTADZ-school-management' ),
+                'error' => __( 'An error occurred. Please try again.', 'CTADZ-school-management' ),
+                'selectCourse' => __( 'Please select a course first', 'CTADZ-school-management' ),
             ]
         ] );
         // ===== END NEW =====
@@ -96,7 +96,7 @@ class SM_Enqueue {
     public function admin_custom_styles() {
         // Only output on school management pages
         $screen = get_current_screen();
-        if ( ! $screen || strpos( $screen->id, 'school-management' ) === false ) {
+        if ( ! $screen || strpos( $screen->id, 'CTADZ-school-management' ) === false ) {
             return;
         }
         ?>

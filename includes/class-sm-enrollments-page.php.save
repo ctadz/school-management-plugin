@@ -361,164 +361,39 @@ class SM_Enrollments_Page {
     /**
      * Render enrollments list
      */
-    /**
-     * Render enrollments list
-     */
     private static function render_enrollments_list() {
         global $wpdb;
         $enrollments_table = $wpdb->prefix . 'sm_enrollments';
         $students_table = $wpdb->prefix . 'sm_students';
         $courses_table = $wpdb->prefix . 'sm_courses';
-        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
-        $enrollment_fees_table = $wpdb->prefix . 'sm_enrollment_fees';
-
-        // Get filter parameters
-        $filter_payment_status = isset( $_GET['filter_payment_status'] ) ? sanitize_text_field( $_GET['filter_payment_status'] ) : '';
-        $filter_enrollment_status = isset( $_GET['filter_enrollment_status'] ) ? sanitize_text_field( $_GET['filter_enrollment_status'] ) : '';
-        $filter_payment_model = isset( $_GET['filter_payment_model'] ) ? sanitize_text_field( $_GET['filter_payment_model'] ) : '';
 
         // Pagination
         $per_page = 20;
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for filtering
-        $where_clauses = [];
-        if ( ! empty( $filter_payment_status ) ) {
-            $where_clauses[] = $wpdb->prepare( "e.payment_status = %s", $filter_payment_status );
-        }
-        if ( ! empty( $filter_enrollment_status ) ) {
-            $where_clauses[] = $wpdb->prepare( "e.status = %s", $filter_enrollment_status );
-        }
-        if ( ! empty( $filter_payment_model ) ) {
-            $where_clauses[] = $wpdb->prepare( "c.payment_model = %s", $filter_payment_model );
-        }
-        $where_clause = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
-
-        $total_enrollments = $wpdb->get_var( "SELECT COUNT(*) FROM $enrollments_table e LEFT JOIN $courses_table c ON e.course_id = c.id $where_clause" );
+        $total_enrollments = $wpdb->get_var( "SELECT COUNT(*) FROM $enrollments_table" );
         $total_pages = ceil( $total_enrollments / $per_page );
 
-        // Get enrollments with student and course names, plus payment info
+        // Get enrollments with student and course names
         $enrollments = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT e.*, 
-                    s.name as student_name, 
-                    c.name as course_name,
-                    c.payment_model,
-                    c.price_per_month,
-                    c.total_price,
-                    c.total_months
+            "SELECT e.*, s.name as student_name, c.name as course_name 
              FROM $enrollments_table e 
              LEFT JOIN $students_table s ON e.student_id = s.id 
              LEFT JOIN $courses_table c ON e.course_id = c.id 
-             $where_clause
              ORDER BY e.enrollment_date DESC 
              LIMIT %d OFFSET %d", 
             $per_page, 
             $offset 
         ) );
 
-        // Calculate payment progress for each enrollment
-        foreach ( $enrollments as $enrollment ) {
-            // Get total fees (insurance + books)
-            $total_fees = $wpdb->get_var( $wpdb->prepare(
-                "SELECT COALESCE(SUM(amount), 0) FROM $enrollment_fees_table WHERE enrollment_id = %d",
-                $enrollment->id
-            ) );
-            
-            // Get paid fees
-            $paid_fees = $wpdb->get_var( $wpdb->prepare(
-                "SELECT COALESCE(SUM(ef.amount), 0) 
-                 FROM $enrollment_fees_table ef 
-                 WHERE ef.enrollment_id = %d AND ef.status = 'paid'",
-                $enrollment->id
-            ) );
-            
-            // Get total expected from payment schedule
-            $total_expected = $wpdb->get_var( $wpdb->prepare(
-                "SELECT COALESCE(SUM(expected_amount), 0) FROM $payment_schedules_table WHERE enrollment_id = %d",
-                $enrollment->id
-            ) );
-            
-            // Get total paid from payment schedule
-            $total_paid = $wpdb->get_var( $wpdb->prepare(
-                "SELECT COALESCE(SUM(paid_amount), 0) FROM $payment_schedules_table WHERE enrollment_id = %d",
-                $enrollment->id
-            ) );
-            
-            // Calculate totals
-            $enrollment->total_amount = $total_expected + $total_fees;
-            $enrollment->paid_amount = $total_paid + $paid_fees;
-            $enrollment->remaining_amount = $enrollment->total_amount - $enrollment->paid_amount;
-            $enrollment->payment_progress = $enrollment->total_amount > 0 ? ( $enrollment->paid_amount / $enrollment->total_amount ) * 100 : 0;
-        }
-
         ?>
-        <style>
-        .sm-progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #f0f0f1;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 5px;
-        }
-        .sm-progress-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .sm-progress-fill.high { background: #46b450; }
-        .sm-progress-fill.medium { background: #f0ad4e; }
-        .sm-progress-fill.low { background: #dc3232; }
-        </style>
-        
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Enrollments List', 'CTADZ-school-management' ); ?></h2>
-                <p class="description">
-                    <?php 
-                    if ( ! empty( $filter_payment_status ) || ! empty( $filter_enrollment_status ) || ! empty( $filter_payment_model ) ) {
-                        printf( esc_html__( 'Showing %d filtered enrollments', 'CTADZ-school-management' ), $total_enrollments );
-                        echo ' <a href="?page=school-management-enrollments" style="margin-left: 10px;">' . esc_html__( '[Clear filters]', 'CTADZ-school-management' ) . '</a>';
-                    } else {
-                        printf( esc_html__( 'Total: %d enrollments', 'CTADZ-school-management' ), $total_enrollments );
-                    }
-                    ?>
-                </p>
+                <p class="description"><?php printf( esc_html__( 'Total: %d enrollments', 'CTADZ-school-management' ), $total_enrollments ); ?></p>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <!-- Payment Status Filter -->
-                <select id="filter_payment_status" onchange="updateFilters()">
-                    <option value=""><?php esc_html_e( 'All Payment Statuses', 'CTADZ-school-management' ); ?></option>
-                    <option value="paid" <?php selected( $filter_payment_status, 'paid' ); ?>><?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></option>
-                    <option value="unpaid" <?php selected( $filter_payment_status, 'unpaid' ); ?>><?php esc_html_e( 'Unpaid', 'CTADZ-school-management' ); ?></option>
-                    <option value="partial" <?php selected( $filter_payment_status, 'partial' ); ?>><?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?></option>
-                    <option value="overdue" <?php selected( $filter_payment_status, 'overdue' ); ?>><?php esc_html_e( 'Overdue', 'CTADZ-school-management' ); ?></option>
-                </select>
-                
-                <!-- Enrollment Status Filter -->
-                <select id="filter_enrollment_status" onchange="updateFilters()">
-                    <option value=""><?php esc_html_e( 'All Enrollment Statuses', 'CTADZ-school-management' ); ?></option>
-                    <option value="active" <?php selected( $filter_enrollment_status, 'active' ); ?>><?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></option>
-                    <option value="completed" <?php selected( $filter_enrollment_status, 'completed' ); ?>><?php esc_html_e( 'Completed', 'CTADZ-school-management' ); ?></option>
-                    <option value="dropped" <?php selected( $filter_enrollment_status, 'dropped' ); ?>><?php esc_html_e( 'Dropped', 'CTADZ-school-management' ); ?></option>
-                    <option value="suspended" <?php selected( $filter_enrollment_status, 'suspended' ); ?>><?php esc_html_e( 'Suspended', 'CTADZ-school-management' ); ?></option>
-                </select>
-                
-                <!-- Payment Model Filter -->
-                <select id="filter_payment_model" onchange="updateFilters()">
-                    <option value=""><?php esc_html_e( 'All Payment Models', 'CTADZ-school-management' ); ?></option>
-                    <option value="full_payment" <?php selected( $filter_payment_model, 'full_payment' ); ?>><?php esc_html_e( 'Full Payment', 'CTADZ-school-management' ); ?></option>
-                    <option value="monthly_installments" <?php selected( $filter_payment_model, 'monthly_installments' ); ?>><?php esc_html_e( 'Installments', 'CTADZ-school-management' ); ?></option>
-                    <option value="monthly_subscription" <?php selected( $filter_payment_model, 'monthly_subscription' ); ?>><?php esc_html_e( 'Subscription', 'CTADZ-school-management' ); ?></option>
-                </select>
-                
+            <div>
                 <a href="?page=school-management-enrollments&action=add" class="button button-primary">
                     <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
                     <?php esc_html_e( 'New Enrollment', 'CTADZ-school-management' ); ?>
@@ -526,32 +401,16 @@ class SM_Enrollments_Page {
             </div>
         </div>
 
-        <script>
-        function updateFilters() {
-            var paymentStatus = document.getElementById('filter_payment_status').value;
-            var enrollmentStatus = document.getElementById('filter_enrollment_status').value;
-            var paymentModel = document.getElementById('filter_payment_model').value;
-            var url = '?page=school-management-enrollments';
-            
-            if (paymentStatus) url += '&filter_payment_status=' + paymentStatus;
-            if (enrollmentStatus) url += '&filter_enrollment_status=' + enrollmentStatus;
-            if (paymentModel) url += '&filter_payment_model=' + paymentModel;
-            
-            window.location.href = url;
-        }
-        </script>
-
         <?php if ( $enrollments ) : ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
                         <th><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Plan', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 200px;"><?php esc_html_e( 'Payment Progress', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Enrolled', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Start Date', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Payment', 'CTADZ-school-management' ); ?></th>
                         <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
@@ -560,79 +419,8 @@ class SM_Enrollments_Page {
                         <tr>
                             <td><strong><?php echo esc_html( $enrollment->student_name ?: '—' ); ?></strong></td>
                             <td><?php echo esc_html( $enrollment->course_name ?: '—' ); ?></td>
-                            
-                            <!-- Payment Model Badge -->
-                            <td>
-                                <?php
-                                // Payment model display with icons and colors (matching Courses List)
-                                $payment_model_display = [
-                                    'full_payment' => [
-                                        'label' => __( 'Full Payment', 'CTADZ-school-management' ),
-                                        'icon' => 'dashicons-money-alt',
-                                        'color' => '#46b450',
-                                        'bg' => '#ecf7ed',
-                                    ],
-                                    'monthly_installments' => [
-                                        'label' => __( 'Installments', 'CTADZ-school-management' ),
-                                        'icon' => 'dashicons-calendar-alt',
-                                        'color' => '#00a0d2',
-                                        'bg' => '#e5f5fa',
-                                    ],
-                                    'monthly_subscription' => [
-                                        'label' => __( 'Subscription', 'CTADZ-school-management' ),
-                                        'icon' => 'dashicons-update',
-                                        'color' => '#f0ad4e',
-                                        'bg' => '#fef8e7',
-                                    ],
-                                ];
-                                
-                                $model = $enrollment->payment_model ?? 'monthly_installments';
-                                $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
-                                ?>
-                                <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: <?php echo esc_attr( $display['bg'] ); ?>; border-radius: 4px; font-size: 12px;">
-                                    <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>" style="font-size: 14px; color: <?php echo esc_attr( $display['color'] ); ?>; margin-right: 5px;"></span>
-                                    <strong style="color: <?php echo esc_attr( $display['color'] ); ?>;"><?php echo esc_html( $display['label'] ); ?></strong>
-                                </span>
-                            </td>
-                            
-                            <!-- Payment Plan -->
-                            <td>
-                                <?php
-                                $payment_plan_labels = [
-                                    'monthly' => __( 'Monthly', 'CTADZ-school-management' ),
-                                    'quarterly' => __( 'Quarterly', 'CTADZ-school-management' ),
-                                    'full' => __( 'Full Payment', 'CTADZ-school-management' ),
-                                ];
-                                $plan_label = $payment_plan_labels[ $enrollment->payment_plan ?? 'monthly' ] ?? $enrollment->payment_plan;
-                                echo esc_html( $plan_label );
-                                ?>
-                            </td>
-                            
-                            <!-- Payment Progress -->
-                            <td>
-                                <?php
-                                $progress = round( $enrollment->payment_progress );
-                                $progress_class = $progress >= 75 ? 'high' : ( $progress >= 40 ? 'medium' : 'low' );
-                                ?>
-                                <div class="sm-progress-bar">
-                                    <div class="sm-progress-fill <?php echo esc_attr( $progress_class ); ?>" style="width: <?php echo esc_attr( $progress ); ?>%;">
-                                        <?php if ( $progress > 15 ) echo esc_html( $progress . '%' ); ?>
-                                    </div>
-                                </div>
-                                <div style="font-size: 11px; color: #666; text-align: center;">
-                                    <?php 
-                                    printf( 
-                                        esc_html__( '%s / %s', 'CTADZ-school-management' ),
-                                        '<strong>' . number_format( $enrollment->paid_amount, 2 ) . '</strong>',
-                                        number_format( $enrollment->total_amount, 2 )
-                                    );
-                                    ?>
-                                </div>
-                            </td>
-                            
                             <td><?php echo esc_html( date( 'M j, Y', strtotime( $enrollment->enrollment_date ) ) ); ?></td>
-                            
-                            <!-- Enrollment Status -->
+                            <td><?php echo esc_html( date( 'M j, Y', strtotime( $enrollment->start_date ) ) ); ?></td>
                             <td>
                                 <?php
                                 $status_colors = [
@@ -652,8 +440,25 @@ class SM_Enrollments_Page {
                                 ?>
                                 <span style="color: <?php echo esc_attr( $color ); ?>;">● <?php echo esc_html( $label ); ?></span>
                             </td>
-                            
-                            <!-- Actions -->
+                            <td>
+                                <?php
+                                $payment_colors = [
+                                    'paid' => '#46b450',
+                                    'unpaid' => '#dc3232',
+                                    'partial' => '#f0ad4e',
+                                    'overdue' => '#d63638'
+                                ];
+                                $p_color = $payment_colors[ $enrollment->payment_status ] ?? '#666';
+                                $payment_labels = [
+                                    'paid' => __( 'Paid', 'CTADZ-school-management' ),
+                                    'unpaid' => __( 'Unpaid', 'CTADZ-school-management' ),
+                                    'partial' => __( 'Partial', 'CTADZ-school-management' ),
+                                    'overdue' => __( 'Overdue', 'CTADZ-school-management' )
+                                ];
+                                $p_label = $payment_labels[ $enrollment->payment_status ] ?? $enrollment->payment_status;
+                                ?>
+                                <span style="color: <?php echo esc_attr( $p_color ); ?>;">● <?php echo esc_html( $p_label ); ?></span>
+                            </td>
                             <td>
                                 <a href="?page=school-management-enrollments&action=edit&enrollment_id=<?php echo intval( $enrollment->id ); ?>" class="button button-small">
                                     <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
@@ -678,19 +483,8 @@ class SM_Enrollments_Page {
             <?php
             // Pagination
             if ( $total_pages > 1 ) {
-                $base_url = remove_query_arg( 'paged' );
-                if ( ! empty( $filter_payment_status ) ) {
-                    $base_url = add_query_arg( 'filter_payment_status', $filter_payment_status, $base_url );
-                }
-                if ( ! empty( $filter_enrollment_status ) ) {
-                    $base_url = add_query_arg( 'filter_enrollment_status', $filter_enrollment_status, $base_url );
-                }
-                if ( ! empty( $filter_payment_model ) ) {
-                    $base_url = add_query_arg( 'filter_payment_model', $filter_payment_model, $base_url );
-                }
-                
                 $pagination_args = [
-                    'base' => add_query_arg( 'paged', '%#%', $base_url ),
+                    'base' => add_query_arg( 'paged', '%#%' ),
                     'format' => '',
                     'prev_text' => __( '« Previous', 'CTADZ-school-management' ),
                     'next_text' => __( 'Next »', 'CTADZ-school-management' ),
@@ -706,22 +500,11 @@ class SM_Enrollments_Page {
         <?php else : ?>
             <div class="sm-empty-state" style="text-align: center; padding: 60px 20px; background: #fafafa; border: 1px dashed #ddd; border-radius: 4px;">
                 <span class="dashicons dashicons-welcome-learn-more" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 16px;"></span>
-                <h3><?php esc_html_e( 'No Enrollments Found', 'CTADZ-school-management' ); ?></h3>
-                <p>
-                    <?php 
-                    if ( ! empty( $filter_payment_status ) || ! empty( $filter_enrollment_status ) || ! empty( $filter_payment_model ) ) {
-                        esc_html_e( 'No enrollments match the selected filters.', 'CTADZ-school-management' );
-                        echo '<br><a href="?page=school-management-enrollments">' . esc_html__( 'View all enrollments', 'CTADZ-school-management' ) . '</a>';
-                    } else {
-                        esc_html_e( 'Start enrolling students in courses.', 'CTADZ-school-management' );
-                    }
-                    ?>
-                </p>
-                <?php if ( empty( $filter_payment_status ) && empty( $filter_enrollment_status ) && empty( $filter_payment_model ) ) : ?>
-                    <a href="?page=school-management-enrollments&action=add" class="button button-primary">
-                        <?php esc_html_e( 'Create First Enrollment', 'CTADZ-school-management' ); ?>
-                    </a>
-                <?php endif; ?>
+                <h3><?php esc_html_e( 'No Enrollments Yet', 'CTADZ-school-management' ); ?></h3>
+                <p><?php esc_html_e( 'Start enrolling students in courses.', 'CTADZ-school-management' ); ?></p>
+                <a href="?page=school-management-enrollments&action=add" class="button button-primary">
+                    <?php esc_html_e( 'Create First Enrollment', 'CTADZ-school-management' ); ?>
+                </a>
             </div>
         <?php endif;
     }

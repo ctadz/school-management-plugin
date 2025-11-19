@@ -22,6 +22,18 @@ define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SM_VERSION', '0.4.2' );
 
+/**
+ * Load plugin text domain for translations
+ */
+function sm_load_textdomain() {
+    load_plugin_textdomain(
+        'CTADZ-school-management',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages/'
+    );
+}
+add_action( 'plugins_loaded', 'sm_load_textdomain' );
+
 // Include the loader file.
 require_once SM_PLUGIN_DIR . 'includes/sm-loader.php';
 

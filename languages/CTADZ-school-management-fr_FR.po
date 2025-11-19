@@ -1,0 +1,806 @@
+# French translation for School Management Plugin
+# Copyright (C) 2025 Ahmed Sebaa
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: School Management 0.4.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/school-management\n"
+"POT-Creation-Date: 2025-11-17T12:40:08+00:00\n"
+"PO-Revision-Date: 2025-11-18 11:34+0100\n"
+"Last-Translator: Ahmed Sebaa\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.7\n"
+"X-Domain: CTADZ-school-management\n"
+
+#. Plugin Name
+msgid "School Management"
+msgstr "Gestion Scolaire"
+
+msgid "Dashboard"
+msgstr "Tableau de Bord"
+
+msgid "Students"
+msgstr "Étudiants"
+
+msgid "Teachers"
+msgstr "Enseignants"
+
+msgid "Courses"
+msgstr "Cours"
+
+msgid "Levels"
+msgstr "Niveaux"
+
+msgid "Classrooms"
+msgstr "Salles de Classe"
+
+msgid "Enrollments"
+msgstr "Inscriptions"
+
+msgid "Payment Terms"
+msgstr "Modalités de Paiement"
+
+msgid "Payments"
+msgstr "Paiements"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Vous n'avez pas les permissions suffisantes pour accéder à cette page."
+
+msgid "School Management System"
+msgstr "Système de Gestion Scolaire"
+
+msgid "Management Dashboard"
+msgstr "Tableau de Bord de Gestion"
+
+msgid "Total Students"
+msgstr "Total des Étudiants"
+
+msgid "Manage Students"
+msgstr "Gérer les Étudiants"
+
+msgid "Active Teachers"
+msgstr "Enseignants Actifs"
+
+msgid "Manage Teachers"
+msgstr "Gérer les Enseignants"
+
+msgid "Active Courses"
+msgstr "Cours Actifs"
+
+msgid "Manage Courses"
+msgstr "Gérer les Cours"
+
+msgid "Course Levels"
+msgstr "Niveaux de Cours"
+
+msgid "Manage Levels"
+msgstr "Gérer les Niveaux"
+
+msgid "Active Enrollments"
+msgstr "Inscriptions Actives"
+
+msgid "Manage Enrollments"
+msgstr "Gérer les Inscriptions"
+
+msgid "Manage Classrooms"
+msgstr "Gérer les Salles de Classe"
+
+msgid "Manage Terms"
+msgstr "Gérer les Modalités"
+
+msgid "Outstanding Balance"
+msgstr "Solde Impayé"
+
+msgid "Manage Payments"
+msgstr "Gérer les Paiements"
+
+msgid "Add New Student"
+msgstr "Ajouter un Nouvel Étudiant"
+
+msgid "Add New Course"
+msgstr "Ajouter un Nouveau Cours"
+
+msgid "New Enrollment"
+msgstr "Nouvelle Inscription"
+
+msgid "Add New Teacher"
+msgstr "Ajouter un Nouvel Enseignant"
+
+msgid "Please correct the following errors:"
+msgstr "Veuillez corriger les erreurs suivantes :"
+
+msgid "Classroom deleted successfully."
+msgstr "Salle supprimée avec succès."
+
+msgid "Classroom updated successfully."
+msgstr "Salle mise à jour avec succès."
+
+msgid "Classroom added successfully."
+msgstr "Salle ajoutée avec succès."
+
+msgid "Classroom name is required."
+msgstr "Le nom de la salle est requis."
+
+msgid "Capacity cannot be negative."
+msgstr "La capacité ne peut pas être négative."
+
+msgid "Classrooms List"
+msgstr "Liste des Salles"
+
+msgid "Add New Classroom"
+msgstr "Ajouter une Nouvelle Salle"
+
+msgid "Classroom Name"
+msgstr "Nom de la Salle"
+
+msgid "Capacity"
+msgstr "Capacité"
+
+msgid "Location"
+msgstr "Emplacement"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "students"
+msgstr "étudiants"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "« Previous"
+msgstr "« Précédent"
+
+msgid "Next »"
+msgstr "Suivant »"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Required fields"
+msgstr "Champs obligatoires"
+
+msgid "Course deleted successfully."
+msgstr "Cours supprimé avec succès."
+
+msgid "Course updated successfully."
+msgstr "Cours mis à jour avec succès."
+
+msgid "Course added successfully."
+msgstr "Cours ajouté avec succès."
+
+msgid "Course name is required."
+msgstr "Le nom du cours est requis."
+
+msgid "Course description is required."
+msgstr "La description du cours est requise."
+
+msgid "Language is required."
+msgstr "La langue est requise."
+
+msgid "Level is required."
+msgstr "Le niveau est requis."
+
+msgid "Teacher is required."
+msgstr "L'enseignant est requis."
+
+msgid "Price per month is required."
+msgstr "Le prix par mois est requis."
+
+msgid "Please select a payment model."
+msgstr "Veuillez sélectionner un modèle de paiement."
+
+msgid "Courses List"
+msgstr "Liste des Cours"
+
+msgid "Full Payment"
+msgstr "Paiement Complet"
+
+msgid "Monthly Installments"
+msgstr "Mensualités"
+
+msgid "Monthly Subscription"
+msgstr "Abonnement Mensuel"
+
+msgid "Course Name"
+msgstr "Nom du Cours"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Level"
+msgstr "Niveau"
+
+msgid "Teacher"
+msgstr "Enseignant"
+
+msgid "Duration"
+msgstr "Durée"
+
+msgid "Payment Model"
+msgstr "Modèle de Paiement"
+
+msgid "Price/Month"
+msgstr "Prix/Mois"
+
+msgid "weeks"
+msgstr "semaines"
+
+msgid "Installments"
+msgstr "Mensualités"
+
+msgid "Subscription"
+msgstr "Abonnement"
+
+msgid "student"
+msgid_plural "students"
+msgstr[0] "étudiant"
+msgstr[1] "étudiants"
+
+msgid "No enrollments"
+msgstr "Aucune inscription"
+
+msgid "Upcoming"
+msgstr "À Venir"
+
+msgid "In Progress"
+msgstr "En Cours"
+
+msgid "Completed"
+msgstr "Terminé"
+
+msgid "Back to Courses"
+msgstr "Retour aux Cours"
+
+msgid "Edit Course"
+msgstr "Modifier le Cours"
+
+msgid "Basic Information"
+msgstr "Informations de Base"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Select Language"
+msgstr "Sélectionner la Langue"
+
+msgid "French"
+msgstr "Français"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "Select Level"
+msgstr "Sélectionner le Niveau"
+
+msgid "Select Teacher"
+msgstr "Sélectionner l'Enseignant"
+
+msgid "Classroom"
+msgstr "Salle de Classe"
+
+msgid "Session Duration"
+msgstr "Durée de la Session"
+
+msgid "hours"
+msgstr "heures"
+
+msgid "minutes"
+msgstr "minutes"
+
+msgid "Hours Per Week"
+msgstr "Heures par Semaine"
+
+msgid "Total Weeks"
+msgstr "Total de Semaines"
+
+msgid "Total Months"
+msgstr "Total de Mois"
+
+msgid "months"
+msgstr "mois"
+
+msgid "Pricing"
+msgstr "Tarification"
+
+msgid "Payment Models"
+msgstr "Modèles de Paiement"
+
+msgid "Price Per Month"
+msgstr "Prix par Mois"
+
+msgid "Total Course Price"
+msgstr "Prix Total du Cours"
+
+msgid "Certification"
+msgstr "Certification"
+
+msgid "No Certification"
+msgstr "Aucune Certification"
+
+msgid "School Diploma"
+msgstr "Diplôme de l'École"
+
+msgid "State Diploma"
+msgstr "Diplôme d'État"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Course Status"
+msgstr "Statut du Cours"
+
+msgid "Update Course"
+msgstr "Mettre à Jour le Cours"
+
+msgid "Add Course"
+msgstr "Ajouter un Cours"
+
+msgid "Enrollment deleted successfully."
+msgstr "Inscription supprimée avec succès."
+
+msgid "Enrollment updated successfully."
+msgstr "Inscription mise à jour avec succès."
+
+msgid "Enrollment added successfully with payment schedule generated."
+msgstr "Inscription ajoutée avec succès avec échéancier de paiement généré."
+
+msgid "Please select a student."
+msgstr "Veuillez sélectionner un étudiant."
+
+msgid "Please select a course."
+msgstr "Veuillez sélectionner un cours."
+
+msgid "Enrollment date is required."
+msgstr "La date d'inscription est requise."
+
+msgid "Start date is required."
+msgstr "La date de début est requise."
+
+msgid "Start date cannot be before enrollment date."
+msgstr "La date de début ne peut pas être avant la date d'inscription."
+
+msgid "This student is already enrolled in this course."
+msgstr "Cet étudiant est déjà inscrit à ce cours."
+
+msgid "Enrollments List"
+msgstr "Liste des Inscriptions"
+
+msgid "Student"
+msgstr "Étudiant"
+
+msgid "Course"
+msgstr "Cours"
+
+msgid "Enrolled"
+msgstr "Inscrit"
+
+msgid "Start Date"
+msgstr "Date de Début"
+
+msgid "Payment"
+msgstr "Paiement"
+
+msgid "Dropped"
+msgstr "Abandonné"
+
+msgid "Suspended"
+msgstr "Suspendu"
+
+msgid "Paid"
+msgstr "Payé"
+
+msgid "Unpaid"
+msgstr "Impayé"
+
+msgid "Partial"
+msgstr "Partiel"
+
+msgid "Overdue"
+msgstr "En Retard"
+
+msgid "Back to Enrollments"
+msgstr "Retour aux Inscriptions"
+
+msgid "Edit Enrollment"
+msgstr "Modifier l'Inscription"
+
+msgid "Select Student"
+msgstr "Sélectionner l'Étudiant"
+
+msgid "Select Course"
+msgstr "Sélectionner le Cours"
+
+msgid "Enrollment Date"
+msgstr "Date d'Inscription"
+
+msgid "End Date"
+msgstr "Date de Fin"
+
+msgid "Payment Information"
+msgstr "Informations de Paiement"
+
+msgid "Insurance Fee"
+msgstr "Frais d'Assurance"
+
+msgid "Book Fee"
+msgstr "Frais de Livres"
+
+msgid "Payment Plan"
+msgstr "Plan de Paiement"
+
+msgid "Monthly Payments"
+msgstr "Paiements Mensuels"
+
+msgid "Quarterly Payments (Every 3 months)"
+msgstr "Paiements Trimestriels (Tous les 3 mois)"
+
+msgid "Full Payment (One-time)"
+msgstr "Paiement Complet (Unique)"
+
+msgid "Choose how the student will pay for the course."
+msgstr "Choisissez comment l'étudiant paiera le cours."
+
+msgid "Enrollment Status"
+msgstr "Statut d'Inscription"
+
+msgid "Payment Status"
+msgstr "Statut de Paiement"
+
+msgid "Notes"
+msgstr "Notes"
+
+msgid "Update Enrollment"
+msgstr "Mettre à Jour l'Inscription"
+
+msgid "Create Enrollment"
+msgstr "Créer une Inscription"
+
+msgid "/month"
+msgstr "/mois"
+
+msgid "Level deleted successfully."
+msgstr "Niveau supprimé avec succès."
+
+msgid "Level updated successfully."
+msgstr "Niveau mis à jour avec succès."
+
+msgid "Level added successfully."
+msgstr "Niveau ajouté avec succès."
+
+msgid "Level name is required."
+msgstr "Le nom du niveau est requis."
+
+msgid "Add New Level"
+msgstr "Ajouter un Nouveau Niveau"
+
+msgid "Level Name"
+msgstr "Nom du Niveau"
+
+msgid "Back to Levels"
+msgstr "Retour aux Niveaux"
+
+msgid "Edit Level"
+msgstr "Modifier le Niveau"
+
+msgid "Sort Order"
+msgstr "Ordre de Tri"
+
+msgid "Update Level"
+msgstr "Mettre à Jour le Niveau"
+
+msgid "Payment term deleted successfully."
+msgstr "Modalité de paiement supprimée avec succès."
+
+msgid "Payment term updated successfully."
+msgstr "Modalité de paiement mise à jour avec succès."
+
+msgid "Payment term added successfully."
+msgstr "Modalité de paiement ajoutée avec succès."
+
+msgid "Manage Payment Terms"
+msgstr "Gérer les Modalités de Paiement"
+
+msgid "Add New Payment Term"
+msgstr "Ajouter une Nouvelle Modalité"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Percentage"
+msgstr "Pourcentage"
+
+msgid "Back to Payment Terms"
+msgstr "Retour aux Modalités de Paiement"
+
+msgid "Edit Payment Term"
+msgstr "Modifier la Modalité"
+
+msgid "Update Payment Term"
+msgstr "Mettre à Jour la Modalité"
+
+msgid "Add Payment Term"
+msgstr "Ajouter une Modalité"
+
+msgid "Payments Management"
+msgstr "Gestion des Paiements"
+
+msgid "Payments Overview"
+msgstr "Aperçu des Paiements"
+
+msgid "Progress"
+msgstr "Progression"
+
+msgid "Total Expected"
+msgstr "Total Attendu"
+
+msgid "Total Paid"
+msgstr "Total Payé"
+
+msgid "Payment Details"
+msgstr "Détails du Paiement"
+
+msgid "Back to Payments"
+msgstr "Retour aux Paiements"
+
+msgid "Enrollment Information"
+msgstr "Informations sur l'Inscription"
+
+msgid "Payment Summary"
+msgstr "Résumé du Paiement"
+
+msgid "Balance Due"
+msgstr "Solde Dû"
+
+msgid "Enrollment Fees"
+msgstr "Frais d'Inscription"
+
+msgid "Fee Type"
+msgstr "Type de Frais"
+
+msgid "Amount"
+msgstr "Montant"
+
+msgid "Due Date"
+msgstr "Date d'Échéance"
+
+msgid "Paid Date"
+msgstr "Date de Paiement"
+
+msgid "Payment Schedule"
+msgstr "Échéancier de Paiement"
+
+msgid "Record Payment"
+msgstr "Enregistrer le Paiement"
+
+msgid "Installment"
+msgstr "Mensualité"
+
+msgid "Expected Amount"
+msgstr "Montant Attendu"
+
+msgid "Paid Amount"
+msgstr "Montant Payé"
+
+msgid "Pending"
+msgstr "En Attente"
+
+msgid "Payment History"
+msgstr "Historique des Paiements"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Method"
+msgstr "Méthode"
+
+msgid "Reference"
+msgstr "Référence"
+
+msgid "Payment Type"
+msgstr "Type de Paiement"
+
+msgid "Payment Date"
+msgstr "Date de Paiement"
+
+msgid "Payment Method"
+msgstr "Méthode de Paiement"
+
+msgid "Cash"
+msgstr "Espèces"
+
+msgid "Check"
+msgstr "Chèque"
+
+msgid "Bank Transfer"
+msgstr "Virement Bancaire"
+
+msgid "Card"
+msgstr "Carte"
+
+msgid "Reference Number"
+msgstr "Numéro de Référence"
+
+msgid "Student deleted successfully."
+msgstr "Étudiant supprimé avec succès."
+
+msgid "Student updated successfully."
+msgstr "Étudiant mis à jour avec succès."
+
+msgid "Student added successfully."
+msgstr "Étudiant ajouté avec succès."
+
+msgid "Student name is required."
+msgstr "Le nom de l'étudiant est requis."
+
+msgid "Email address is required."
+msgstr "L'adresse e-mail est requise."
+
+msgid "Phone number is required."
+msgstr "Le numéro de téléphone est requis."
+
+msgid "Date of birth is required."
+msgstr "La date de naissance est requise."
+
+msgid "Students List"
+msgstr "Liste des Étudiants"
+
+msgid "Picture"
+msgstr "Photo"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Balance"
+msgstr "Solde"
+
+msgid "Paid Up"
+msgstr "Payé"
+
+msgid "No Enrollments"
+msgstr "Aucune Inscription"
+
+msgid "course"
+msgid_plural "courses"
+msgstr[0] "cours"
+msgstr[1] "cours"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Edit Student"
+msgstr "Modifier l'Étudiant"
+
+msgid "Delete Student"
+msgstr "Supprimer l'Étudiant"
+
+msgid "Back to Students"
+msgstr "Retour aux Étudiants"
+
+msgid "Student Picture"
+msgstr "Photo de l'Étudiant"
+
+msgid "Click to upload"
+msgstr "Cliquez pour télécharger"
+
+msgid "Full Name"
+msgstr "Nom Complet"
+
+msgid "Email Address"
+msgstr "Adresse E-mail"
+
+msgid "Phone Number"
+msgstr "Numéro de Téléphone"
+
+msgid "Date of Birth"
+msgstr "Date de Naissance"
+
+msgid "Blood Type"
+msgstr "Groupe Sanguin"
+
+msgid "Update Student"
+msgstr "Mettre à Jour l'Étudiant"
+
+msgid "Add Student"
+msgstr "Ajouter un Étudiant"
+
+msgid "Teacher deleted successfully."
+msgstr "Enseignant supprimé avec succès."
+
+msgid "Teacher updated successfully."
+msgstr "Enseignant mis à jour avec succès."
+
+msgid "Teacher added successfully."
+msgstr "Enseignant ajouté avec succès."
+
+msgid "First name is required."
+msgstr "Le prénom est requis."
+
+msgid "Last name is required."
+msgstr "Le nom de famille est requis."
+
+msgid "Teachers List"
+msgstr "Liste des Enseignants"
+
+msgid "Payment Term"
+msgstr "Modalité de Paiement"
+
+msgid "Hourly Rate"
+msgstr "Taux Horaire"
+
+msgid "Back to Teachers"
+msgstr "Retour aux Enseignants"
+
+msgid "Edit Teacher"
+msgstr "Modifier l'Enseignant"
+
+msgid "Teacher Picture"
+msgstr "Photo de l'Enseignant"
+
+msgid "First Name"
+msgstr "Prénom"
+
+msgid "Last Name"
+msgstr "Nom de Famille"
+
+msgid "Update Teacher"
+msgstr "Mettre à Jour l'Enseignant"
+
+msgid "Add Teacher"
+msgstr "Ajouter un Enseignant"
+
+msgid "General Settings"
+msgstr "Paramètres Généraux"
+
+msgid "School Name"
+msgstr "Nom de l'École"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "School Logo"
+msgstr "Logo de l'École"
+
+msgid "Date Format"
+msgstr "Format de Date"
+
+msgid "Time Format"
+msgstr "Format d'Heure"
+
+msgid "School Management Settings"
+msgstr "Paramètres de Gestion Scolaire"
+
+msgid "School Admin"
+msgstr "Administrateur Scolaire"
+
+msgid "Loading..."
+msgstr "Chargement..."
+
+msgid "Please select a course first"
+msgstr "Veuillez d'abord sélectionner un cours"
+
+msgid "Permission denied."
+msgstr "Permission refusée."
+
+msgid "Course not found."
+msgstr "Cours non trouvé."

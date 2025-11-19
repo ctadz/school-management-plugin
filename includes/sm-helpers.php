@@ -20,13 +20,13 @@ function sm_ajax_get_course_payment_info() {
     
     // Check user permissions
     if ( ! current_user_can( 'manage_enrollments' ) ) {
-        wp_send_json_error( [ 'message' => __( 'Permission denied.', 'school-management' ) ] );
+        wp_send_json_error( [ 'message' => __( 'Permission denied.', 'CTADZ-school-management' ) ] );
     }
     
     $course_id = isset( $_POST['course_id'] ) ? intval( $_POST['course_id'] ) : 0;
     
     if ( ! $course_id ) {
-        wp_send_json_error( [ 'message' => __( 'Invalid course ID.', 'school-management' ) ] );
+        wp_send_json_error( [ 'message' => __( 'Invalid course ID.', 'CTADZ-school-management' ) ] );
     }
     
     global $wpdb;
@@ -41,7 +41,7 @@ function sm_ajax_get_course_payment_info() {
     ) );
     
     if ( ! $course ) {
-        wp_send_json_error( [ 'message' => __( 'Course not found.', 'school-management' ) ] );
+        wp_send_json_error( [ 'message' => __( 'Course not found.', 'CTADZ-school-management' ) ] );
     }
     
     // Determine available payment plans based on course payment model
@@ -55,7 +55,7 @@ function sm_ajax_get_course_payment_info() {
             $available_plans = [ 'full' ];
             $plan_descriptions = [
                 'full' => sprintf(
-                    __( 'Full Payment - Pay %s upfront for entire course', 'school-management' ),
+                    __( 'Full Payment - Pay %s upfront for entire course', 'CTADZ-school-management' ),
                     number_format( floatval( $course->total_price ), 2 )
                 )
             ];
@@ -65,13 +65,13 @@ function sm_ajax_get_course_payment_info() {
             $available_plans = [ 'monthly', 'quarterly' ];
             $plan_descriptions = [
                 'monthly' => sprintf(
-                    __( 'Monthly Installments - %s/month for %d months (Total: %s)', 'school-management' ),
+                    __( 'Monthly Installments - %s/month for %d months (Total: %s)', 'CTADZ-school-management' ),
                     number_format( floatval( $course->price_per_month ), 2 ),
                     intval( $course->total_months ),
                     number_format( floatval( $course->total_price ), 2 )
                 ),
                 'quarterly' => sprintf(
-                    __( 'Quarterly Payments - Every 3 months', 'school-management' )
+                    __( 'Quarterly Payments - Every 3 months', 'CTADZ-school-management' )
                 )
             ];
             break;
@@ -81,7 +81,7 @@ function sm_ajax_get_course_payment_info() {
             $is_subscription = true;
             $plan_descriptions = [
                 'monthly' => sprintf(
-                    __( 'Monthly Subscription - %s/month (Flexible, cancel anytime)', 'school-management' ),
+                    __( 'Monthly Subscription - %s/month (Flexible, cancel anytime)', 'CTADZ-school-management' ),
                     number_format( floatval( $course->price_per_month ), 2 )
                 )
             ];
@@ -91,9 +91,9 @@ function sm_ajax_get_course_payment_info() {
             // If payment_model is not set or unknown, allow all options
             $available_plans = [ 'monthly', 'quarterly', 'full' ];
             $plan_descriptions = [
-                'monthly' => __( 'Monthly Payments', 'school-management' ),
-                'quarterly' => __( 'Quarterly Payments (Every 3 months)', 'school-management' ),
-                'full' => __( 'Full Payment (One-time)', 'school-management' )
+                'monthly' => __( 'Monthly Payments', 'CTADZ-school-management' ),
+                'quarterly' => __( 'Quarterly Payments (Every 3 months)', 'CTADZ-school-management' ),
+                'full' => __( 'Full Payment (One-time)', 'CTADZ-school-management' )
             ];
             break;
     }
@@ -121,12 +121,12 @@ add_action( 'wp_ajax_sm_get_course_payment_info', 'sm_ajax_get_course_payment_in
  */
 function sm_get_payment_model_label( $payment_model ) {
     $labels = [
-        'full_payment' => __( 'Full Payment', 'school-management' ),
-        'monthly_installments' => __( 'Monthly Installments', 'school-management' ),
-        'monthly_subscription' => __( 'Monthly Subscription', 'school-management' )
+        'full_payment' => __( 'Full Payment', 'CTADZ-school-management' ),
+        'monthly_installments' => __( 'Monthly Installments', 'CTADZ-school-management' ),
+        'monthly_subscription' => __( 'Monthly Subscription', 'CTADZ-school-management' )
     ];
     
-    return $labels[ $payment_model ] ?? __( 'Monthly Installments', 'school-management' );
+    return $labels[ $payment_model ] ?? __( 'Monthly Installments', 'CTADZ-school-management' );
 }
 
 /**
@@ -146,7 +146,7 @@ function sm_validate_enrollment_payment_plan( $course_id, $payment_plan ) {
     ) );
     
     if ( ! $course ) {
-        return new WP_Error( 'invalid_course', __( 'Course not found.', 'school-management' ) );
+        return new WP_Error( 'invalid_course', __( 'Course not found.', 'CTADZ-school-management' ) );
     }
     
     $payment_model = $course->payment_model ?? 'monthly_installments';
@@ -164,7 +164,7 @@ function sm_validate_enrollment_payment_plan( $course_id, $payment_plan ) {
         return new WP_Error( 
             'invalid_payment_plan', 
             sprintf(
-                __( 'The selected payment plan "%s" is not available for this course. This course requires: %s', 'school-management' ),
+                __( 'The selected payment plan "%s" is not available for this course. This course requires: %s', 'CTADZ-school-management' ),
                 $payment_plan,
                 sm_get_payment_model_label( $payment_model )
             )

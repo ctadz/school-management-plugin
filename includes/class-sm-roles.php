@@ -30,7 +30,7 @@ class SM_Roles {
         // Create School Admin role with capabilities
         add_role(
             'school_admin',
-            __( 'School Admin', 'school-management' ),
+            __( 'School Admin', 'CTADZ-school-management' ),
             array(
                 // WordPress core capabilities
                 'read'                   => true,

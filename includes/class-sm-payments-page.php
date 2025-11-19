@@ -12,7 +12,7 @@ class SM_Payments_Page {
     public static function render_payments_page() {
         // Security check
         if ( ! current_user_can( 'manage_payments' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
         }
 
         global $wpdb;
@@ -23,7 +23,7 @@ class SM_Payments_Page {
 
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Payments Management', 'school-management' ); ?></h1>
+            <h1><?php esc_html_e( 'Payments Management', 'CTADZ-school-management' ); ?></h1>
 
             <?php
             switch ( $action ) {
@@ -88,8 +88,8 @@ class SM_Payments_Page {
         ?>
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
-                <h2 style="margin: 0;"><?php esc_html_e( 'Payments Overview', 'school-management' ); ?></h2>
-                <p class="description"><?php printf( esc_html__( 'Active enrollments: %d', 'school-management' ), $total_enrollments ); ?></p>
+                <h2 style="margin: 0;"><?php esc_html_e( 'Payments Overview', 'CTADZ-school-management' ); ?></h2>
+                <p class="description"><?php printf( esc_html__( 'Active enrollments: %d', 'CTADZ-school-management' ), $total_enrollments ); ?></p>
             </div>
         </div>
 
@@ -97,14 +97,14 @@ class SM_Payments_Page {
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Student', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Course', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Plan', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Progress', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Total Expected', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Total Paid', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Payment Plan', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Progress', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Total Expected', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Total Paid', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
+                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -130,17 +130,17 @@ class SM_Payments_Page {
                             <td><?php echo number_format( $total_paid, 2 ); ?></td>
                             <td>
                                 <?php if ( $balance <= 0 ) : ?>
-                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'school-management' ); ?></span>
+                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
                                 <?php elseif ( $total_paid > 0 ) : ?>
-                                    <span style="color: #f0ad4e;">● <?php esc_html_e( 'Partial', 'school-management' ); ?></span>
+                                    <span style="color: #f0ad4e;">● <?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Unpaid', 'school-management' ); ?></span>
+                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Unpaid', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <a href="?page=school-management-payments&action=view&enrollment_id=<?php echo intval( $enrollment->id ); ?>" class="button button-small">
                                     <span class="dashicons dashicons-visibility" style="vertical-align: middle;"></span>
-                                    <?php esc_html_e( 'View', 'school-management' ); ?>
+                                    <?php esc_html_e( 'View', 'CTADZ-school-management' ); ?>
                                 </a>
                             </td>
                         </tr>
@@ -154,8 +154,8 @@ class SM_Payments_Page {
                 $pagination_args = [
                     'base' => add_query_arg( 'paged', '%#%' ),
                     'format' => '',
-                    'prev_text' => __( '« Previous', 'school-management' ),
-                    'next_text' => __( 'Next »', 'school-management' ),
+                    'prev_text' => __( '« Previous', 'CTADZ-school-management' ),
+                    'next_text' => __( 'Next »', 'CTADZ-school-management' ),
                     'total' => $total_pages,
                     'current' => $current_page,
                 ];
@@ -168,10 +168,10 @@ class SM_Payments_Page {
         <?php else : ?>
             <div class="sm-empty-state" style="text-align: center; padding: 60px 20px; background: #fafafa; border: 1px dashed #ddd; border-radius: 4px;">
                 <span class="dashicons dashicons-money-alt" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 16px;"></span>
-                <h3><?php esc_html_e( 'No Active Enrollments', 'school-management' ); ?></h3>
-                <p><?php esc_html_e( 'Enroll students in courses to start tracking payments.', 'school-management' ); ?></p>
+                <h3><?php esc_html_e( 'No Active Enrollments', 'CTADZ-school-management' ); ?></h3>
+                <p><?php esc_html_e( 'Enroll students in courses to start tracking payments.', 'CTADZ-school-management' ); ?></p>
                 <a href="?page=school-management-enrollments&action=add" class="button button-primary">
-                    <?php esc_html_e( 'Create Enrollment', 'school-management' ); ?>
+                    <?php esc_html_e( 'Create Enrollment', 'CTADZ-school-management' ); ?>
                 </a>
             </div>
         <?php endif;
@@ -206,7 +206,7 @@ class SM_Payments_Page {
         ) );
 
         if ( ! $enrollment ) {
-            echo '<div class="error notice"><p>' . esc_html__( 'Enrollment not found.', 'school-management' ) . '</p></div>';
+            echo '<div class="error notice"><p>' . esc_html__( 'Enrollment not found.', 'CTADZ-school-management' ) . '</p></div>';
             return;
         }
 
@@ -242,32 +242,32 @@ class SM_Payments_Page {
         $balance = $grand_total - $grand_total_paid;
 
         ?>
-        <h2 style="margin-top: 0; margin-bottom: 20px;"><?php esc_html_e( 'Payment Details', 'school-management' ); ?></h2>
+        <h2 style="margin-top: 0; margin-bottom: 20px;"><?php esc_html_e( 'Payment Details', 'CTADZ-school-management' ); ?></h2>
 
         <div style="margin-bottom: 30px;">
             <a href="?page=school-management-payments" class="button">
                 <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
-                <?php esc_html_e( 'Back to Payments', 'school-management' ); ?>
+                <?php esc_html_e( 'Back to Payments', 'CTADZ-school-management' ); ?>
             </a>
         </div>
         <!-- Enrollment Info Card -->
         <div style="background: white; padding: 20px; margin-bottom: 20px; border-left: 4px solid #0073aa; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin-top: 0;"><?php esc_html_e( 'Enrollment Information', 'school-management' ); ?></h3>
+            <h3 style="margin-top: 0;"><?php esc_html_e( 'Enrollment Information', 'CTADZ-school-management' ); ?></h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                 <div>
-                    <strong><?php esc_html_e( 'Student:', 'school-management' ); ?></strong><br>
+                    <strong><?php esc_html_e( 'Student:', 'CTADZ-school-management' ); ?></strong><br>
                     <?php echo esc_html( $enrollment->student_name ); ?>
                 </div>
                 <div>
-                    <strong><?php esc_html_e( 'Course:', 'school-management' ); ?></strong><br>
+                    <strong><?php esc_html_e( 'Course:', 'CTADZ-school-management' ); ?></strong><br>
                     <?php echo esc_html( $enrollment->course_name ); ?>
                 </div>
                 <div>
-                    <strong><?php esc_html_e( 'Payment Plan:', 'school-management' ); ?></strong><br>
+                    <strong><?php esc_html_e( 'Payment Plan:', 'CTADZ-school-management' ); ?></strong><br>
                     <?php echo esc_html( ucfirst( $enrollment->payment_plan ?? 'monthly' ) ); ?>
                 </div>
                 <div>
-                    <strong><?php esc_html_e( 'Enrollment Date:', 'school-management' ); ?></strong><br>
+                    <strong><?php esc_html_e( 'Enrollment Date:', 'CTADZ-school-management' ); ?></strong><br>
                     <?php echo esc_html( date( 'M j, Y', strtotime( $enrollment->enrollment_date ) ) ); ?>
                 </div>
             </div>
@@ -275,19 +275,19 @@ class SM_Payments_Page {
 
         <!-- Payment Summary Card -->
         <div style="background: white; padding: 20px; margin-bottom: 20px; border-left: 4px solid #46b450; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin-top: 0;"><?php esc_html_e( 'Payment Summary', 'school-management' ); ?></h3>
+            <h3 style="margin-top: 0;"><?php esc_html_e( 'Payment Summary', 'CTADZ-school-management' ); ?></h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
                 <div>
                     <div style="font-size: 24px; font-weight: bold; color: #0073aa;"><?php echo number_format( $grand_total, 2 ); ?></div>
-                    <div style="color: #666; font-size: 13px;"><?php esc_html_e( 'Total Expected', 'school-management' ); ?></div>
+                    <div style="color: #666; font-size: 13px;"><?php esc_html_e( 'Total Expected', 'CTADZ-school-management' ); ?></div>
                 </div>
                 <div>
                     <div style="font-size: 24px; font-weight: bold; color: #46b450;"><?php echo number_format( $grand_total_paid, 2 ); ?></div>
-                    <div style="color: #666; font-size: 13px;"><?php esc_html_e( 'Total Paid', 'school-management' ); ?></div>
+                    <div style="color: #666; font-size: 13px;"><?php esc_html_e( 'Total Paid', 'CTADZ-school-management' ); ?></div>
                 </div>
                 <div>
                     <div style="font-size: 24px; font-weight: bold; color: <?php echo $balance > 0 ? '#dc3232' : '#46b450'; ?>;"><?php echo number_format( $balance, 2 ); ?></div>
-                    <div style="color: #666; font-size: 13px;"><?php esc_html_e( 'Balance Due', 'school-management' ); ?></div>
+                    <div style="color: #666; font-size: 13px;"><?php esc_html_e( 'Balance Due', 'CTADZ-school-management' ); ?></div>
                 </div>
             </div>
         </div>
@@ -295,15 +295,15 @@ class SM_Payments_Page {
         <!-- Enrollment Fees Section -->
         <?php if ( $enrollment_fees ) : ?>
         <div style="background: white; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3><?php esc_html_e( 'Enrollment Fees', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Enrollment Fees', 'CTADZ-school-management' ); ?></h3>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Fee Type', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Amount', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Due Date', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Paid Date', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Fee Type', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Amount', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Due Date', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Paid Date', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -314,9 +314,9 @@ class SM_Payments_Page {
                             <td><?php echo esc_html( date( 'M j, Y', strtotime( $fee->due_date ) ) ); ?></td>
                             <td>
                                 <?php if ( $fee->status === 'paid' ) : ?>
-                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'school-management' ); ?></span>
+                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Unpaid', 'school-management' ); ?></span>
+                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Unpaid', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo $fee->paid_date ? esc_html( date( 'M j, Y', strtotime( $fee->paid_date ) ) ) : '—'; ?></td>
@@ -331,21 +331,21 @@ class SM_Payments_Page {
         <?php if ( $payment_schedule ) : ?>
         <div style="background: white; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0;"><?php esc_html_e( 'Payment Schedule', 'school-management' ); ?></h3>
+                <h3 style="margin: 0;"><?php esc_html_e( 'Payment Schedule', 'CTADZ-school-management' ); ?></h3>
                 <a href="?page=school-management-payments&action=record&enrollment_id=<?php echo intval( $enrollment_id ); ?>" class="button button-primary">
                     <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
-                    <?php esc_html_e( 'Record Payment', 'school-management' ); ?>
+                    <?php esc_html_e( 'Record Payment', 'CTADZ-school-management' ); ?>
                 </a>
             </div>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Installment', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Expected Amount', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Due Date', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Paid Amount', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Paid Date', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Installment', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Expected Amount', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Due Date', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Paid Amount', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Paid Date', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -360,13 +360,13 @@ class SM_Payments_Page {
                             <td><?php echo $schedule->paid_date ? esc_html( date( 'M j, Y', strtotime( $schedule->paid_date ) ) ) : '—'; ?></td>
                             <td>
                                 <?php if ( $schedule->status === 'paid' ) : ?>
-                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'school-management' ); ?></span>
+                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
                                 <?php elseif ( $is_overdue ) : ?>
-                                    <span style="color: #d63638;">● <?php esc_html_e( 'Overdue', 'school-management' ); ?></span>
+                                    <span style="color: #d63638;">● <?php esc_html_e( 'Overdue', 'CTADZ-school-management' ); ?></span>
                                 <?php elseif ( $schedule->status === 'partial' ) : ?>
-                                    <span style="color: #f0ad4e;">● <?php esc_html_e( 'Partial', 'school-management' ); ?></span>
+                                    <span style="color: #f0ad4e;">● <?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #999;">● <?php esc_html_e( 'Pending', 'school-management' ); ?></span>
+                                    <span style="color: #999;">● <?php esc_html_e( 'Pending', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -379,16 +379,16 @@ class SM_Payments_Page {
         <!-- Payment History Section -->
         <?php if ( $payment_history ) : ?>
         <div style="background: white; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3><?php esc_html_e( 'Payment History', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Payment History', 'CTADZ-school-management' ); ?></h3>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Date', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Type', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Amount', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Method', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Reference', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Notes', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Date', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Type', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Amount', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Method', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Reference', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Notes', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -509,11 +509,11 @@ class SM_Payments_Page {
                     // Trigger enrollment payment status sync
                     do_action( 'sm_payment_updated', $enrollment_id );
 
-                    echo '<div class="updated notice"><p>' . esc_html__( 'Payment recorded successfully.', 'school-management' ) . '</p></div>';
+                    echo '<div class="updated notice"><p>' . esc_html__( 'Payment recorded successfully.', 'CTADZ-school-management' ) . '</p></div>';
                     echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-payments&action=view&enrollment_id=' . $enrollment_id . '"; }, 1500);</script>';
                 }
             } else {
-                echo '<div class="error notice"><p>' . esc_html__( 'Please fill all required fields.', 'school-management' ) . '</p></div>';
+                echo '<div class="error notice"><p>' . esc_html__( 'Please fill all required fields.', 'CTADZ-school-management' ) . '</p></div>';
             }
         }
 
@@ -534,7 +534,7 @@ class SM_Payments_Page {
         ) );
 
         if ( ! $enrollment ) {
-            echo '<div class="error notice"><p>' . esc_html__( 'Enrollment not found.', 'school-management' ) . '</p></div>';
+            echo '<div class="error notice"><p>' . esc_html__( 'Enrollment not found.', 'CTADZ-school-management' ) . '</p></div>';
             return;
         }
 
@@ -553,17 +553,17 @@ class SM_Payments_Page {
         ) );
 
         ?>
-        <h2 style="margin-top: 0; margin-bottom: 20px;"><?php esc_html_e( 'Record Payment', 'school-management' ); ?></h2>
+        <h2 style="margin-top: 0; margin-bottom: 20px;"><?php esc_html_e( 'Record Payment', 'CTADZ-school-management' ); ?></h2>
 
         <div style="margin-bottom: 30px;">
             <a href="?page=school-management-payments&action=view&enrollment_id=<?php echo intval( $enrollment_id ); ?>" class="button">
                 <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
-                <?php esc_html_e( 'Back to Payment Details', 'school-management' ); ?>
+                <?php esc_html_e( 'Back to Payment Details', 'CTADZ-school-management' ); ?>
             </a>
         </div>
         <div style="background: white; padding: 20px; margin-bottom: 20px; border-left: 4px solid #0073aa; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <strong><?php esc_html_e( 'Student:', 'school-management' ); ?></strong> <?php echo esc_html( $enrollment->student_name ); ?><br>
-            <strong><?php esc_html_e( 'Course:', 'school-management' ); ?></strong> <?php echo esc_html( $enrollment->course_name ); ?>
+            <strong><?php esc_html_e( 'Student:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $enrollment->student_name ); ?><br>
+            <strong><?php esc_html_e( 'Course:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $enrollment->course_name ); ?>
         </div>
 
         <form method="post">
@@ -572,29 +572,29 @@ class SM_Payments_Page {
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="payment_type"><?php esc_html_e( 'Payment Type', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="payment_type"><?php esc_html_e( 'Payment Type', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <select id="payment_type" name="payment_type" required>
-                            <option value=""><?php esc_html_e( 'Select Type', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select Type', 'CTADZ-school-management' ); ?></option>
                             <?php if ( $unpaid_fees ) : ?>
-                                <option value="enrollment_fee"><?php esc_html_e( 'Enrollment Fee', 'school-management' ); ?></option>
+                                <option value="enrollment_fee"><?php esc_html_e( 'Enrollment Fee', 'CTADZ-school-management' ); ?></option>
                             <?php endif; ?>
                             <?php if ( $pending_schedules ) : ?>
-                                <option value="installment"><?php esc_html_e( 'Course Installment', 'school-management' ); ?></option>
+                                <option value="installment"><?php esc_html_e( 'Course Installment', 'CTADZ-school-management' ); ?></option>
                             <?php endif; ?>
-                            <option value="other"><?php esc_html_e( 'Other Payment', 'school-management' ); ?></option>
+                            <option value="other"><?php esc_html_e( 'Other Payment', 'CTADZ-school-management' ); ?></option>
                         </select>
                     </td>
                 </tr>
 
                 <tr id="reference_row" style="display: none;">
                     <th scope="row">
-                        <label for="reference_id"><?php esc_html_e( 'Payment For', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="reference_id"><?php esc_html_e( 'Payment For', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <select id="reference_id" name="reference_id">
-                            <option value=""><?php esc_html_e( 'Select...', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select...', 'CTADZ-school-management' ); ?></option>
                         </select>
                         <span id="reference_amount_display"></span>
                     </td>
@@ -602,7 +602,7 @@ class SM_Payments_Page {
 
                 <tr>
                     <th scope="row">
-                        <label for="amount"><?php esc_html_e( 'Amount', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="amount"><?php esc_html_e( 'Amount', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="amount" name="amount" step="0.01" min="0" required style="width: 200px;" />
@@ -611,7 +611,7 @@ class SM_Payments_Page {
 
                 <tr>
                     <th scope="row">
-                        <label for="payment_date"><?php esc_html_e( 'Payment Date', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="payment_date"><?php esc_html_e( 'Payment Date', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="date" id="payment_date" name="payment_date" value="<?php echo date( 'Y-m-d' ); ?>" required />
@@ -620,37 +620,37 @@ class SM_Payments_Page {
 
                 <tr>
                     <th scope="row">
-                        <label for="payment_method"><?php esc_html_e( 'Payment Method', 'school-management' ); ?></label>
+                        <label for="payment_method"><?php esc_html_e( 'Payment Method', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <select id="payment_method" name="payment_method">
-                            <option value=""><?php esc_html_e( 'Select Method', 'school-management' ); ?></option>
-                            <option value="cash"><?php esc_html_e( 'Cash', 'school-management' ); ?></option>
-                            <option value="check"><?php esc_html_e( 'Check', 'school-management' ); ?></option>
-                            <option value="bank_transfer"><?php esc_html_e( 'Bank Transfer', 'school-management' ); ?></option>
-                            <option value="card"><?php esc_html_e( 'Card', 'school-management' ); ?></option>
-                            <option value="other"><?php esc_html_e( 'Other', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select Method', 'CTADZ-school-management' ); ?></option>
+                            <option value="cash"><?php esc_html_e( 'Cash', 'CTADZ-school-management' ); ?></option>
+                            <option value="check"><?php esc_html_e( 'Check', 'CTADZ-school-management' ); ?></option>
+                            <option value="bank_transfer"><?php esc_html_e( 'Bank Transfer', 'CTADZ-school-management' ); ?></option>
+                            <option value="card"><?php esc_html_e( 'Card', 'CTADZ-school-management' ); ?></option>
+                            <option value="other"><?php esc_html_e( 'Other', 'CTADZ-school-management' ); ?></option>
                         </select>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label><?php esc_html_e( 'Reference Number', 'school-management' ); ?></label>
+                        <label><?php esc_html_e( 'Reference Number', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <p class="description" style="margin: 0; padding: 8px 12px; background: #f0f0f1; border-radius: 4px; display: inline-block;">
-                            <?php esc_html_e( 'Auto-generated on save', 'school-management' ); ?>
+                            <?php esc_html_e( 'Auto-generated on save', 'CTADZ-school-management' ); ?>
                         </p>
                         <p class="description" style="margin-top: 5px;">
-                            <?php esc_html_e( 'Format: YYYYMMDD_StudentName_PaymentType', 'school-management' ); ?>
+                            <?php esc_html_e( 'Format: YYYYMMDD_StudentName_PaymentType', 'CTADZ-school-management' ); ?>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="notes"><?php esc_html_e( 'Notes', 'school-management' ); ?></label>
+                        <label for="notes"><?php esc_html_e( 'Notes', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <textarea id="notes" name="notes" rows="3" class="large-text"></textarea>
@@ -659,8 +659,8 @@ class SM_Payments_Page {
             </table>
 
             <p class="submit">
-                <?php submit_button( __( 'Record Payment', 'school-management' ), 'primary', 'sm_record_payment', false ); ?>
-                <a href="?page=school-management-payments&action=view&enrollment_id=<?php echo intval( $enrollment_id ); ?>" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'school-management' ); ?></a>
+                <?php submit_button( __( 'Record Payment', 'CTADZ-school-management' ), 'primary', 'sm_record_payment', false ); ?>
+                <a href="?page=school-management-payments&action=view&enrollment_id=<?php echo intval( $enrollment_id ); ?>" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'CTADZ-school-management' ); ?></a>
             </p>
         </form>
 
@@ -675,7 +675,7 @@ class SM_Payments_Page {
                 var $referenceSelect = $('#reference_id');
                 var $amountField = $('#amount');
                 
-                $referenceSelect.empty().append('<option value=""><?php esc_html_e( 'Select...', 'school-management' ); ?></option>');
+                $referenceSelect.empty().append('<option value=""><?php esc_html_e( 'Select...', 'CTADZ-school-management' ); ?></option>');
                 
                 if (type === 'enrollment_fee') {
                     $referenceRow.show();

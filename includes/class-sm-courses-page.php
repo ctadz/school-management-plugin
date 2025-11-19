@@ -16,9 +16,9 @@ class SM_Courses_Page {
         if ( isset( $_GET['delete'] ) && check_admin_referer( 'sm_delete_course_' . intval( $_GET['delete'] ) ) ) {
             $deleted = $wpdb->delete( $table, [ 'id' => intval( $_GET['delete'] ) ] );
             if ( $deleted ) {
-                echo '<div class="updated notice"><p>' . esc_html__( 'Course deleted successfully.', 'school-management' ) . '</p></div>';
+                echo '<div class="updated notice"><p>' . esc_html__( 'Course deleted successfully.', 'CTADZ-school-management' ) . '</p></div>';
             } else {
-                echo '<div class="error notice"><p>' . esc_html__( 'Error deleting course.', 'school-management' ) . '</p></div>';
+                echo '<div class="error notice"><p>' . esc_html__( 'Error deleting course.', 'CTADZ-school-management' ) . '</p></div>';
             }
         }
 
@@ -32,18 +32,18 @@ class SM_Courses_Page {
                 if ( ! empty( $_POST['course_id'] ) ) {
                     $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['course_id'] ) ] );
                     if ( $updated !== false ) {
-                        echo '<div class="updated notice"><p>' . esc_html__( 'Course updated successfully.', 'school-management' ) . '</p></div>';
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Course updated successfully.', 'CTADZ-school-management' ) . '</p></div>';
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-courses"; }, 2000);</script>';
                     }
                 } else {
                     $inserted = $wpdb->insert( $table, $data );
                     if ( $inserted ) {
-                        echo '<div class="updated notice"><p>' . esc_html__( 'Course added successfully.', 'school-management' ) . '</p></div>';
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Course added successfully.', 'CTADZ-school-management' ) . '</p></div>';
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-courses"; }, 2000);</script>';
                     }
                 }
             } else {
-                echo '<div class="error notice"><p><strong>' . esc_html__( 'Please correct the following errors:', 'school-management' ) . '</strong></p>';
+                echo '<div class="error notice"><p><strong>' . esc_html__( 'Please correct the following errors:', 'CTADZ-school-management' ) . '</strong></p>';
                 echo '<ul style="margin-left: 20px;">';
                 foreach ( $validation_result['errors'] as $error ) {
                     echo '<li>' . esc_html( $error ) . '</li>';
@@ -62,7 +62,7 @@ class SM_Courses_Page {
 
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Manage Courses', 'school-management' ); ?></h1>
+            <h1><?php esc_html_e( 'Manage Courses', 'CTADZ-school-management' ); ?></h1>
 
             <?php
             switch ( $action ) {
@@ -128,49 +128,49 @@ class SM_Courses_Page {
         
         // Required field validation
         if ( empty( $name ) ) {
-            $errors[] = __( 'Course name is required.', 'school-management' );
+            $errors[] = __( 'Course name is required.', 'CTADZ-school-management' );
         } elseif ( strlen( $name ) < 3 ) {
-            $errors[] = __( 'Course name must be at least 3 characters long.', 'school-management' );
+            $errors[] = __( 'Course name must be at least 3 characters long.', 'CTADZ-school-management' );
         }
 
         if ( empty( $description ) ) {
-            $errors[] = __( 'Course description is required.', 'school-management' );
+            $errors[] = __( 'Course description is required.', 'CTADZ-school-management' );
         }
 
         if ( empty( $language ) ) {
-            $errors[] = __( 'Language is required.', 'school-management' );
+            $errors[] = __( 'Language is required.', 'CTADZ-school-management' );
         }
 
         if ( $level_id <= 0 ) {
-            $errors[] = __( 'Level is required.', 'school-management' );
+            $errors[] = __( 'Level is required.', 'CTADZ-school-management' );
         }
 
         if ( $teacher_id <= 0 ) {
-            $errors[] = __( 'Teacher is required.', 'school-management' );
+            $errors[] = __( 'Teacher is required.', 'CTADZ-school-management' );
         }
 
         if ( $session_duration_hours <= 0 && $session_duration_minutes <= 0 ) {
-            $errors[] = __( 'Session duration is required.', 'school-management' );
+            $errors[] = __( 'Session duration is required.', 'CTADZ-school-management' );
         }
 
         if ( $hours_per_week <= 0 ) {
-            $errors[] = __( 'Hours per week is required.', 'school-management' );
+            $errors[] = __( 'Hours per week is required.', 'CTADZ-school-management' );
         }
 
         if ( $total_weeks <= 0 ) {
-            $errors[] = __( 'Total weeks is required.', 'school-management' );
+            $errors[] = __( 'Total weeks is required.', 'CTADZ-school-management' );
         }
 
         if ( $total_months <= 0 ) {
-            $errors[] = __( 'Total months is required.', 'school-management' );
+            $errors[] = __( 'Total months is required.', 'CTADZ-school-management' );
         }
 
         if ( $price_per_month <= 0 ) {
-            $errors[] = __( 'Price per month is required.', 'school-management' );
+            $errors[] = __( 'Price per month is required.', 'CTADZ-school-management' );
         }
 
         if ( $total_price <= 0 ) {
-            $errors[] = __( 'Total price is required.', 'school-management' );
+            $errors[] = __( 'Total price is required.', 'CTADZ-school-management' );
         }
         
         // Validate payment models
@@ -190,32 +190,32 @@ class SM_Courses_Page {
             
             $duplicate = $wpdb->get_var( $wpdb->prepare( $duplicate_query, $params ) );
             if ( $duplicate ) {
-                $errors[] = sprintf( __( 'A course with the name "%s" already exists.', 'school-management' ), $name );
+                $errors[] = sprintf( __( 'A course with the name "%s" already exists.', 'CTADZ-school-management' ), $name );
             }
         }
 
         // Validate status
         $valid_statuses = [ 'upcoming', 'in_progress', 'completed', 'inactive' ];
         if ( ! in_array( $status, $valid_statuses ) ) {
-            $errors[] = __( 'Invalid course status.', 'school-management' );
+            $errors[] = __( 'Invalid course status.', 'CTADZ-school-management' );
         }
 
         // Validate certification type if provided
         if ( ! empty( $certification_type ) ) {
             $valid_cert_types = [ 'school_diploma', 'state_diploma', 'other' ];
             if ( ! in_array( $certification_type, $valid_cert_types ) ) {
-                $errors[] = __( 'Invalid certification type.', 'school-management' );
+                $errors[] = __( 'Invalid certification type.', 'CTADZ-school-management' );
             }
     
         // If "other" is selected, the custom name is required
         if ( $certification_type === 'other' && empty( $certification_other ) ) {
-            $errors[] = __( 'Please specify the certification name when selecting "Other".', 'school-management' );
+            $errors[] = __( 'Please specify the certification name when selecting "Other".', 'CTADZ-school-management' );
             }
         }
 
         // Validate file URL if provided
         if ( ! empty( $description_file ) && ! filter_var( $description_file, FILTER_VALIDATE_URL ) ) {
-            $errors[] = __( 'Please provide a valid file URL.', 'school-management' );
+            $errors[] = __( 'Please provide a valid file URL.', 'CTADZ-school-management' );
         }
 
         if ( empty( $errors ) ) {
@@ -299,23 +299,23 @@ class SM_Courses_Page {
         ?>
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
-                <h2 style="margin: 0;"><?php esc_html_e( 'Courses List', 'school-management' ); ?></h2>
+                <h2 style="margin: 0;"><?php esc_html_e( 'Courses List', 'CTADZ-school-management' ); ?></h2>
                 <p class="description">
                     <?php 
                     if ( ! empty( $filter_payment_model ) ) {
                         $filter_labels = [
-                            'full_payment' => __( 'Full Payment', 'school-management' ),
-                            'monthly_installments' => __( 'Monthly Installments', 'school-management' ),
-                            'monthly_subscription' => __( 'Monthly Subscription', 'school-management' ),
+                            'full_payment' => __( 'Full Payment', 'CTADZ-school-management' ),
+                            'monthly_installments' => __( 'Monthly Installments', 'CTADZ-school-management' ),
+                            'monthly_subscription' => __( 'Monthly Subscription', 'CTADZ-school-management' ),
                         ];
                         printf( 
-                            esc_html__( 'Showing %d courses with payment model: %s', 'school-management' ), 
+                            esc_html__( 'Showing %d courses with payment model: %s', 'CTADZ-school-management' ), 
                             $total_courses,
                             '<strong>' . esc_html( $filter_labels[ $filter_payment_model ] ?? $filter_payment_model ) . '</strong>'
                         );
-                        echo ' <a href="?page=school-management-courses" style="margin-left: 10px;">' . esc_html__( '[Clear filter]', 'school-management' ) . '</a>';
+                        echo ' <a href="?page=school-management-courses" style="margin-left: 10px;">' . esc_html__( '[Clear filter]', 'CTADZ-school-management' ) . '</a>';
                     } else {
-                        printf( esc_html__( 'Total: %d courses', 'school-management' ), $total_courses );
+                        printf( esc_html__( 'Total: %d courses', 'CTADZ-school-management' ), $total_courses );
                     }
                     ?>
                 </p>
@@ -323,21 +323,21 @@ class SM_Courses_Page {
             <div style="display: flex; gap: 10px; align-items: center;">
                 <!-- Payment Model Filter -->
                 <select id="filter_payment_model" onchange="window.location.href='?page=school-management-courses&filter_payment_model=' + this.value;">
-                    <option value=""><?php esc_html_e( 'All Payment Models', 'school-management' ); ?></option>
+                    <option value=""><?php esc_html_e( 'All Payment Models', 'CTADZ-school-management' ); ?></option>
                     <option value="full_payment" <?php selected( $filter_payment_model, 'full_payment' ); ?>>
-                        <?php esc_html_e( 'Full Payment', 'school-management' ); ?>
+                        <?php esc_html_e( 'Full Payment', 'CTADZ-school-management' ); ?>
                     </option>
                     <option value="monthly_installments" <?php selected( $filter_payment_model, 'monthly_installments' ); ?>>
-                        <?php esc_html_e( 'Monthly Installments', 'school-management' ); ?>
+                        <?php esc_html_e( 'Monthly Installments', 'CTADZ-school-management' ); ?>
                     </option>
                     <option value="monthly_subscription" <?php selected( $filter_payment_model, 'monthly_subscription' ); ?>>
-                        <?php esc_html_e( 'Monthly Subscription', 'school-management' ); ?>
+                        <?php esc_html_e( 'Monthly Subscription', 'CTADZ-school-management' ); ?>
                     </option>
                 </select>
                 
                 <a href="?page=school-management-courses&action=add" class="button button-primary">
                     <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
-                    <?php esc_html_e( 'Add New Course', 'school-management' ); ?>
+                    <?php esc_html_e( 'Add New Course', 'CTADZ-school-management' ); ?>
                 </a>
             </div>
         </div>
@@ -346,16 +346,16 @@ class SM_Courses_Page {
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Course Name', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Language', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Level', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Teacher', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Duration', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Model', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Price/Month', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Enrollments', 'school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Language', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Duration', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Price/Month', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
+                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -365,25 +365,25 @@ class SM_Courses_Page {
                             <td><?php echo esc_html( $course->language ); ?></td>
                             <td><?php echo esc_html( $course->level_name ?: '—' ); ?></td>
                             <td><?php echo esc_html( $course->teacher_name ?: '—' ); ?></td>
-                            <td><?php echo esc_html( $course->total_weeks . ' ' . __( 'weeks', 'school-management' ) ); ?></td>
+                            <td><?php echo esc_html( $course->total_weeks . ' ' . __( 'weeks', 'CTADZ-school-management' ) ); ?></td>
                             <td>
                                 <?php
                                 // Payment model display with icons and colors
                                 $payment_model_display = [
                                     'full_payment' => [
-                                        'label' => __( 'Full Payment', 'school-management' ),
+                                        'label' => __( 'Full Payment', 'CTADZ-school-management' ),
                                         'icon' => 'dashicons-money-alt',
                                         'color' => '#46b450',
                                         'bg' => '#ecf7ed',
                                     ],
                                     'monthly_installments' => [
-                                        'label' => __( 'Installments', 'school-management' ),
+                                        'label' => __( 'Installments', 'CTADZ-school-management' ),
                                         'icon' => 'dashicons-calendar-alt',
                                         'color' => '#00a0d2',
                                         'bg' => '#e5f5fa',
                                     ],
                                     'monthly_subscription' => [
-                                        'label' => __( 'Subscription', 'school-management' ),
+                                        'label' => __( 'Subscription', 'CTADZ-school-management' ),
                                         'icon' => 'dashicons-update',
                                         'color' => '#f0ad4e',
                                         'bg' => '#fef8e7',
@@ -403,9 +403,9 @@ class SM_Courses_Page {
                                 <?php
                                 $count = intval( $course->enrollment_count );
                                 if ( $count > 0 ) {
-                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'student', 'students', $count, 'school-management' ) ) . '</span>';
+                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'student', 'students', $count, 'CTADZ-school-management' ) ) . '</span>';
                                 } else {
-                                    echo '<span style="color: #999;">' . esc_html__( 'No enrollments', 'school-management' ) . '</span>';
+                                    echo '<span style="color: #999;">' . esc_html__( 'No enrollments', 'CTADZ-school-management' ) . '</span>';
                                 }
                                 ?>
                             </td>
@@ -419,10 +419,10 @@ class SM_Courses_Page {
                                 ];
                                 $color = $status_colors[ $course->status ] ?? '#666';
                                 $status_labels = [
-                                    'upcoming' => __( 'Upcoming', 'school-management' ),
-                                    'in_progress' => __( 'In Progress', 'school-management' ),
-                                    'completed' => __( 'Completed', 'school-management' ),
-                                    'inactive' => __( 'Inactive', 'school-management' )
+                                    'upcoming' => __( 'Upcoming', 'CTADZ-school-management' ),
+                                    'in_progress' => __( 'In Progress', 'CTADZ-school-management' ),
+                                    'completed' => __( 'Completed', 'CTADZ-school-management' ),
+                                    'inactive' => __( 'Inactive', 'CTADZ-school-management' )
                                 ];
                                 $label = $status_labels[ $course->status ] ?? $course->status;
                                 ?>
@@ -440,7 +440,7 @@ class SM_Courses_Page {
                                 ?>
                                 <a href="<?php echo esc_url( $delete_url ); ?>" 
                                    class="button button-small button-link-delete"
-                                   onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this course?', 'school-management' ) ); ?>')">
+                                   onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this course?', 'CTADZ-school-management' ) ); ?>')">
                                     <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
                                 </a>
                             </td>
@@ -460,8 +460,8 @@ class SM_Courses_Page {
                 $pagination_args = [
                     'base' => add_query_arg( 'paged', '%#%', $base_url ),
                     'format' => '',
-                    'prev_text' => __( '« Previous', 'school-management' ),
-                    'next_text' => __( 'Next »', 'school-management' ),
+                    'prev_text' => __( '« Previous', 'CTADZ-school-management' ),
+                    'next_text' => __( 'Next »', 'CTADZ-school-management' ),
                     'total' => $total_pages,
                     'current' => $current_page,
                 ];
@@ -474,20 +474,20 @@ class SM_Courses_Page {
         <?php else : ?>
             <div class="sm-empty-state" style="text-align: center; padding: 60px 20px; background: #fafafa; border: 1px dashed #ddd; border-radius: 4px;">
                 <span class="dashicons dashicons-book" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 16px;"></span>
-                <h3><?php esc_html_e( 'No Courses Found', 'school-management' ); ?></h3>
+                <h3><?php esc_html_e( 'No Courses Found', 'CTADZ-school-management' ); ?></h3>
                 <p>
                     <?php 
                     if ( ! empty( $filter_payment_model ) ) {
-                        esc_html_e( 'No courses match the selected payment model filter.', 'school-management' );
-                        echo '<br><a href="?page=school-management-courses">' . esc_html__( 'View all courses', 'school-management' ) . '</a>';
+                        esc_html_e( 'No courses match the selected payment model filter.', 'CTADZ-school-management' );
+                        echo '<br><a href="?page=school-management-courses">' . esc_html__( 'View all courses', 'CTADZ-school-management' ) . '</a>';
                     } else {
-                        esc_html_e( 'Create your first course to get started.', 'school-management' );
+                        esc_html_e( 'Create your first course to get started.', 'CTADZ-school-management' );
                     }
                     ?>
                 </p>
                 <?php if ( empty( $filter_payment_model ) ) : ?>
                     <a href="?page=school-management-courses&action=add" class="button button-primary">
-                        <?php esc_html_e( 'Add First Course', 'school-management' ); ?>
+                        <?php esc_html_e( 'Add First Course', 'CTADZ-school-management' ); ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -557,10 +557,10 @@ class SM_Courses_Page {
         <div class="sm-form-header" style="margin-bottom: 20px;">
             <a href="?page=school-management-courses" class="button">
                 <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
-                <?php esc_html_e( 'Back to Courses', 'school-management' ); ?>
+                <?php esc_html_e( 'Back to Courses', 'CTADZ-school-management' ); ?>
             </a>
             <h2 style="display: inline-block; margin-left: 10px;">
-                <?php echo $is_edit ? esc_html__( 'Edit Course', 'school-management' ) : esc_html__( 'Add New Course', 'school-management' ); ?>
+                <?php echo $is_edit ? esc_html__( 'Edit Course', 'CTADZ-school-management' ) : esc_html__( 'Add New Course', 'CTADZ-school-management' ); ?>
             </h2>
         </div>
 
@@ -568,31 +568,31 @@ class SM_Courses_Page {
             <?php wp_nonce_field( 'sm_save_course_action', 'sm_save_course_nonce' ); ?>
             <input type="hidden" name="course_id" value="<?php echo esc_attr( $course->id ?? '' ); ?>" />
 
-            <h3><?php esc_html_e( 'Basic Information', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Basic Information', 'CTADZ-school-management' ); ?></h3>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="course_name"><?php esc_html_e( 'Course Name', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_name"><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="text" id="course_name" name="name" value="<?php echo esc_attr( $form_data['name'] ?? '' ); ?>" class="regular-text" required />
-                        <p class="description"><?php esc_html_e( 'Course name must be unique.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Course name must be unique.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_description"><?php esc_html_e( 'Description', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_description"><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <textarea id="course_description" name="description" rows="5" class="large-text" required><?php echo esc_textarea( $form_data['description'] ?? '' ); ?></textarea>
-                        <p class="description"><?php esc_html_e( 'Brief description of the course content and objectives.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Brief description of the course content and objectives.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_description_file"><?php esc_html_e( 'Description File (PDF)', 'school-management' ); ?></label>
+                        <label for="course_description_file"><?php esc_html_e( 'Description File (PDF)', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <input type="hidden" id="course_description_file" name="description_file" value="<?php echo esc_attr( $form_data['description_file'] ?? '' ); ?>" />
@@ -606,58 +606,58 @@ class SM_Courses_Page {
                                     <span class="dashicons dashicons-media-document" style="font-size: 24px; color: #d63638;"></span>
                                     <div style="flex: 1;">
                                         <strong><?php echo esc_html( $file_name ); ?></strong>
-                                        <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;"><?php esc_html_e( 'PDF Document', 'school-management' ); ?></p>
+                                        <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;"><?php esc_html_e( 'PDF Document', 'CTADZ-school-management' ); ?></p>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 5px;">
                                     <a href="<?php echo esc_url( $file_url ); ?>" target="_blank" class="button button-small">
                                         <span class="dashicons dashicons-visibility" style="vertical-align: middle;"></span>
-                                        <?php esc_html_e( 'View', 'school-management' ); ?>
+                                        <?php esc_html_e( 'View', 'CTADZ-school-management' ); ?>
                                     </a>
                                     <a href="<?php echo esc_url( $file_url ); ?>" download class="button button-small">
                                         <span class="dashicons dashicons-download" style="vertical-align: middle;"></span>
-                                        <?php esc_html_e( 'Download', 'school-management' ); ?>
+                                        <?php esc_html_e( 'Download', 'CTADZ-school-management' ); ?>
                                     </a>
                                     <button type="button" class="button button-small sm-remove-file" data-target="course_description_file" style="color: #d63638;">
                                         <span class="dashicons dashicons-trash" style="vertical-align: middle;"></span>
-                                        <?php esc_html_e( 'Remove', 'school-management' ); ?>
+                                        <?php esc_html_e( 'Remove', 'CTADZ-school-management' ); ?>
                                     </button>
                                 </div>
                             </div>
                             <button type="button" class="button sm-upload-file" data-target="course_description_file">
                                 <span class="dashicons dashicons-update" style="vertical-align: middle;"></span>
-                                <?php esc_html_e( 'Replace PDF', 'school-management' ); ?>
+                                <?php esc_html_e( 'Replace PDF', 'CTADZ-school-management' ); ?>
                             </button>
                         <?php else : ?>
                             <button type="button" class="button sm-upload-file" data-target="course_description_file">
                                 <span class="dashicons dashicons-upload" style="vertical-align: middle;"></span>
-                                <?php esc_html_e( 'Upload PDF', 'school-management' ); ?>
+                                <?php esc_html_e( 'Upload PDF', 'CTADZ-school-management' ); ?>
                             </button>
                         <?php endif; ?>
         
-                        <p class="description"><?php esc_html_e( 'Optional: Upload a detailed PDF description of the course.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Optional: Upload a detailed PDF description of the course.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="course_language"><?php esc_html_e( 'Language', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_language"><?php esc_html_e( 'Language', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <select id="course_language" name="language" required>
-                            <option value=""><?php esc_html_e( 'Select Language', 'school-management' ); ?></option>
-                            <option value="French" <?php selected( $form_data['language'] ?? '', 'French' ); ?>><?php esc_html_e( 'French', 'school-management' ); ?></option>
-                            <option value="English" <?php selected( $form_data['language'] ?? '', 'English' ); ?>><?php esc_html_e( 'English', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select Language', 'CTADZ-school-management' ); ?></option>
+                            <option value="French" <?php selected( $form_data['language'] ?? '', 'French' ); ?>><?php esc_html_e( 'French', 'CTADZ-school-management' ); ?></option>
+                            <option value="English" <?php selected( $form_data['language'] ?? '', 'English' ); ?>><?php esc_html_e( 'English', 'CTADZ-school-management' ); ?></option>
                         </select>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_level"><?php esc_html_e( 'Level', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_level"><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <select id="course_level" name="level_id" required>
-                            <option value=""><?php esc_html_e( 'Select Level', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select Level', 'CTADZ-school-management' ); ?></option>
                             <?php foreach ( $levels as $level ) : ?>
                                 <option value="<?php echo intval( $level->id ); ?>" <?php selected( $form_data['level_id'] ?? 0, $level->id ); ?>>
                                     <?php echo esc_html( $level->name ); ?>
@@ -665,18 +665,18 @@ class SM_Courses_Page {
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            <a href="?page=school-management-levels" target="_blank"><?php esc_html_e( 'Manage levels', 'school-management' ); ?></a>
+                            <a href="?page=school-management-levels" target="_blank"><?php esc_html_e( 'Manage levels', 'CTADZ-school-management' ); ?></a>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_teacher"><?php esc_html_e( 'Teacher', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_teacher"><?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <select id="course_teacher" name="teacher_id" required>
-                            <option value=""><?php esc_html_e( 'Select Teacher', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select Teacher', 'CTADZ-school-management' ); ?></option>
                             <?php foreach ( $teachers as $teacher ) : ?>
                                 <option value="<?php echo intval( $teacher->id ); ?>" <?php selected( $form_data['teacher_id'] ?? 0, $teacher->id ); ?>>
                                     <?php echo esc_html( $teacher->first_name . ' ' . $teacher->last_name ); ?>
@@ -684,18 +684,18 @@ class SM_Courses_Page {
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            <a href="?page=school-management-teachers" target="_blank"><?php esc_html_e( 'Manage teachers', 'school-management' ); ?></a>
+                            <a href="?page=school-management-teachers" target="_blank"><?php esc_html_e( 'Manage teachers', 'CTADZ-school-management' ); ?></a>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_classroom"><?php esc_html_e( 'Classroom', 'school-management' ); ?></label>
+                        <label for="course_classroom"><?php esc_html_e( 'Classroom', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <select id="course_classroom" name="classroom_id">
-                            <option value=""><?php esc_html_e( 'No Classroom Assigned', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'No Classroom Assigned', 'CTADZ-school-management' ); ?></option>
                             <?php foreach ( $classrooms as $classroom ) : ?>
                                 <option value="<?php echo intval( $classroom->id ); ?>" <?php selected( $form_data['classroom_id'] ?? 0, $classroom->id ); ?>>
                                     <?php echo esc_html( $classroom->name ); ?>
@@ -706,64 +706,64 @@ class SM_Courses_Page {
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            <?php esc_html_e( 'Optional: Assign this course to a specific classroom.', 'school-management' ); ?>
-                            <a href="?page=school-management-classrooms" target="_blank"><?php esc_html_e( 'Manage classrooms', 'school-management' ); ?></a>
+                            <?php esc_html_e( 'Optional: Assign this course to a specific classroom.', 'CTADZ-school-management' ); ?>
+                            <a href="?page=school-management-classrooms" target="_blank"><?php esc_html_e( 'Manage classrooms', 'CTADZ-school-management' ); ?></a>
                         </p>
                     </td>
                 </tr>
             </table>
 
-            <h3><?php esc_html_e( 'Duration & Schedule', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Duration & Schedule', 'CTADZ-school-management' ); ?></h3>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label><?php esc_html_e( 'Session Duration', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label><?php esc_html_e( 'Session Duration', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" name="session_duration_hours" value="<?php echo esc_attr( $form_data['session_duration_hours'] ?? 0 ); ?>" min="0" max="24" style="width: 80px;" />
-                        <span><?php esc_html_e( 'hours', 'school-management' ); ?></span>
+                        <span><?php esc_html_e( 'hours', 'CTADZ-school-management' ); ?></span>
                         
                         <input type="number" name="session_duration_minutes" value="<?php echo esc_attr( $form_data['session_duration_minutes'] ?? 0 ); ?>" min="0" max="59" style="width: 80px; margin-left: 10px;" />
-                        <span><?php esc_html_e( 'minutes', 'school-management' ); ?></span>
-                        <p class="description"><?php esc_html_e( 'Duration of each individual class session (e.g., 1h 30min).', 'school-management' ); ?></p>
+                        <span><?php esc_html_e( 'minutes', 'CTADZ-school-management' ); ?></span>
+                        <p class="description"><?php esc_html_e( 'Duration of each individual class session (e.g., 1h 30min).', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_hours_per_week"><?php esc_html_e( 'Hours Per Week', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_hours_per_week"><?php esc_html_e( 'Hours Per Week', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_hours_per_week" name="hours_per_week" value="<?php echo esc_attr( $form_data['hours_per_week'] ?? 0 ); ?>" min="0" step="0.5" required />
-                        <span><?php esc_html_e( 'hours', 'school-management' ); ?></span>
-                        <p class="description"><?php esc_html_e( 'Total teaching hours per week (e.g., 3.5 for two 1h45min sessions).', 'school-management' ); ?></p>
+                        <span><?php esc_html_e( 'hours', 'CTADZ-school-management' ); ?></span>
+                        <p class="description"><?php esc_html_e( 'Total teaching hours per week (e.g., 3.5 for two 1h45min sessions).', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_total_weeks"><?php esc_html_e( 'Total Weeks', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_total_weeks"><?php esc_html_e( 'Total Weeks', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_total_weeks" name="total_weeks" value="<?php echo esc_attr( $form_data['total_weeks'] ?? 0 ); ?>" min="1" required />
-                        <span><?php esc_html_e( 'weeks', 'school-management' ); ?></span>
-                        <p class="description"><?php esc_html_e( 'Total duration of the course in weeks.', 'school-management' ); ?></p>
+                        <span><?php esc_html_e( 'weeks', 'CTADZ-school-management' ); ?></span>
+                        <p class="description"><?php esc_html_e( 'Total duration of the course in weeks.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_total_months"><?php esc_html_e( 'Total Months', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_total_months"><?php esc_html_e( 'Total Months', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_total_months" name="total_months" value="<?php echo esc_attr( $form_data['total_months'] ?? 0 ); ?>" min="1" required />
-                        <span><?php esc_html_e( 'months', 'school-management' ); ?></span>
-                        <p class="description"><?php esc_html_e( 'Total duration of the course in months.', 'school-management' ); ?></p>
+                        <span><?php esc_html_e( 'months', 'CTADZ-school-management' ); ?></span>
+                        <p class="description"><?php esc_html_e( 'Total duration of the course in months.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
             </table>
 
-            <h3><?php esc_html_e( 'Pricing', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Pricing', 'CTADZ-school-management' ); ?></h3>
             <table class="form-table">
                 <!-- PAYMENT MODELS - FIRST! -->
                 <tr>
@@ -814,79 +814,79 @@ class SM_Courses_Page {
                 <!-- PRICE PER MONTH - Always visible -->
                 <tr>
                     <th scope="row">
-                        <label for="course_price_per_month"><?php esc_html_e( 'Price Per Month', 'school-management' ); ?> <span class="sm-required-star" style="color: #d63638;">*</span></label>
+                        <label for="course_price_per_month"><?php esc_html_e( 'Price Per Month', 'CTADZ-school-management' ); ?> <span class="sm-required-star" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_price_per_month" name="price_per_month" value="<?php echo esc_attr( $form_data['price_per_month'] ?? 0 ); ?>" min="0" step="0.01" required />
-                        <p class="description"><?php esc_html_e( 'Monthly tuition fee for this course.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Monthly tuition fee for this course.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <!-- TOTAL COURSE PRICE - Hidden for subscription-only -->
                 <tr id="total_price_row">
                     <th scope="row">
-                        <label for="course_total_price"><?php esc_html_e( 'Total Course Price', 'school-management' ); ?> <span class="sm-required-star" style="color: #d63638;">*</span></label>
+                        <label for="course_total_price"><?php esc_html_e( 'Total Course Price', 'CTADZ-school-management' ); ?> <span class="sm-required-star" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <input type="number" id="course_total_price" name="total_price" value="<?php echo esc_attr( $form_data['total_price'] ?? 0 ); ?>" min="0" step="0.01" required />
-                        <p class="description"><?php esc_html_e( 'Total price for the entire course duration (for full payment or installments).', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Total price for the entire course duration (for full payment or installments).', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
             </table>
 
-            <h3><?php esc_html_e( 'Certification', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Certification', 'CTADZ-school-management' ); ?></h3>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="course_certification_type"><?php esc_html_e( 'Certification Delivered', 'school-management' ); ?></label>
+                        <label for="course_certification_type"><?php esc_html_e( 'Certification Delivered', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <select id="course_certification_type" name="certification_type">
-                            <option value=""><?php esc_html_e( 'No Certification', 'school-management' ); ?></option>
-                            <option value="school_diploma" <?php selected( $form_data['certification_type'] ?? '', 'school_diploma' ); ?>><?php esc_html_e( 'School Diploma', 'school-management' ); ?></option>
-                            <option value="state_diploma" <?php selected( $form_data['certification_type'] ?? '', 'state_diploma' ); ?>><?php esc_html_e( 'State Diploma', 'school-management' ); ?></option>
-                            <option value="other" <?php selected( $form_data['certification_type'] ?? '', 'other' ); ?>><?php esc_html_e( 'Other', 'school-management' ); ?></option>
+                            <option value=""><?php esc_html_e( 'No Certification', 'CTADZ-school-management' ); ?></option>
+                            <option value="school_diploma" <?php selected( $form_data['certification_type'] ?? '', 'school_diploma' ); ?>><?php esc_html_e( 'School Diploma', 'CTADZ-school-management' ); ?></option>
+                            <option value="state_diploma" <?php selected( $form_data['certification_type'] ?? '', 'state_diploma' ); ?>><?php esc_html_e( 'State Diploma', 'CTADZ-school-management' ); ?></option>
+                            <option value="other" <?php selected( $form_data['certification_type'] ?? '', 'other' ); ?>><?php esc_html_e( 'Other', 'CTADZ-school-management' ); ?></option>
                         </select>
-                        <p class="description"><?php esc_html_e( 'Type of certification or diploma awarded upon course completion.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Type of certification or diploma awarded upon course completion.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr id="certification_other_row" style="<?php echo ( $form_data['certification_type'] ?? '' ) === 'other' ? '' : 'display:none;'; ?>">
                     <th scope="row">
-                        <label for="course_certification_other"><?php esc_html_e( 'Certification Name', 'school-management' ); ?></label>
+                        <label for="course_certification_other"><?php esc_html_e( 'Certification Name', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <input type="text" id="course_certification_other" name="certification_other" value="<?php echo esc_attr( $form_data['certification_other'] ?? '' ); ?>" class="regular-text" />
-                        <p class="description"><?php esc_html_e( 'Specify the name of the certification or entity that delivers it.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Specify the name of the certification or entity that delivers it.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
             </table>
 
-            <h3><?php esc_html_e( 'Status & Availability', 'school-management' ); ?></h3>
+            <h3><?php esc_html_e( 'Status & Availability', 'CTADZ-school-management' ); ?></h3>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="course_status"><?php esc_html_e( 'Course Status', 'school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="course_status"><?php esc_html_e( 'Course Status', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
                         <select id="course_status" name="status" required>
-                            <option value="upcoming" <?php selected( $form_data['status'] ?? 'upcoming', 'upcoming' ); ?>><?php esc_html_e( 'Upcoming', 'school-management' ); ?></option>
-                            <option value="in_progress" <?php selected( $form_data['status'] ?? '', 'in_progress' ); ?>><?php esc_html_e( 'In Progress', 'school-management' ); ?></option>
-                            <option value="completed" <?php selected( $form_data['status'] ?? '', 'completed' ); ?>><?php esc_html_e( 'Completed', 'school-management' ); ?></option>
-                            <option value="inactive" <?php selected( $form_data['status'] ?? '', 'inactive' ); ?>><?php esc_html_e( 'Inactive', 'school-management' ); ?></option>
+                            <option value="upcoming" <?php selected( $form_data['status'] ?? 'upcoming', 'upcoming' ); ?>><?php esc_html_e( 'Upcoming', 'CTADZ-school-management' ); ?></option>
+                            <option value="in_progress" <?php selected( $form_data['status'] ?? '', 'in_progress' ); ?>><?php esc_html_e( 'In Progress', 'CTADZ-school-management' ); ?></option>
+                            <option value="completed" <?php selected( $form_data['status'] ?? '', 'completed' ); ?>><?php esc_html_e( 'Completed', 'CTADZ-school-management' ); ?></option>
+                            <option value="inactive" <?php selected( $form_data['status'] ?? '', 'inactive' ); ?>><?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></option>
                         </select>
-                        <p class="description"><?php esc_html_e( 'Current status of the course.', 'school-management' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Current status of the course.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="course_is_active"><?php esc_html_e( 'Active', 'school-management' ); ?></label>
+                        <label for="course_is_active"><?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
                         <label>
                             <input type="checkbox" id="course_is_active" name="is_active" value="1" <?php checked( $form_data['is_active'] ?? true ); ?> />
-                            <?php esc_html_e( 'Active (visible and available for enrollment)', 'school-management' ); ?>
+                            <?php esc_html_e( 'Active (visible and available for enrollment)', 'CTADZ-school-management' ); ?>
                         </label>
                     </td>
                 </tr>
@@ -894,16 +894,16 @@ class SM_Courses_Page {
 
             <p class="submit">
                 <?php submit_button( 
-                    $is_edit ? __( 'Update Course', 'school-management' ) : __( 'Add Course', 'school-management' ), 
+                    $is_edit ? __( 'Update Course', 'CTADZ-school-management' ) : __( 'Add Course', 'CTADZ-school-management' ), 
                     'primary', 
                     'sm_save_course', 
                     false 
                 ); ?>
-                <a href="?page=school-management-courses" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'school-management' ); ?></a>
+                <a href="?page=school-management-courses" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'CTADZ-school-management' ); ?></a>
             </p>
             
             <p class="description">
-                <span style="color: #d63638;">*</span> <?php esc_html_e( 'Required fields', 'school-management' ); ?>
+                <span style="color: #d63638;">*</span> <?php esc_html_e( 'Required fields', 'CTADZ-school-management' ); ?>
             </p>
 
         </form>
