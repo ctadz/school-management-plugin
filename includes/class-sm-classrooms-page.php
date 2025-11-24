@@ -174,30 +174,142 @@ class SM_Classrooms_Page {
         $classrooms_table = $wpdb->prefix . 'sm_classrooms';
         $courses_table = $wpdb->prefix . 'sm_courses';
 
+        // Get search parameter
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        
+        // Get sorting parameters
+        $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'name';
+        $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'ASC';
+
         // Pagination
         $per_page = 20;
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        $total_classrooms = $wpdb->get_var( "SELECT COUNT(*) FROM $classrooms_table" );
+        // Build WHERE clause for search
+        $where_clause = '';
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clause = $wpdb->prepare( 
+                "WHERE (c.name LIKE %s OR c.location LIKE %s OR c.facilities LIKE %s)", 
+                $search_term, 
+                $search_term,
+                $search_term
+            );
+        }
+
+        $total_classrooms = $wpdb->get_var( "SELECT COUNT(*) FROM $classrooms_table c $where_clause" );
         $total_pages = ceil( $total_classrooms / $per_page );
+
+        // Validate and set ORDER BY clause
+        $valid_columns = [
+            'name' => 'c.name',
+            'capacity' => 'c.capacity',
+            'location' => 'c.location',
+            'course_count' => 'course_count',
+            'status' => 'c.is_active'
+        ];
+        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'c.name';
+        $order_clause = "$orderby_column $order";
 
         // Get classrooms with course count
         $classrooms = $wpdb->get_results( $wpdb->prepare( 
             "SELECT c.*, 
                     (SELECT COUNT(*) FROM $courses_table WHERE classroom_id = c.id) as course_count
              FROM $classrooms_table c 
-             ORDER BY c.name ASC 
+             $where_clause
+             ORDER BY $order_clause
              LIMIT %d OFFSET %d", 
             $per_page, 
             $offset 
         ) );
 
+        // Helper function to generate sortable column URL
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {
+            $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
+            $url = add_query_arg( [
+                'page' => 'school-management-classrooms',
+                'orderby' => $column,
+                'order' => $new_order,
+            ] );
+            
+            if ( ! empty( $search ) ) {
+                $url = add_query_arg( 's', urlencode( $search ), $url );
+            }
+            
+            return esc_url( $url );
+        };
+
+        // Helper function to get sort indicator
+        $get_sort_indicator = function( $column ) use ( $orderby, $order ) {
+            if ( $orderby === $column ) {
+                return $order === 'ASC' ? ' ▲' : ' ▼';
+            }
+            return '';
+        };
+
         ?>
+        <style>
+        /* Sortable column styles */
+        .wp-list-table thead th.sortable a,
+        .wp-list-table thead th.sorted a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        .wp-list-table thead th.sortable a::after {
+            content: "⇅";
+            position: absolute;
+            right: 0;
+            opacity: 0.3;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        
+        .wp-list-table thead th.sortable a:hover {
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sortable a:hover::after {
+            opacity: 0.7;
+        }
+        
+        .wp-list-table thead th.sorted {
+            background-color: #f0f0f1;
+        }
+        
+        .wp-list-table thead th.sorted a {
+            font-weight: 600;
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sorted a::after {
+            display: none;
+        }
+        
+        .wp-list-table thead th.non-sortable {
+            color: #646970;
+            cursor: default;
+        }
+        </style>
+        
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Classrooms List', 'CTADZ-school-management' ); ?></h2>
-                <p class="description"><?php printf( esc_html__( 'Total: %d classrooms', 'CTADZ-school-management' ), $total_classrooms ); ?></p>
+                <p class="description">
+                    <?php 
+                    if ( ! empty( $search ) ) {
+                        printf( esc_html__( 'Showing %d classrooms matching "%s"', 'CTADZ-school-management' ), $total_classrooms, esc_html( $search ) );
+                        echo ' <a href="?page=school-management-classrooms" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
+                    } else {
+                        printf( esc_html__( 'Total: %d classrooms', 'CTADZ-school-management' ), $total_classrooms );
+                    }
+                    ?>
+                </p>
             </div>
             <div>
                 <a href="?page=school-management-classrooms&action=add" class="button button-primary">
@@ -207,16 +319,58 @@ class SM_Classrooms_Page {
             </div>
         </div>
 
+        <!-- Search Box -->
+        <div class="tablenav top" style="margin-bottom: 15px;">
+            <form method="get" style="display: inline-block;">
+                <input type="hidden" name="page" value="school-management-classrooms">
+                <?php if ( ! empty( $orderby ) ) : ?>
+                    <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
+                    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                <?php endif; ?>
+                <input type="search" 
+                       name="s" 
+                       value="<?php echo esc_attr( $search ); ?>" 
+                       placeholder="<?php esc_attr_e( 'Search classrooms by name, location, or facilities...', 'CTADZ-school-management' ); ?>"
+                       style="width: 350px; margin-right: 5px;">
+                <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
+                <?php if ( ! empty( $search ) ) : ?>
+                    <a href="?page=school-management-classrooms" class="button" style="margin-left: 5px;">
+                        <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
+        </div>
+
         <?php if ( $classrooms ) : ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Classroom Name', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Capacity', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Location', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Courses', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'name' ); ?>">
+                                <?php esc_html_e( 'Classroom Name', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'name' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'capacity' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'capacity' ); ?>">
+                                <?php esc_html_e( 'Capacity', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'capacity' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'location' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'location' ); ?>">
+                                <?php esc_html_e( 'Location', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'location' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'course_count' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'course_count' ); ?>">
+                                <?php esc_html_e( 'Courses', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'course_count' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'status' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'status' ); ?>">
+                                <?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'status' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -265,6 +419,16 @@ class SM_Classrooms_Page {
                     'total' => $total_pages,
                     'current' => $current_page,
                 ];
+                
+                // Preserve search and sorting in pagination
+                if ( ! empty( $search ) ) {
+                    $pagination_args['add_args'] = [ 's' => urlencode( $search ) ];
+                }
+                if ( ! empty( $orderby ) ) {
+                    $pagination_args['add_args']['orderby'] = $orderby;
+                    $pagination_args['add_args']['order'] = $order;
+                }
+                
                 echo '<div class="tablenav bottom"><div class="tablenav-pages">';
                 echo paginate_links( $pagination_args );
                 echo '</div></div>';

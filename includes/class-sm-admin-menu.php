@@ -281,8 +281,19 @@ class SM_Admin_Menu {
             'school-management-payments',
             [ 'SM_Payments_Page', 'render_payments_page' ]
         );
+
+        // Payment Alerts submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Payment Alerts', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-warning" style="font-size: 17px; vertical-align: middle; color: #dc2626;"></span> ' . __( 'Payment Alerts', 'CTADZ-school-management' ),
+            'manage_payments',
+            'school-management-payment-alerts',
+            [ 'SM_Payment_Alerts_Page', 'render_page' ]
+        );
     }
-        /**
+
+    /**
      * Add settings menu last (runs after calendar add-on menus)
      */
     public static function add_settings_menu() {
@@ -451,9 +462,81 @@ class SM_Admin_Menu {
         <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'Manage Payments', 'CTADZ-school-management' ); ?></a>
     </div>
 
+
+    <!-- Payment Alerts -->
+    <?php
+    // Get payment alerts data
+    $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+    $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+
+    // Count overdue payments
+    $overdue_count = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM $payment_schedules_table ps
+        LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+        WHERE ps.status IN ('pending', 'partial')
+        AND ps.due_date < CURDATE()
+        AND e.status = 'active'
+    ");
+
+    // Count due this week (1-7 days)
+    $week_count = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM $payment_schedules_table ps
+        LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+        WHERE ps.status IN ('pending', 'partial')
+        AND ps.due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+        AND e.status = 'active'
+    ");
+
+    // Count due next week (8-14 days)
+    $next_week_count = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM $payment_schedules_table ps
+        LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+        WHERE ps.status IN ('pending', 'partial')
+        AND ps.due_date BETWEEN DATE_ADD(CURDATE(), INTERVAL 8 DAY) AND DATE_ADD(CURDATE(), INTERVAL 14 DAY)
+        AND e.status = 'active'
+    ");
+
+    $total_alerts = $overdue_count + $week_count + $next_week_count;
+    $alert_color = '#dc2626'; // Red for alerts
+    $alert_text = '';
+    
+    if ( $overdue_count > 0 ) {
+        $alert_text = sprintf( _n( '%d overdue', '%d overdue', $overdue_count, 'CTADZ-school-management' ), $overdue_count );
+        $alert_color = '#dc2626'; // Red
+    } elseif ( $week_count > 0 ) {
+        $alert_text = sprintf( _n( '%d due this week', '%d due this week', $week_count, 'CTADZ-school-management' ), $week_count );
+        $alert_color = '#f59e0b'; // Orange
+    } elseif ( $next_week_count > 0 ) {
+        $alert_text = sprintf( _n( '%d due next week', '%d due next week', $next_week_count, 'CTADZ-school-management' ), $next_week_count );
+        $alert_color = '#eab308'; // Yellow
+    } else {
+        $alert_text = __( 'All up to date', 'CTADZ-school-management' );
+        $alert_color = '#22c55e'; // Green
+    }
+    ?>
+    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid <?php echo $alert_color; ?>; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <h3 style="margin: 0; font-size: 32px; color: <?php echo $alert_color; ?>;"><?php echo intval( $total_alerts ); ?></h3>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Payment Alerts', 'CTADZ-school-management' ); ?></p>
+                <?php if ( $alert_text ) : ?>
+                    <p style="margin: 5px 0 0 0; color: <?php echo $alert_color; ?>; font-size: 13px;">
+                        <?php echo esc_html( $alert_text ); ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+            <span class="dashicons dashicons-warning" style="font-size: 40px; color: <?php echo $alert_color; ?>; opacity: 0.3; margin-left: 15px;"></span>
+        </div>
+        <a href="?page=school-management-payment-alerts" class="button"><?php esc_html_e( 'View Alerts', 'CTADZ-school-management' ); ?></a>
+    </div>
+
     <?php if ( defined( 'SMC_VERSION' ) ) : ?>
     <!-- Schedules (Calendar Plugin) -->
     <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #8e44ad; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #8e44ad;"><?php echo intval( $schedules_count ); ?></h3>

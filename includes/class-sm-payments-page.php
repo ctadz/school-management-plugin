@@ -56,55 +56,318 @@ class SM_Payments_Page {
         $courses_table = $wpdb->prefix . 'sm_courses';
         $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
 
+        // Get search parameter
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        
+        // Get sorting parameters
+        $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'enrollment_date';
+        $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'DESC';
+
+        // Get filter parameter for payment status
+        $filter_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( $_GET['filter_status'] ) : '';
+
         // Pagination
         $per_page = 20;
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        $total_enrollments = $wpdb->get_var( "SELECT COUNT(*) FROM $enrollments_table WHERE status = 'active'" );
-        $total_pages = ceil( $total_enrollments / $per_page );
+        // Build WHERE clause for filtering and search
+        $where_clauses = [ "e.status = 'active'" ];
+        
+        // Search condition
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clauses[] = $wpdb->prepare( 
+                "(s.name LIKE %s OR c.name LIKE %s OR e.payment_plan LIKE %s)", 
+                $search_term, 
+                $search_term,
+                $search_term 
+            );
+        }
+        
+        $where_clause = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
+
+        // Get total enrollments count (before status filtering)
+        $total_enrollments = $wpdb->get_var( "
+            SELECT COUNT(DISTINCT e.id) 
+            FROM $enrollments_table e 
+            LEFT JOIN $students_table s ON e.student_id = s.id 
+            LEFT JOIN $courses_table c ON e.course_id = c.id 
+            $where_clause
+        " );
+
+        // Validate and set ORDER BY clause
+        $valid_columns = [
+            'student_name' => 's.name',
+            'course_name' => 'c.name',
+            'payment_plan' => 'e.payment_plan',
+            'total_expected' => 'total_expected',
+            'total_paid' => 'total_paid',
+            'next_payment_date' => 'next_payment_date',
+            'enrollment_date' => 'e.enrollment_date'
+        ];
+        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'e.enrollment_date';
+        $order_clause = "$orderby_column $order";
 
         // Get active enrollments with payment info
-        $enrollments = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.*, 
-                    s.name as student_name, 
-                    c.name as course_name,
-                    c.price_per_month,
-                    c.total_months,
-                    (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_payments,
-                    (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id AND ps.status = 'paid') as paid_payments,
-                    (SELECT SUM(expected_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_expected,
-                    (SELECT SUM(paid_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_paid
-             FROM $enrollments_table e
-             LEFT JOIN $students_table s ON e.student_id = s.id
-             LEFT JOIN $courses_table c ON e.course_id = c.id
-             WHERE e.status = 'active'
-             ORDER BY e.enrollment_date DESC
-             LIMIT %d OFFSET %d",
-            $per_page,
-            $offset
-        ) );
+        $enrollments = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT e.*, 
+                        s.name as student_name, 
+                        c.name as course_name,
+                        c.price_per_month,
+                        c.total_months,
+                        (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_payments,
+                        (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id AND ps.status = 'paid') as paid_payments,
+                        (SELECT SUM(expected_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_expected,
+                        (SELECT SUM(paid_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_paid,
+                        (SELECT MIN(due_date) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id AND ps.status IN ('pending', 'partial')) as next_payment_date
+                 FROM $enrollments_table e
+                 LEFT JOIN $students_table s ON e.student_id = s.id
+                 LEFT JOIN $courses_table c ON e.course_id = c.id
+                 $where_clause
+                 ORDER BY $order_clause
+                 LIMIT %d OFFSET %d",
+                $per_page,
+                $offset
+            )
+        );
 
+        // Apply status filtering after fetching (since it's calculated)
+        if ( ! empty( $filter_status ) && $enrollments ) {
+            $enrollments = array_filter( $enrollments, function( $enrollment ) use ( $filter_status ) {
+                $total_expected = floatval( $enrollment->total_expected );
+                $total_paid = floatval( $enrollment->total_paid );
+                $balance = $total_expected - $total_paid;
+                
+                if ( $filter_status === 'paid' && $balance <= 0 ) {
+                    return true;
+                } elseif ( $filter_status === 'partial' && $total_paid > 0 && $balance > 0 ) {
+                    return true;
+                } elseif ( $filter_status === 'unpaid' && $total_paid == 0 ) {
+                    return true;
+                }
+                return false;
+            });
+            
+            // Update count for filtered results
+            $total_enrollments = count( $enrollments );
+        }
+
+        $total_pages = ceil( $total_enrollments / $per_page );
+
+        // Helper function to generate sortable column URL
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search, $filter_status ) {
+            $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
+            $url = add_query_arg( [
+                'page' => 'school-management-payments',
+                'orderby' => $column,
+                'order' => $new_order,
+            ] );
+            
+            if ( ! empty( $search ) ) {
+                $url = add_query_arg( 's', urlencode( $search ), $url );
+            }
+            if ( ! empty( $filter_status ) ) {
+                $url = add_query_arg( 'filter_status', $filter_status, $url );
+            }
+            
+            return esc_url( $url );
+        };
+
+        // Helper function to get sort indicator
+        $get_sort_indicator = function( $column ) use ( $orderby, $order ) {
+            if ( $orderby === $column ) {
+                return $order === 'ASC' ? ' ▲' : ' ▼';
+            }
+            return '';
+        };
+ 
         ?>
+        <style>
+        /* Sortable column styles */
+        .wp-list-table thead th.sortable a,
+        .wp-list-table thead th.sorted a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        /* Add sort icon to show column is sortable */
+        .wp-list-table thead th.sortable a::after {
+            content: "⇅";
+            position: absolute;
+            right: 0;
+            opacity: 0.3;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        
+        .wp-list-table thead th.sortable a:hover {
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sortable a:hover::after {
+            opacity: 0.7;
+        }
+        
+        .wp-list-table thead th.sorted {
+            background-color: #f0f0f1;
+        }
+        
+        .wp-list-table thead th.sorted a {
+            font-weight: 600;
+            color: #0073aa;
+        }
+        
+        /* Hide the double arrow when actively sorted */
+        .wp-list-table thead th.sorted a::after {
+            display: none;
+        }
+        
+        /* Non-sortable columns styling */
+        .wp-list-table thead th.non-sortable {
+            color: #646970;
+            cursor: default;
+        }
+        </style>
+        
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Payments Overview', 'CTADZ-school-management' ); ?></h2>
-                <p class="description"><?php printf( esc_html__( 'Active enrollments: %d', 'CTADZ-school-management' ), $total_enrollments ); ?></p>
+                <p class="description">
+                    <?php 
+                    $active_filters = ! empty( $search ) || ! empty( $filter_status );
+                    if ( $active_filters ) {
+                        if ( ! empty( $search ) && ! empty( $filter_status ) ) {
+                            $status_labels = [
+                                'paid' => __( 'Paid', 'CTADZ-school-management' ),
+                                'partial' => __( 'Partial', 'CTADZ-school-management' ),
+                                'unpaid' => __( 'Unpaid', 'CTADZ-school-management' ),
+                            ];
+                            printf( 
+                                esc_html__( 'Showing %d enrollments matching "%s" with status: %s', 'CTADZ-school-management' ), 
+                                $total_enrollments,
+                                esc_html( $search ),
+                                '<strong>' . esc_html( $status_labels[ $filter_status ] ?? $filter_status ) . '</strong>'
+                            );
+                        } elseif ( ! empty( $search ) ) {
+                            printf( esc_html__( 'Showing %d enrollments matching "%s"', 'CTADZ-school-management' ), $total_enrollments, esc_html( $search ) );
+                        } elseif ( ! empty( $filter_status ) ) {
+                            $status_labels = [
+                                'paid' => __( 'Paid', 'CTADZ-school-management' ),
+                                'partial' => __( 'Partial', 'CTADZ-school-management' ),
+                                'unpaid' => __( 'Unpaid', 'CTADZ-school-management' ),
+                            ];
+                            printf( 
+                                esc_html__( 'Showing %d enrollments with status: %s', 'CTADZ-school-management' ), 
+                                $total_enrollments,
+                                '<strong>' . esc_html( $status_labels[ $filter_status ] ?? $filter_status ) . '</strong>'
+                            );
+                        }
+                        echo ' <a href="?page=school-management-payments" style="margin-left: 10px;">' . esc_html__( '[Clear all filters]', 'CTADZ-school-management' ) . '</a>';
+                    } else {
+                        printf( esc_html__( 'Total: %d active enrollments', 'CTADZ-school-management' ), $total_enrollments );
+                    }
+                    ?>
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <!-- Payment Status Filter -->
+                <select id="filter_status" onchange="applyFiltersAndSort();">
+                    <option value=""><?php esc_html_e( 'All Statuses', 'CTADZ-school-management' ); ?></option>
+                    <option value="paid" <?php selected( $filter_status, 'paid' ); ?>><?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></option>
+                    <option value="partial" <?php selected( $filter_status, 'partial' ); ?>><?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?></option>
+                    <option value="unpaid" <?php selected( $filter_status, 'unpaid' ); ?>><?php esc_html_e( 'Unpaid', 'CTADZ-school-management' ); ?></option>
+                </select>
             </div>
         </div>
+
+        <!-- Search Box -->
+        <div class="tablenav top" style="margin-bottom: 15px;">
+            <form method="get" style="display: inline-block;">
+                <input type="hidden" name="page" value="school-management-payments">
+                <?php if ( ! empty( $orderby ) ) : ?>
+                    <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
+                    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                <?php endif; ?>
+                <?php if ( ! empty( $filter_status ) ) : ?>
+                    <input type="hidden" name="filter_status" value="<?php echo esc_attr( $filter_status ); ?>">
+                <?php endif; ?>
+                <input type="search" 
+                       name="s" 
+                       value="<?php echo esc_attr( $search ); ?>" 
+                       placeholder="<?php esc_attr_e( 'Search by student, course, or payment plan...', 'CTADZ-school-management' ); ?>"
+                       style="width: 300px; margin-right: 5px;">
+                <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
+                <?php if ( ! empty( $search ) ) : ?>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'school-management-payments', 'filter_status' => $filter_status ), admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left: 5px;">
+                        <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
+        </div>
+
+        <script>
+        function applyFiltersAndSort() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var status = document.getElementById('filter_status').value;
+            
+            var url = '?page=school-management-payments';
+            
+            var search = urlParams.get('s');
+            var orderby = urlParams.get('orderby');
+            var order = urlParams.get('order');
+            
+            if (search) url += '&s=' + encodeURIComponent(search);
+            if (orderby) url += '&orderby=' + orderby;
+            if (order) url += '&order=' + order;
+            if (status) url += '&filter_status=' + status;
+            
+            window.location.href = url;
+        }
+        </script>
 
         <?php if ( $enrollments ) : ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Plan', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Progress', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Total Expected', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Total Paid', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'student_name' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'student_name' ); ?>">
+                                <?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'student_name' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'course_name' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'course_name' ); ?>">
+                                <?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'course_name' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'payment_plan' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'payment_plan' ); ?>">
+                                <?php esc_html_e( 'Payment Plan', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'payment_plan' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable"><?php esc_html_e( 'Progress', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'total_expected' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'total_expected' ); ?>">
+                                <?php esc_html_e( 'Total Expected', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'total_expected' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'total_paid' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'total_paid' ); ?>">
+                                <?php esc_html_e( 'Total Paid', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'total_paid' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'next_payment_date' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'next_payment_date' ); ?>">
+                                <?php esc_html_e( 'Next Payment', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'next_payment_date' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,11 +376,15 @@ class SM_Payments_Page {
                         $total_paid = floatval( $enrollment->total_paid );
                         $balance = $total_expected - $total_paid;
                         $progress_percent = $total_expected > 0 ? ( $total_paid / $total_expected ) * 100 : 0;
+                        
+                        // Determine if this payment plan should show next payment date
+                        $payment_plan = $enrollment->payment_plan ?? 'monthly';
+                        $show_next_payment = in_array( $payment_plan, [ 'monthly', 'subscription' ] );
                     ?>
                         <tr>
                             <td><strong><?php echo esc_html( $enrollment->student_name ); ?></strong></td>
                             <td><?php echo esc_html( $enrollment->course_name ); ?></td>
-                            <td><?php echo esc_html( ucfirst( $enrollment->payment_plan ?? 'monthly' ) ); ?></td>
+                            <td><?php echo esc_html( ucfirst( $payment_plan ) ); ?></td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <div style="flex: 1; background: #f0f0f1; height: 20px; border-radius: 10px; overflow: hidden;">
@@ -128,6 +395,34 @@ class SM_Payments_Page {
                             </td>
                             <td><?php echo number_format( $total_expected, 2 ); ?></td>
                             <td><?php echo number_format( $total_paid, 2 ); ?></td>
+                            <td>
+                                <?php 
+                                if ( $show_next_payment && ! empty( $enrollment->next_payment_date ) ) {
+                                    $next_date = strtotime( $enrollment->next_payment_date );
+                                    $today = strtotime( 'today' );
+                                    $is_overdue = $next_date < $today;
+                                    $days_diff = floor( ( $next_date - $today ) / ( 60 * 60 * 24 ) );
+                                    
+                                    if ( $is_overdue ) {
+                                        echo '<span style="color: #d63638; font-weight: 600;">';
+                                        echo esc_html( date( 'M j, Y', $next_date ) );
+                                        echo '<br><small style="font-weight: 400;">(' . esc_html__( 'Overdue', 'CTADZ-school-management' ) . ')</small>';
+                                        echo '</span>';
+                                    } elseif ( $days_diff <= 7 ) {
+                                        echo '<span style="color: #f0ad4e; font-weight: 600;">';
+                                        echo esc_html( date( 'M j, Y', $next_date ) );
+                                        echo '<br><small style="font-weight: 400;">(' . sprintf( esc_html__( 'In %d days', 'CTADZ-school-management' ), $days_diff ) . ')</small>';
+                                        echo '</span>';
+                                    } else {
+                                        echo '<span style="color: #50575e;">';
+                                        echo esc_html( date( 'M j, Y', $next_date ) );
+                                        echo '</span>';
+                                    }
+                                } else {
+                                    echo '<span style="color: #999;">—</span>';
+                                }
+                                ?>
+                            </td>
                             <td>
                                 <?php if ( $balance <= 0 ) : ?>
                                     <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
@@ -181,6 +476,7 @@ class SM_Payments_Page {
      * Render detailed payment view for a specific enrollment
      */
     private static function render_enrollment_payments( $enrollment_id ) {
+        global $wpdb;
         global $wpdb;
         
         $enrollments_table = $wpdb->prefix . 'sm_enrollments';

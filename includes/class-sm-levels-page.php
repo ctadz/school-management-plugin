@@ -164,14 +164,140 @@ class SM_Levels_Page {
      */
     private static function render_levels_list() {
         global $wpdb;
-        $table = $wpdb->prefix . 'sm_levels';
-        $levels = $wpdb->get_results( "SELECT * FROM $table ORDER BY sort_order ASC, name ASC" );
+        $levels_table = $wpdb->prefix . 'sm_levels';
+        $students_table = $wpdb->prefix . 'sm_students';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+
+        // Get search parameter
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        
+        // Get sorting parameters
+        $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'sort_order';
+        $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'ASC';
+
+        // Build WHERE clause for search
+        $where_clause = '';
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clause = $wpdb->prepare( 
+                "WHERE (l.name LIKE %s OR l.description LIKE %s)", 
+                $search_term, 
+                $search_term
+            );
+        }
+
+        // Validate and set ORDER BY clause
+        $valid_columns = [
+            'name' => 'l.name',
+            'sort_order' => 'l.sort_order',
+            'student_count' => 'student_count',
+            'course_count' => 'course_count',
+            'status' => 'l.is_active'
+        ];
+        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'l.sort_order';
+        $order_clause = "$orderby_column $order";
+
+        // Get levels with student and course counts
+        $levels = $wpdb->get_results( 
+            "SELECT l.*, 
+                    COUNT(DISTINCT s.id) as student_count,
+                    COUNT(DISTINCT c.id) as course_count
+             FROM $levels_table l 
+             LEFT JOIN $students_table s ON l.id = s.level_id
+             LEFT JOIN $courses_table c ON l.id = c.level_id
+             $where_clause
+             GROUP BY l.id
+             ORDER BY $order_clause" 
+        );
+
+        $total_levels = count( $levels );
+
+        // Helper function to generate sortable column URL
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {
+            $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
+            $url = add_query_arg( [
+                'page' => 'school-management-levels',
+                'orderby' => $column,
+                'order' => $new_order,
+            ] );
+            
+            if ( ! empty( $search ) ) {
+                $url = add_query_arg( 's', urlencode( $search ), $url );
+            }
+            
+            return esc_url( $url );
+        };
+
+        // Helper function to get sort indicator
+        $get_sort_indicator = function( $column ) use ( $orderby, $order ) {
+            if ( $orderby === $column ) {
+                return $order === 'ASC' ? ' ▲' : ' ▼';
+            }
+            return '';
+        };
 
         ?>
+        <style>
+        /* Sortable column styles */
+        .wp-list-table thead th.sortable a,
+        .wp-list-table thead th.sorted a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        .wp-list-table thead th.sortable a::after {
+            content: "⇅";
+            position: absolute;
+            right: 0;
+            opacity: 0.3;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        
+        .wp-list-table thead th.sortable a:hover {
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sortable a:hover::after {
+            opacity: 0.7;
+        }
+        
+        .wp-list-table thead th.sorted {
+            background-color: #f0f0f1;
+        }
+        
+        .wp-list-table thead th.sorted a {
+            font-weight: 600;
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sorted a::after {
+            display: none;
+        }
+        
+        .wp-list-table thead th.non-sortable {
+            color: #646970;
+            cursor: default;
+        }
+        </style>
+        
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Course Levels', 'CTADZ-school-management' ); ?></h2>
-                <p class="description"><?php esc_html_e( 'Manage skill levels for courses and students', 'CTADZ-school-management' ); ?></p>
+                <p class="description">
+                    <?php 
+                    if ( ! empty( $search ) ) {
+                        printf( esc_html__( 'Showing %d levels matching "%s"', 'CTADZ-school-management' ), $total_levels, esc_html( $search ) );
+                        echo ' <a href="?page=school-management-levels" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
+                    } else {
+                        esc_html_e( 'Manage skill levels for courses and students', 'CTADZ-school-management' );
+                    }
+                    ?>
+                </p>
             </div>
             <div>
                 <a href="?page=school-management-levels&action=add" class="button button-primary">
@@ -181,23 +307,86 @@ class SM_Levels_Page {
             </div>
         </div>
 
+        <!-- Search Box -->
+        <div class="tablenav top" style="margin-bottom: 15px;">
+            <form method="get" style="display: inline-block;">
+                <input type="hidden" name="page" value="school-management-levels">
+                <?php if ( ! empty( $orderby ) ) : ?>
+                    <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
+                    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                <?php endif; ?>
+                <input type="search" 
+                       name="s" 
+                       value="<?php echo esc_attr( $search ); ?>" 
+                       placeholder="<?php esc_attr_e( 'Search levels by name or description...', 'CTADZ-school-management' ); ?>"
+                       style="width: 300px; margin-right: 5px;">
+                <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
+                <?php if ( ! empty( $search ) ) : ?>
+                    <a href="?page=school-management-levels" class="button" style="margin-left: 5px;">
+                        <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
+        </div>
+
         <?php if ( $levels ) : ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Order', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Level Name', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'name' ); ?>">
+                                <?php esc_html_e( 'Level Name', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'name' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable"><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'student_count' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'student_count' ); ?>">
+                                <?php esc_html_e( 'Students', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'student_count' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'course_count' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'course_count' ); ?>">
+                                <?php esc_html_e( 'Courses', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'course_count' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'status' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'status' ); ?>">
+                                <?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'status' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'sort_order' ? 'sorted' : 'sortable'; ?>" style="width: 80px;">
+                            <a href="<?php echo $get_sort_url( 'sort_order' ); ?>">
+                                <?php esc_html_e( 'Order', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'sort_order' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ( $levels as $level ) : ?>
                         <tr>
-                            <td><?php echo intval( $level->sort_order ); ?></td>
                             <td><strong><?php echo esc_html( $level->name ); ?></strong></td>
                             <td><?php echo esc_html( $level->description ?: '—' ); ?></td>
+                            <td>
+                                <?php
+                                $student_count = intval( $level->student_count );
+                                if ( $student_count > 0 ) {
+                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $student_count ) . '</strong> ' . esc_html( _n( 'student', 'students', $student_count, 'CTADZ-school-management' ) ) . '</span>';
+                                } else {
+                                    echo '<span style="color: #999;">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php
+                                $course_count = intval( $level->course_count );
+                                if ( $course_count > 0 ) {
+                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $course_count ) . '</strong> ' . esc_html( _n( 'course', 'courses', $course_count, 'CTADZ-school-management' ) ) . '</span>';
+                                } else {
+                                    echo '<span style="color: #999;">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
+                                }
+                                ?>
+                            </td>
                             <td>
                                 <?php if ( $level->is_active ) : ?>
                                     <span style="color: #46b450;">● <?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></span>
@@ -205,6 +394,7 @@ class SM_Levels_Page {
                                     <span style="color: #dc3232;">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
+                            <td><?php echo intval( $level->sort_order ); ?></td>
                             <td>
                                 <a href="?page=school-management-levels&action=edit&level_id=<?php echo intval( $level->id ); ?>" class="button button-small">
                                     <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>

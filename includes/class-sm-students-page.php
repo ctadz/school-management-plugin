@@ -231,13 +231,44 @@ class SM_Students_Page {
         $enrollments_table = $wpdb->prefix . 'sm_enrollments';
         $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
 
+        // Get search parameter
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        
+        // Get sorting parameters
+        $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'name';
+        $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'ASC';
+
         // Pagination setup
         $per_page = 20;
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table" );
+        // Build WHERE clause for search
+        $where_clause = '';
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clause = $wpdb->prepare( 
+                "WHERE (s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s)", 
+                $search_term, 
+                $search_term, 
+                $search_term 
+            );
+        }
+
+        $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table s $where_clause" );
         $total_pages = ceil( $total_students / $per_page );
+
+        // Validate and set ORDER BY clause
+        $valid_columns = [
+            'name' => 's.name',
+            'email' => 's.email',
+            'phone' => 's.phone',
+            'level' => 'l.name',
+            'enrollment_date' => 's.enrollment_date',
+            'active_enrollments' => 'active_enrollments'
+        ];
+        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 's.name';
+        $order_clause = "$orderby_column $order";
 
         // Get students with level names, enrollment count, and payment info
         $query = "
@@ -260,18 +291,103 @@ class SM_Students_Page {
             LEFT JOIN $levels_table l ON s.level_id = l.id
             LEFT JOIN $enrollments_table e ON s.id = e.student_id
             LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
+            $where_clause
             GROUP BY s.id
-            ORDER BY s.name ASC
+            ORDER BY $order_clause
             LIMIT %d OFFSET %d
         ";
         
         $students = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
 
+        // Helper function to generate sortable column URL
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {
+            $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
+            $url = add_query_arg( [
+                'page' => 'school-management-students',
+                'orderby' => $column,
+                'order' => $new_order,
+            ] );
+            
+            if ( ! empty( $search ) ) {
+                $url = add_query_arg( 's', urlencode( $search ), $url );
+            }
+            
+            return esc_url( $url );
+        };
+
+        // Helper function to get sort indicator
+        $get_sort_indicator = function( $column ) use ( $orderby, $order ) {
+            if ( $orderby === $column ) {
+                return $order === 'ASC' ? ' ▲' : ' ▼';
+            }
+            return '';
+        };
+
         ?>
+        <style>
+        /* Sortable column styles */
+        .wp-list-table thead th.sortable a,
+        .wp-list-table thead th.sorted a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        /* Add sort icon to show column is sortable */
+        .wp-list-table thead th.sortable a::after {
+            content: "⇅";
+            position: absolute;
+            right: 0;
+            opacity: 0.3;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        
+        .wp-list-table thead th.sortable a:hover {
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sortable a:hover::after {
+            opacity: 0.7;
+        }
+        
+        .wp-list-table thead th.sorted {
+            background-color: #f0f0f1;
+        }
+        
+        .wp-list-table thead th.sorted a {
+            font-weight: 600;
+            color: #0073aa;
+        }
+        
+        /* Hide the double arrow when actively sorted */
+        .wp-list-table thead th.sorted a::after {
+            display: none;
+        }
+        
+        /* Non-sortable columns styling */
+        .wp-list-table thead th.non-sortable {
+            color: #646970;
+            cursor: default;
+        }
+        </style>
+        
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Students List', 'CTADZ-school-management' ); ?></h2>
-                <p class="description"><?php printf( esc_html__( 'Total: %d students', 'CTADZ-school-management' ), $total_students ); ?></p>
+                <p class="description">
+                    <?php 
+                    if ( ! empty( $search ) ) {
+                        printf( esc_html__( 'Showing %d students matching "%s"', 'CTADZ-school-management' ), $total_students, esc_html( $search ) );
+                        echo ' <a href="?page=school-management-students" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
+                    } else {
+                        printf( esc_html__( 'Total: %d students', 'CTADZ-school-management' ), $total_students );
+                    }
+                    ?>
+                </p>
             </div>
             <div>
                 <a href="?page=school-management-students&action=add" class="button button-primary">
@@ -281,19 +397,61 @@ class SM_Students_Page {
             </div>
         </div>
 
+        <!-- Search Box -->
+        <div class="tablenav top" style="margin-bottom: 15px;">
+            <form method="get" style="display: inline-block;">
+                <input type="hidden" name="page" value="school-management-students">
+                <?php if ( ! empty( $orderby ) ) : ?>
+                    <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
+                    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                <?php endif; ?>
+                <input type="search" 
+                       name="s" 
+                       value="<?php echo esc_attr( $search ); ?>" 
+                       placeholder="<?php esc_attr_e( 'Search students by name, email, or phone...', 'CTADZ-school-management' ); ?>"
+                       style="width: 300px; margin-right: 5px;">
+                <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
+                <?php if ( ! empty( $search ) ) : ?>
+                    <a href="?page=school-management-students" class="button" style="margin-left: 5px;">
+                        <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
+        </div>
+
         <?php if ( $students ) : ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th style="width: 60px;"><?php esc_html_e( 'Picture', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Email', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Phone', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Balance', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable" style="width: 60px;"><?php esc_html_e( 'Picture', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'name' ); ?>">
+                                <?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'name' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'email' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'email' ); ?>">
+                                <?php esc_html_e( 'Email', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'email' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'phone' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'phone' ); ?>">
+                                <?php esc_html_e( 'Phone', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'phone' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'level' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'level' ); ?>">
+                                <?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'level' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'active_enrollments' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'active_enrollments' ); ?>">
+                                <?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'active_enrollments' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable"><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable"><?php esc_html_e( 'Balance', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -397,6 +555,15 @@ class SM_Students_Page {
                     'total'     => $total_pages,
                     'current'   => $current_page,
                 ];
+                
+                // Preserve search and sorting in pagination
+                if ( ! empty( $search ) ) {
+                    $pagination_args['add_args'] = [ 's' => urlencode( $search ) ];
+                }
+                if ( ! empty( $orderby ) ) {
+                    $pagination_args['add_args']['orderby'] = $orderby;
+                    $pagination_args['add_args']['order'] = $order;
+                }
 
                 echo '<div class="tablenav bottom">';
                 echo '<div class="tablenav-pages">';

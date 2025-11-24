@@ -258,6 +258,13 @@ class SM_Courses_Page {
         $teachers_table = $wpdb->prefix . 'sm_teachers';
         $enrollments_table = $wpdb->prefix . 'sm_enrollments';
 
+        // Get search parameter
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        
+        // Get sorting parameters
+        $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'name';
+        $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'ASC';
+
         // Get filter parameter
         $filter_payment_model = isset( $_GET['filter_payment_model'] ) ? sanitize_text_field( $_GET['filter_payment_model'] ) : '';
 
@@ -266,15 +273,49 @@ class SM_Courses_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for filtering
-        $where_clause = '';
-        if ( ! empty( $filter_payment_model ) ) {
-            $where_clause = $wpdb->prepare( "WHERE c.payment_model = %s", $filter_payment_model );
+        // Build WHERE clause for filtering and search
+        $where_clauses = [];
+        
+        // Search condition
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clauses[] = $wpdb->prepare( 
+                "(c.name LIKE %s OR c.language LIKE %s OR CONCAT(t.first_name, ' ', t.last_name) LIKE %s)", 
+                $search_term, 
+                $search_term,
+                $search_term 
+            );
         }
+        
+        // Payment model filter
+        if ( ! empty( $filter_payment_model ) ) {
+            $where_clauses[] = $wpdb->prepare( "c.payment_model = %s", $filter_payment_model );
+        }
+        
+        $where_clause = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
 
         // Get total courses count (with filter applied)
-        $total_courses = $wpdb->get_var( "SELECT COUNT(*) FROM $courses_table c $where_clause" );
+        $total_courses = $wpdb->get_var( "
+            SELECT COUNT(DISTINCT c.id) 
+            FROM $courses_table c 
+            LEFT JOIN $teachers_table t ON c.teacher_id = t.id 
+            $where_clause
+        " );
         $total_pages = ceil( $total_courses / $per_page );
+
+        // Validate and set ORDER BY clause
+        $valid_columns = [
+            'name' => 'c.name',
+            'language' => 'c.language',
+            'level' => 'l.name',
+            'teacher' => 'teacher_name',
+            'duration' => 'c.total_weeks',
+            'price' => 'c.price_per_month',
+            'enrollments' => 'enrollment_count',
+            'status' => 'c.status'
+        ];
+        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'c.name';
+        $order_clause = "$orderby_column $order";
 
         // Get courses with level, teacher, classroom names, and enrollment count
         $query = "
@@ -290,30 +331,125 @@ class SM_Courses_Page {
             LEFT JOIN $enrollments_table e ON c.id = e.course_id AND e.status != 'cancelled'
             $where_clause
             GROUP BY c.id
-            ORDER BY c.name ASC 
+            ORDER BY $order_clause
             LIMIT %d OFFSET %d
         ";
         
         $courses = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+
+        // Helper function to generate sortable column URL
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search, $filter_payment_model ) {
+            $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
+            $url = add_query_arg( [
+                'page' => 'school-management-courses',
+                'orderby' => $column,
+                'order' => $new_order,
+            ] );
+            
+            if ( ! empty( $search ) ) {
+                $url = add_query_arg( 's', urlencode( $search ), $url );
+            }
+            if ( ! empty( $filter_payment_model ) ) {
+                $url = add_query_arg( 'filter_payment_model', $filter_payment_model, $url );
+            }
+            
+            return esc_url( $url );
+        };
+
+        // Helper function to get sort indicator
+        $get_sort_indicator = function( $column ) use ( $orderby, $order ) {
+            if ( $orderby === $column ) {
+                return $order === 'ASC' ? ' ▲' : ' ▼';
+            }
+            return '';
+        };
  
         ?>
+        <style>
+        /* Sortable column styles */
+        .wp-list-table thead th.sortable a,
+        .wp-list-table thead th.sorted a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        /* Add sort icon to show column is sortable */
+        .wp-list-table thead th.sortable a::after {
+            content: "⇅";
+            position: absolute;
+            right: 0;
+            opacity: 0.3;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        
+        .wp-list-table thead th.sortable a:hover {
+            color: #0073aa;
+        }
+        
+        .wp-list-table thead th.sortable a:hover::after {
+            opacity: 0.7;
+        }
+        
+        .wp-list-table thead th.sorted {
+            background-color: #f0f0f1;
+        }
+        
+        .wp-list-table thead th.sorted a {
+            font-weight: 600;
+            color: #0073aa;
+        }
+        
+        /* Hide the double arrow when actively sorted */
+        .wp-list-table thead th.sorted a::after {
+            display: none;
+        }
+        
+        /* Non-sortable columns styling */
+        .wp-list-table thead th.non-sortable {
+            color: #646970;
+            cursor: default;
+        }
+        </style>
+        
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Courses List', 'CTADZ-school-management' ); ?></h2>
                 <p class="description">
                     <?php 
-                    if ( ! empty( $filter_payment_model ) ) {
-                        $filter_labels = [
-                            'full_payment' => __( 'Full Payment', 'CTADZ-school-management' ),
-                            'monthly_installments' => __( 'Monthly Installments', 'CTADZ-school-management' ),
-                            'monthly_subscription' => __( 'Monthly Subscription', 'CTADZ-school-management' ),
-                        ];
-                        printf( 
-                            esc_html__( 'Showing %d courses with payment model: %s', 'CTADZ-school-management' ), 
-                            $total_courses,
-                            '<strong>' . esc_html( $filter_labels[ $filter_payment_model ] ?? $filter_payment_model ) . '</strong>'
-                        );
-                        echo ' <a href="?page=school-management-courses" style="margin-left: 10px;">' . esc_html__( '[Clear filter]', 'CTADZ-school-management' ) . '</a>';
+                    $active_filters = ! empty( $search ) || ! empty( $filter_payment_model );
+                    if ( $active_filters ) {
+                        if ( ! empty( $search ) && ! empty( $filter_payment_model ) ) {
+                            $filter_labels = [
+                                'full_payment' => __( 'Full Payment', 'CTADZ-school-management' ),
+                                'monthly_installments' => __( 'Monthly Installments', 'CTADZ-school-management' ),
+                                'monthly_subscription' => __( 'Monthly Subscription', 'CTADZ-school-management' ),
+                            ];
+                            printf( 
+                                esc_html__( 'Showing %d courses matching "%s" with payment model: %s', 'CTADZ-school-management' ), 
+                                $total_courses,
+                                esc_html( $search ),
+                                '<strong>' . esc_html( $filter_labels[ $filter_payment_model ] ?? $filter_payment_model ) . '</strong>'
+                            );
+                        } elseif ( ! empty( $search ) ) {
+                            printf( esc_html__( 'Showing %d courses matching "%s"', 'CTADZ-school-management' ), $total_courses, esc_html( $search ) );
+                        } elseif ( ! empty( $filter_payment_model ) ) {
+                            $filter_labels = [
+                                'full_payment' => __( 'Full Payment', 'CTADZ-school-management' ),
+                                'monthly_installments' => __( 'Monthly Installments', 'CTADZ-school-management' ),
+                                'monthly_subscription' => __( 'Monthly Subscription', 'CTADZ-school-management' ),
+                            ];
+                            printf( 
+                                esc_html__( 'Showing %d courses with payment model: %s', 'CTADZ-school-management' ), 
+                                $total_courses,
+                                '<strong>' . esc_html( $filter_labels[ $filter_payment_model ] ?? $filter_payment_model ) . '</strong>'
+                            );
+                        }
+                        echo ' <a href="?page=school-management-courses" style="margin-left: 10px;">' . esc_html__( '[Clear all filters]', 'CTADZ-school-management' ) . '</a>';
                     } else {
                         printf( esc_html__( 'Total: %d courses', 'CTADZ-school-management' ), $total_courses );
                     }
@@ -322,7 +458,7 @@ class SM_Courses_Page {
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <!-- Payment Model Filter -->
-                <select id="filter_payment_model" onchange="window.location.href='?page=school-management-courses&filter_payment_model=' + this.value;">
+                <select id="filter_payment_model" onchange="applyFiltersAndSort();">
                     <option value=""><?php esc_html_e( 'All Payment Models', 'CTADZ-school-management' ); ?></option>
                     <option value="full_payment" <?php selected( $filter_payment_model, 'full_payment' ); ?>>
                         <?php esc_html_e( 'Full Payment', 'CTADZ-school-management' ); ?>
@@ -342,20 +478,97 @@ class SM_Courses_Page {
             </div>
         </div>
 
+        <!-- Search Box -->
+        <div class="tablenav top" style="margin-bottom: 15px;">
+            <form method="get" style="display: inline-block;">
+                <input type="hidden" name="page" value="school-management-courses">
+                <?php if ( ! empty( $orderby ) ) : ?>
+                    <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
+                    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                <?php endif; ?>
+                <?php if ( ! empty( $filter_payment_model ) ) : ?>
+                    <input type="hidden" name="filter_payment_model" value="<?php echo esc_attr( $filter_payment_model ); ?>">
+                <?php endif; ?>
+                <input type="search" 
+                       name="s" 
+                       value="<?php echo esc_attr( $search ); ?>" 
+                       placeholder="<?php esc_attr_e( 'Search courses by name, language, or teacher...', 'CTADZ-school-management' ); ?>"
+                       style="width: 300px; margin-right: 5px;">
+                <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
+                <?php if ( ! empty( $search ) ) : ?>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'school-management-courses', 'filter_payment_model' => $filter_payment_model ), admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left: 5px;">
+                        <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
+        </div>
+
+        <script>
+        function applyFiltersAndSort() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var paymentModel = document.getElementById('filter_payment_model').value;
+            
+            var url = '?page=school-management-courses';
+            
+            var search = urlParams.get('s');
+            var orderby = urlParams.get('orderby');
+            var order = urlParams.get('order');
+            
+            if (search) url += '&s=' + encodeURIComponent(search);
+            if (orderby) url += '&orderby=' + orderby;
+            if (order) url += '&order=' + order;
+            if (paymentModel) url += '&filter_payment_model=' + paymentModel;
+            
+            window.location.href = url;
+        }
+        </script>
+
         <?php if ( $courses ) : ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Language', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Duration', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Price/Month', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'name' ); ?>">
+                                <?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'name' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'language' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'language' ); ?>">
+                                <?php esc_html_e( 'Language', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'language' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'level' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'level' ); ?>">
+                                <?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'level' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'teacher' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'teacher' ); ?>">
+                                <?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'teacher' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'duration' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'duration' ); ?>">
+                                <?php esc_html_e( 'Duration', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'duration' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable"><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?></th>
+                        <th class="<?php echo $orderby === 'price' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'price' ); ?>">
+                                <?php esc_html_e( 'Price/Month', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'price' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'enrollments' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'enrollments' ); ?>">
+                                <?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'enrollments' ); ?>
+                            </a>
+                        </th>
+                        <th class="<?php echo $orderby === 'status' ? 'sorted' : 'sortable'; ?>">
+                            <a href="<?php echo $get_sort_url( 'status' ); ?>">
+                                <?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'status' ); ?>
+                            </a>
+                        </th>
+                        <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -453,18 +666,33 @@ class SM_Courses_Page {
             // Pagination
             if ( $total_pages > 1 ) {
                 $base_url = remove_query_arg( 'paged' );
-                if ( ! empty( $filter_payment_model ) ) {
-                    $base_url = add_query_arg( 'filter_payment_model', $filter_payment_model, $base_url );
-                }
                 
                 $pagination_args = [
-                    'base' => add_query_arg( 'paged', '%#%', $base_url ),
+                    'base' => add_query_arg( 'paged', '%#%' ),
                     'format' => '',
                     'prev_text' => __( '« Previous', 'CTADZ-school-management' ),
                     'next_text' => __( 'Next »', 'CTADZ-school-management' ),
                     'total' => $total_pages,
                     'current' => $current_page,
                 ];
+                
+                // Preserve search, sorting, and filter in pagination
+                $add_args = [];
+                if ( ! empty( $search ) ) {
+                    $add_args['s'] = urlencode( $search );
+                }
+                if ( ! empty( $orderby ) ) {
+                    $add_args['orderby'] = $orderby;
+                    $add_args['order'] = $order;
+                }
+                if ( ! empty( $filter_payment_model ) ) {
+                    $add_args['filter_payment_model'] = $filter_payment_model;
+                }
+                
+                if ( ! empty( $add_args ) ) {
+                    $pagination_args['add_args'] = $add_args;
+                }
+                
                 echo '<div class="tablenav bottom"><div class="tablenav-pages">';
                 echo paginate_links( $pagination_args );
                 echo '</div></div>';
