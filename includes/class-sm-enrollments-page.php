@@ -144,11 +144,44 @@ class SM_Enrollments_Page {
         global $wpdb;
         $table = $wpdb->prefix . 'sm_enrollments';
 
+
         // Handle delete action
         if ( isset( $_GET['delete'] ) && check_admin_referer( 'sm_delete_enrollment_' . intval( $_GET['delete'] ) ) ) {
-            $deleted = $wpdb->delete( $table, [ 'id' => intval( $_GET['delete'] ) ] );
+            $enrollment_id = intval( $_GET['delete'] );
+            
+            // CASCADE DELETE: Remove all related records first
+            // This prevents orphaned data in the database
+            
+            // 1. Delete payment records (child of payment_schedules)
+            $wpdb->delete(
+                $wpdb->prefix . 'sm_payment_records',
+                [ 'enrollment_id' => $enrollment_id ],
+                [ '%d' ]
+            );
+            
+            // 2. Delete payment schedules (child of enrollment)
+            $wpdb->delete(
+                $wpdb->prefix . 'sm_payment_schedules',
+                [ 'enrollment_id' => $enrollment_id ],
+                [ '%d' ]
+            );
+            
+            // 3. Delete enrollment fees (insurance, books)
+            $wpdb->delete(
+                $wpdb->prefix . 'sm_enrollment_fees',
+                [ 'enrollment_id' => $enrollment_id ],
+                [ '%d' ]
+            );
+            
+            // 4. Finally, delete the enrollment itself
+            $deleted = $wpdb->delete( 
+                $table, 
+                [ 'id' => $enrollment_id ],
+                [ '%d' ]
+            );
+            
             if ( $deleted ) {
-                echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment deleted successfully.', 'CTADZ-school-management' ) . '</p></div>';
+                echo '<div class="updated notice"><p>' . esc_html__( 'Enrollment and all related payment data deleted successfully.', 'CTADZ-school-management' ) . '</p></div>';
             } else {
                 echo '<div class="error notice"><p>' . esc_html__( 'Error deleting enrollment.', 'CTADZ-school-management' ) . '</p></div>';
             }
