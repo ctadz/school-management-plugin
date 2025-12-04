@@ -270,27 +270,31 @@ class SM_Students_Page {
         $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 's.name';
         $order_clause = "$orderby_column $order";
 
-        // Get students with level names, enrollment count, and payment info
+        // Get students with level names, enrollment count, payment info, and portal access
+        $portal_credentials_table = $wpdb->prefix . 'smsp_student_credentials';
+
         $query = "
-            SELECT s.*, 
+            SELECT s.*,
                    l.name as level_name,
                    COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) as active_enrollments,
-                   SUM(CASE 
-                       WHEN ps.status = 'pending' AND ps.due_date < CURDATE() 
+                   SUM(CASE
+                       WHEN ps.status = 'pending' AND ps.due_date < CURDATE()
                        THEN (ps.expected_amount - ps.paid_amount)
                        WHEN ps.status = 'partial' AND ps.due_date < CURDATE()
                        THEN (ps.expected_amount - ps.paid_amount)
-                       ELSE 0 
+                       ELSE 0
                    END) as overdue_amount,
-                   SUM(CASE 
+                   SUM(CASE
                        WHEN ps.status IN ('pending', 'partial')
                        THEN (ps.expected_amount - ps.paid_amount)
-                       ELSE 0 
-                   END) as total_outstanding
+                       ELSE 0
+                   END) as total_outstanding,
+                   spc.student_id as has_portal_access
             FROM $students_table s
             LEFT JOIN $levels_table l ON s.level_id = l.id
             LEFT JOIN $enrollments_table e ON s.id = e.student_id
             LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
+            LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id
             $where_clause
             GROUP BY s.id
             ORDER BY $order_clause
@@ -424,6 +428,7 @@ class SM_Students_Page {
                 <thead>
                     <tr>
                         <th class="non-sortable" style="width: 60px;"><?php esc_html_e( 'Picture', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable" style="width: 110px;"><?php esc_html_e( 'Student Code', 'CTADZ-school-management' ); ?></th>
                         <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
                             <a href="<?php echo $get_sort_url( 'name' ); ?>">
                                 <?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'name' ); ?>
@@ -451,6 +456,9 @@ class SM_Students_Page {
                         </th>
                         <th class="non-sortable"><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></th>
                         <th class="non-sortable"><?php esc_html_e( 'Balance', 'CTADZ-school-management' ); ?></th>
+                        <?php if ( class_exists( 'SMSP_Auth' ) ) : ?>
+                            <th class="non-sortable"><?php esc_html_e( 'Portal Access', 'CTADZ-school-management' ); ?></th>
+                        <?php endif; ?>
                         <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
@@ -492,6 +500,11 @@ class SM_Students_Page {
                                     <div style="width:40px;height:40px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">No Photo</div>
                                 <?php endif; ?>
                             </td>
+                            <td>
+                                <strong style="color: #2271b1; font-family: monospace;">
+                                    <?php echo esc_html( $student->student_code ?: 'ID-' . $student->id ); ?>
+                                </strong>
+                            </td>
                             <td><strong><?php echo esc_html( $student->name ); ?></strong></td>
                             <td><?php echo esc_html( $student->email ); ?></td>
                             <td><?php echo esc_html( $student->phone ); ?></td>
@@ -521,8 +534,30 @@ class SM_Students_Page {
                                     <span style="color: #999;">—</span>
                                 <?php endif; ?>
                             </td>
+                            <?php if ( class_exists( 'SMSP_Auth' ) ) : ?>
+                                <td>
+                                    <?php if ( $student->has_portal_access ) : ?>
+                                        <span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; background: #ecf7ed; border-radius: 3px; font-size: 11px; margin-bottom: 3px;">
+                                            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #46b450;"></span>
+                                            <strong style="color: #46b450;"><?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></strong>
+                                        </span>
+                                        <button class="button button-small smsp-reset-password"
+                                                data-student-id="<?php echo intval( $student->id ); ?>"
+                                                title="<?php esc_attr_e( 'Reset Portal Password', 'CTADZ-school-management' ); ?>"
+                                                style="display: block; margin-top: 3px;">
+                                            <?php esc_html_e( 'Reset Password', 'CTADZ-school-management' ); ?>
+                                        </button>
+                                    <?php else : ?>
+                                        <button class="button button-small smsp-create-password"
+                                                data-student-id="<?php echo intval( $student->id ); ?>"
+                                                title="<?php esc_attr_e( 'Create Portal Access', 'CTADZ-school-management' ); ?>">
+                                            <?php esc_html_e( 'Create Portal Access', 'CTADZ-school-management' ); ?>
+                                        </button>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
                             <td>
-                                <a href="?page=school-management-students&action=edit&student_id=<?php echo intval( $student->id ); ?>" 
+                                <a href="?page=school-management-students&action=edit&student_id=<?php echo intval( $student->id ); ?>"
                                    class="button button-small" title="<?php esc_attr_e( 'Edit Student', 'CTADZ-school-management' ); ?>">
                                     <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
                                 </a>

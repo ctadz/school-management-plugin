@@ -262,6 +262,16 @@ class SM_Admin_Menu {
             [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
         );
 
+        // Attendance submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Attendance', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-yes-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Attendance', 'CTADZ-school-management' ),
+            'view_attendance',
+            'school-management-attendance',
+            [ 'SM_Attendance_Page', 'render_attendance_page' ]
+        );
+
         // Payment Terms submenu
         add_submenu_page(
             'school-management',
@@ -299,7 +309,6 @@ class SM_Admin_Menu {
     public static function add_settings_menu() {
         add_submenu_page(
             'school-management',
-            __( 'Settings', 'CTADZ-school-management' ),
             __( 'Settings', 'CTADZ-school-management' ),
             '<span class="dashicons dashicons-admin-generic" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Settings', 'CTADZ-school-management' ),
             'manage_school_settings',

@@ -7,29 +7,200 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SM_Teachers_Page {
 
     /**
+     * Initialize AJAX handlers
+     */
+    public static function init() {
+        add_action( 'wp_ajax_sm_validate_teacher_email', array( __CLASS__, 'ajax_validate_email' ) );
+        add_action( 'wp_ajax_sm_validate_teacher_phone', array( __CLASS__, 'ajax_validate_phone' ) );
+    }
+
+    /**
+     * AJAX handler for email validation
+     */
+    public static function ajax_validate_email() {
+        check_ajax_referer( 'sm_validate_email', 'nonce' );
+
+        $email = sanitize_email( $_POST['email'] ?? '' );
+        $teacher_id = intval( $_POST['teacher_id'] ?? 0 );
+
+        if ( empty( $email ) || ! is_email( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid email format', 'CTADZ-school-management' ) ) );
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'sm_teachers';
+
+        // Check teachers table
+        $query = "SELECT id FROM $table WHERE LOWER(email) = LOWER(%s)";
+        $params = array( $email );
+
+        if ( $teacher_id > 0 ) {
+            $query .= " AND id != %d";
+            $params[] = $teacher_id;
+        }
+
+        $duplicate = $wpdb->get_var( $wpdb->prepare( $query, $params ) );
+        if ( $duplicate ) {
+            wp_send_json_error( array( 'message' => __( 'Email already used by another teacher', 'CTADZ-school-management' ) ) );
+        }
+
+        // Check WordPress users
+        $existing_user = email_exists( $email );
+        if ( $existing_user ) {
+            $teacher_record = $teacher_id > 0 ? $wpdb->get_row( $wpdb->prepare( "SELECT user_id FROM $table WHERE id = %d", $teacher_id ) ) : null;
+            if ( ! $teacher_record || $teacher_record->user_id != $existing_user ) {
+                wp_send_json_error( array( 'message' => __( 'Email already registered in WordPress', 'CTADZ-school-management' ) ) );
+            }
+        }
+
+        wp_send_json_success( array( 'message' => __( 'Email is available', 'CTADZ-school-management' ) ) );
+    }
+
+    /**
+     * AJAX handler for phone validation
+     */
+    public static function ajax_validate_phone() {
+        check_ajax_referer( 'sm_validate_phone', 'nonce' );
+
+        $phone = sanitize_text_field( $_POST['phone'] ?? '' );
+        $teacher_id = intval( $_POST['teacher_id'] ?? 0 );
+
+        if ( empty( $phone ) ) {
+            wp_send_json_error( array( 'message' => __( 'Phone number is required', 'CTADZ-school-management' ) ) );
+        }
+
+        // Validate phone format
+        $phone_regex = '/^[\d\s\+\-\(\)]{7,20}$/';
+        if ( ! preg_match( $phone_regex, $phone ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid phone format', 'CTADZ-school-management' ) ) );
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'sm_teachers';
+
+        // Check teachers table for duplicate
+        $query = "SELECT id FROM $table WHERE phone = %s";
+        $params = array( $phone );
+
+        if ( $teacher_id > 0 ) {
+            $query .= " AND id != %d";
+            $params[] = $teacher_id;
+        }
+
+        $duplicate = $wpdb->get_var( $wpdb->prepare( $query, $params ) );
+        if ( $duplicate ) {
+            wp_send_json_error( array( 'message' => __( 'Phone number already used by another teacher', 'CTADZ-school-management' ) ) );
+        }
+
+        wp_send_json_success( array( 'message' => __( 'Phone number is available', 'CTADZ-school-management' ) ) );
+    }
+
+    /**
      * Render the Teachers page
      */
     public static function render_teachers_page() {
         global $wpdb;
         $table = $wpdb->prefix . 'sm_teachers';
 
+        // Handle bulk account creation
+        if ( isset( $_POST['sm_create_teacher_accounts'] ) && check_admin_referer( 'sm_create_accounts_action', 'sm_create_accounts_nonce' ) ) {
+            $results = SM_User_Management::bulk_create_teacher_accounts();
+
+            // Show success messages and download CSV
+            if ( ! empty( $results['success'] ) ) {
+                $csv_file = SM_User_Management::export_credentials_to_csv( $results['success'], 'teacher' );
+                $upload_dir = wp_upload_dir();
+                $csv_url = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $csv_file );
+
+                echo '<div class="updated notice"><p>' . sprintf(
+                    esc_html__( '%d teacher account(s) created successfully! Download starting...', 'CTADZ-school-management' ),
+                    count( $results['success'] )
+                ) . '</p></div>';
+
+                // Auto-download using JavaScript
+                echo '<script type="text/javascript">
+                    (function() {
+                        var link = document.createElement("a");
+                        link.href = "' . esc_js( $csv_url ) . '";
+                        link.download = "' . esc_js( basename( $csv_file ) ) . '";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    })();
+                </script>';
+            }
+
+            // Show error messages
+            if ( ! empty( $results['errors'] ) ) {
+                echo '<div class="error notice"><p><strong>' . esc_html__( 'Some accounts could not be created:', 'CTADZ-school-management' ) . '</strong></p><ul style="margin-left: 20px;">';
+                foreach ( $results['errors'] as $error ) {
+                    echo '<li>';
+                    if ( isset( $error['teacher_name'] ) ) {
+                        echo '<strong>' . esc_html( $error['teacher_name'] ) . ':</strong> ';
+                    }
+                    echo esc_html( $error['message'] ) . '</li>';
+                }
+                echo '</ul></div>';
+            }
+
+            // Show info if no accounts to create
+            if ( empty( $results['success'] ) && empty( $results['errors'] ) ) {
+                echo '<div class="notice notice-info"><p>' . esc_html__( 'No new accounts to create. All active teachers already have accounts.', 'CTADZ-school-management' ) . '</p></div>';
+            }
+        }
+
+        // Handle single account creation
+        if ( isset( $_GET['create_account'] ) && check_admin_referer( 'sm_create_account_' . intval( $_GET['create_account'] ) ) ) {
+            $teacher_id = intval( $_GET['create_account'] );
+            $result = SM_User_Management::create_teacher_account( $teacher_id );
+
+            if ( $result['success'] ) {
+                echo '<div class="updated notice"><p>' . esc_html( $result['message'] ) . '<br><strong>' . esc_html__( 'Username:', 'CTADZ-school-management' ) . '</strong> ' . esc_html( $result['username'] ) . '<br><strong>' . esc_html__( 'Password:', 'CTADZ-school-management' ) . '</strong> ' . esc_html( $result['password'] ) . '</p></div>';
+            } else {
+                echo '<div class="error notice"><p>' . esc_html( $result['message'] ) . '</p></div>';
+            }
+        }
+
         // Handle delete action
         if ( isset( $_GET['delete'] ) && check_admin_referer( 'sm_delete_teacher_' . intval( $_GET['delete'] ) ) ) {
             // Check if teacher is assigned to any courses
             $courses_table = $wpdb->prefix . 'sm_courses';
             $teacher_id = intval( $_GET['delete'] );
-            
+
             $courses_using = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $courses_table WHERE teacher_id = %d", $teacher_id ) );
-            
+
             if ( $courses_using > 0 ) {
-                echo '<div class="error notice"><p>' . sprintf( 
+                echo '<div class="error notice"><p>' . sprintf(
                     esc_html__( 'Cannot delete this teacher. They are assigned to %d course(s).', 'CTADZ-school-management' ),
                     $courses_using
                 ) . '</p></div>';
             } else {
+                // Get teacher's WordPress user_id before deleting
+                $teacher = $wpdb->get_row( $wpdb->prepare( "SELECT user_id, first_name, last_name FROM $table WHERE id = %d", $teacher_id ) );
+
+                // Delete the teacher record
                 $deleted = $wpdb->delete( $table, [ 'id' => $teacher_id ] );
+
                 if ( $deleted ) {
-                    echo '<div class="updated notice"><p>' . esc_html__( 'Teacher deleted successfully.', 'CTADZ-school-management' ) . '</p></div>';
+                    // Also delete the WordPress user account if it exists
+                    if ( $teacher && $teacher->user_id ) {
+                        require_once( ABSPATH . 'wp-admin/includes/user.php' );
+                        $user_deleted = wp_delete_user( $teacher->user_id );
+
+                        if ( $user_deleted ) {
+                            echo '<div class="updated notice"><p>' . sprintf(
+                                esc_html__( 'Teacher "%s" and their WordPress account deleted successfully.', 'CTADZ-school-management' ),
+                                $teacher->first_name . ' ' . $teacher->last_name
+                            ) . '</p></div>';
+                        } else {
+                            echo '<div class="updated notice"><p>' . sprintf(
+                                esc_html__( 'Teacher "%s" deleted, but WordPress account could not be removed (may need manual deletion).', 'CTADZ-school-management' ),
+                                $teacher->first_name . ' ' . $teacher->last_name
+                            ) . '</p></div>';
+                        }
+                    } else {
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Teacher deleted successfully.', 'CTADZ-school-management' ) . '</p></div>';
+                    }
                 }
             }
         }
@@ -37,22 +208,82 @@ class SM_Teachers_Page {
         // Handle form submission
         if ( isset( $_POST['sm_save_teacher'] ) && check_admin_referer( 'sm_save_teacher_action', 'sm_save_teacher_nonce' ) ) {
             $validation_result = self::validate_teacher_data( $_POST );
-            
+
             if ( $validation_result['success'] ) {
                 $data = $validation_result['data'];
-                
-                if ( ! empty( $_POST['teacher_id'] ) ) {
-                    $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['teacher_id'] ) ] );
+                $teacher_id = null;
+                $is_new = empty( $_POST['teacher_id'] );
+
+                if ( ! $is_new ) {
+                    // Update existing teacher
+                    $teacher_id = intval( $_POST['teacher_id'] );
+                    $updated = $wpdb->update( $table, $data, [ 'id' => $teacher_id ] );
                     if ( $updated !== false ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Teacher updated successfully.', 'CTADZ-school-management' ) . '</p></div>';
+                    }
+                } else {
+                    // Insert new teacher
+                    $inserted = $wpdb->insert( $table, $data );
+                    if ( $inserted ) {
+                        $teacher_id = $wpdb->insert_id;
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Teacher added successfully.', 'CTADZ-school-management' ) . '</p></div>';
+                    }
+                }
+
+                // Auto-create WordPress account if teacher is active and doesn't have one
+                if ( $teacher_id && $data['is_active'] ) {
+                    $teacher_record = $wpdb->get_row( $wpdb->prepare( "SELECT user_id FROM $table WHERE id = %d", $teacher_id ) );
+
+                    if ( ! $teacher_record->user_id ) {
+                        $account_result = SM_User_Management::create_teacher_account( $teacher_id );
+
+                        if ( $account_result['success'] ) {
+                            // Create single-account CSV for download
+                            $csv_file = SM_User_Management::export_credentials_to_csv( array( $account_result ), 'teacher' );
+                            $upload_dir = wp_upload_dir();
+                            $csv_url = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $csv_file );
+
+                            echo '<div class="updated notice" style="border-left: 4px solid #46b450; padding: 20px; background: #fff; margin: 20px 0;">';
+                            echo '<h2 style="margin-top: 0; color: #46b450;">✓ ' . esc_html__( 'WordPress Account Created Successfully!', 'CTADZ-school-management' ) . '</h2>';
+                            echo '<table style="margin: 15px 0; border-collapse: collapse;">';
+                            echo '<tr><td style="padding: 8px 15px 8px 0; font-weight: 600;">' . esc_html__( 'Name:', 'CTADZ-school-management' ) . '</td><td style="padding: 8px;">' . esc_html( $account_result['name'] ) . '</td></tr>';
+                            echo '<tr><td style="padding: 8px 15px 8px 0; font-weight: 600;">' . esc_html__( 'Username:', 'CTADZ-school-management' ) . '</td><td style="padding: 8px;"><code id="sm-username" style="background: #f0f0f1; padding: 5px 10px; font-size: 14px; user-select: all;">' . esc_html( $account_result['username'] ) . '</code> <button type="button" class="button button-small" onclick="smCopyToClipboard(\'sm-username\')" style="margin-left: 10px;">📋 ' . esc_html__( 'Copy', 'CTADZ-school-management' ) . '</button></td></tr>';
+                            echo '<tr><td style="padding: 8px 15px 8px 0; font-weight: 600;">' . esc_html__( 'Password:', 'CTADZ-school-management' ) . '</td><td style="padding: 8px;"><code id="sm-password" style="background: #f0f0f1; padding: 5px 10px; font-size: 14px; user-select: all;">' . esc_html( $account_result['password'] ) . '</code> <button type="button" class="button button-small" onclick="smCopyToClipboard(\'sm-password\')" style="margin-left: 10px;">📋 ' . esc_html__( 'Copy', 'CTADZ-school-management' ) . '</button></td></tr>';
+                            echo '<tr><td style="padding: 8px 15px 8px 0; font-weight: 600;">' . esc_html__( 'Email:', 'CTADZ-school-management' ) . '</td><td style="padding: 8px;">' . esc_html( $account_result['email'] ) . '</td></tr>';
+                            echo '<tr><td style="padding: 8px 15px 8px 0; font-weight: 600;">' . esc_html__( 'Role:', 'CTADZ-school-management' ) . '</td><td style="padding: 8px;">' . esc_html__( 'School Teacher', 'CTADZ-school-management' ) . '</td></tr>';
+                            echo '</table>';
+                            echo '<p style="margin: 15px 0;"><a href="' . esc_url( $csv_url ) . '" class="button button-primary" download>⬇️ ' . esc_html__( 'Download Credentials (CSV)', 'CTADZ-school-management' ) . '</a></p>';
+                            echo '<p style="color: #d63638; font-weight: 600; margin: 15px 0;"><span class="dashicons dashicons-warning" style="vertical-align: middle;"></span> ' . esc_html__( 'Important: Please save these credentials now. They will not be shown again.', 'CTADZ-school-management' ) . '</p>';
+                            echo '<p style="margin: 15px 0;"><a href="?page=school-management-teachers" class="button button-large">' . esc_html__( 'Continue to Teachers List', 'CTADZ-school-management' ) . '</a></p>';
+                            echo '</div>';
+
+                            // Add copy to clipboard script
+                            echo '<script>
+                            function smCopyToClipboard(elementId) {
+                                var element = document.getElementById(elementId);
+                                var text = element.textContent;
+                                navigator.clipboard.writeText(text).then(function() {
+                                    var btn = element.nextElementSibling;
+                                    var originalText = btn.innerHTML;
+                                    btn.innerHTML = "✓ ' . esc_js( __( 'Copied!', 'CTADZ-school-management' ) ) . '";
+                                    btn.style.background = "#46b450";
+                                    btn.style.color = "#fff";
+                                    setTimeout(function() {
+                                        btn.innerHTML = originalText;
+                                        btn.style.background = "";
+                                        btn.style.color = "";
+                                    }, 2000);
+                                });
+                            }
+                            </script>';
+                        }
+                    } else {
+                        // Teacher already has account, just redirect
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-teachers"; }, 2000);</script>';
                     }
                 } else {
-                    $inserted = $wpdb->insert( $table, $data );
-                    if ( $inserted ) {
-                        echo '<div class="updated notice"><p>' . esc_html__( 'Teacher added successfully.', 'CTADZ-school-management' ) . '</p></div>';
-                        echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-teachers"; }, 2000);</script>';
-                    }
+                    // Teacher not active or no account created, redirect
+                    echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-teachers"; }, 2000);</script>';
                 }
             } else {
                 echo '<div class="error notice"><p><strong>' . esc_html__( 'Please correct the following errors:', 'CTADZ-school-management' ) . '</strong></p>';
@@ -134,23 +365,57 @@ class SM_Teachers_Page {
             $errors[] = __( 'Phone number is required.', 'CTADZ-school-management' );
         }
 
+        // Check for duplicate phone number
+        if ( ! empty( $phone ) ) {
+            $duplicate_phone_query = "SELECT id FROM $table WHERE phone = %s";
+            $phone_params = [ $phone ];
+
+            if ( $teacher_id > 0 ) {
+                $duplicate_phone_query .= " AND id != %d";
+                $phone_params[] = $teacher_id;
+            }
+
+            $duplicate_phone = $wpdb->get_var( $wpdb->prepare( $duplicate_phone_query, $phone_params ) );
+            if ( $duplicate_phone ) {
+                $errors[] = sprintf( __( 'The phone number "%s" is already used by another teacher.', 'CTADZ-school-management' ), $phone );
+            }
+        }
+
         if ( $payment_term_id <= 0 ) {
             $errors[] = __( 'Payment term is required.', 'CTADZ-school-management' );
         }
 
-        // Check for duplicate email
+        // Check for duplicate email in teachers table
         if ( ! empty( $email ) && is_email( $email ) ) {
             $duplicate_query = "SELECT id FROM $table WHERE LOWER(email) = LOWER(%s)";
             $params = [ $email ];
-            
+
             if ( $teacher_id > 0 ) {
                 $duplicate_query .= " AND id != %d";
                 $params[] = $teacher_id;
             }
-            
+
             $duplicate = $wpdb->get_var( $wpdb->prepare( $duplicate_query, $params ) );
             if ( $duplicate ) {
-                $errors[] = sprintf( __( 'The email address "%s" is already registered.', 'CTADZ-school-management' ), $email );
+                $errors[] = sprintf( __( 'The email address "%s" is already used by another teacher.', 'CTADZ-school-management' ), $email );
+            }
+
+            // Check if email is already registered in WordPress
+            // Only check if this teacher doesn't have a user_id yet, or if email changed
+            $teacher_record = $teacher_id > 0 ? $wpdb->get_row( $wpdb->prepare( "SELECT user_id, email FROM $table WHERE id = %d", $teacher_id ) ) : null;
+            $email_changed = $teacher_record ? ( strtolower( $teacher_record->email ) !== strtolower( $email ) ) : true;
+
+            if ( $email_changed ) {
+                $existing_user_id = email_exists( $email );
+                if ( $existing_user_id ) {
+                    // Check if this WordPress user belongs to this teacher
+                    if ( ! $teacher_record || $teacher_record->user_id != $existing_user_id ) {
+                        $errors[] = sprintf(
+                            __( 'The email address "%s" is already registered in WordPress. Please use a different email or contact the administrator.', 'CTADZ-school-management' ),
+                            $email
+                        );
+                    }
+                }
             }
         }
 
@@ -229,20 +494,21 @@ class SM_Teachers_Page {
         $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'CONCAT(t.first_name, " ", t.last_name)';
         $order_clause = "$orderby_column $order";
 
-        // Get teachers with payment term names and course count
-        $teachers = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT t.*, 
+        // Get teachers with payment term names, course count, and user account status
+        $teachers = $wpdb->get_results( $wpdb->prepare(
+            "SELECT t.*,
                     pt.name as payment_term_name,
-                    COUNT(DISTINCT c.id) as course_count
-             FROM $teachers_table t 
-             LEFT JOIN $terms_table pt ON t.payment_term_id = pt.id 
+                    COUNT(DISTINCT c.id) as course_count,
+                    CASE WHEN t.user_id IS NOT NULL THEN 1 ELSE 0 END as has_account
+             FROM $teachers_table t
+             LEFT JOIN $terms_table pt ON t.payment_term_id = pt.id
              LEFT JOIN $courses_table c ON t.id = c.teacher_id
              $where_clause
              GROUP BY t.id
              ORDER BY $order_clause
-             LIMIT %d OFFSET %d", 
-            $per_page, 
-            $offset 
+             LIMIT %d OFFSET %d",
+            $per_page,
+            $offset
         ) );
 
         // Helper function to generate sortable column URL
@@ -322,7 +588,7 @@ class SM_Teachers_Page {
             <div>
                 <h2 style="margin: 0;"><?php esc_html_e( 'Teachers List', 'CTADZ-school-management' ); ?></h2>
                 <p class="description">
-                    <?php 
+                    <?php
                     if ( ! empty( $search ) ) {
                         printf( esc_html__( 'Showing %d teachers matching "%s"', 'CTADZ-school-management' ), $total_teachers, esc_html( $search ) );
                         echo ' <a href="?page=school-management-teachers" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
@@ -333,6 +599,14 @@ class SM_Teachers_Page {
                 </p>
             </div>
             <div>
+                <form method="post" style="display: inline-block; margin-right: 10px;">
+                    <?php wp_nonce_field( 'sm_create_accounts_action', 'sm_create_accounts_nonce' ); ?>
+                    <button type="submit" name="sm_create_teacher_accounts" class="button"
+                            onclick="return confirm('<?php echo esc_js( __( 'This will create WordPress accounts for all teachers who don\'t have one yet. Continue?', 'CTADZ-school-management' ) ); ?>')">
+                        <span class="dashicons dashicons-admin-users" style="vertical-align: middle;"></span>
+                        <?php esc_html_e( 'Create Teacher Accounts', 'CTADZ-school-management' ); ?>
+                    </button>
+                </form>
                 <a href="?page=school-management-teachers&action=add" class="button button-primary">
                     <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
                     <?php esc_html_e( 'Add New Teacher', 'CTADZ-school-management' ); ?>
@@ -402,7 +676,8 @@ class SM_Teachers_Page {
                                 <?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'status' ); ?>
                             </a>
                         </th>
-                        <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable"><?php esc_html_e( 'Account', 'CTADZ-school-management' ); ?></th>
+                        <th class="non-sortable" style="width: 180px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -438,16 +713,36 @@ class SM_Teachers_Page {
                                 <?php endif; ?>
                             </td>
                             <td>
+                                <?php if ( $teacher->has_account ) : ?>
+                                    <span style="color: #46b450;">✓ <?php esc_html_e( 'Created', 'CTADZ-school-management' ); ?></span>
+                                <?php else : ?>
+                                    <span style="color: #999;">— <?php esc_html_e( 'None', 'CTADZ-school-management' ); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <a href="?page=school-management-teachers&action=edit&teacher_id=<?php echo intval( $teacher->id ); ?>" class="button button-small">
                                     <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
                                 </a>
+                                <?php if ( ! $teacher->has_account && $teacher->is_active ) : ?>
+                                    <?php
+                                    $create_account_url = wp_nonce_url(
+                                        '?page=school-management-teachers&create_account=' . intval( $teacher->id ),
+                                        'sm_create_account_' . intval( $teacher->id )
+                                    );
+                                    ?>
+                                    <a href="<?php echo esc_url( $create_account_url ); ?>"
+                                       class="button button-small"
+                                       title="<?php esc_attr_e( 'Create Account', 'CTADZ-school-management' ); ?>">
+                                        <span class="dashicons dashicons-admin-users" style="vertical-align: middle;"></span>
+                                    </a>
+                                <?php endif; ?>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-teachers&delete=' . intval( $teacher->id ), 
-                                    'sm_delete_teacher_' . intval( $teacher->id ) 
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-teachers&delete=' . intval( $teacher->id ),
+                                    'sm_delete_teacher_' . intval( $teacher->id )
                                 );
                                 ?>
-                                <a href="<?php echo esc_url( $delete_url ); ?>" 
+                                <a href="<?php echo esc_url( $delete_url ); ?>"
                                    class="button button-small button-link-delete"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this teacher?', 'CTADZ-school-management' ) ); ?>')">
                                     <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
@@ -586,7 +881,8 @@ class SM_Teachers_Page {
                     </th>
                     <td>
                         <input type="email" id="teacher_email" name="email" value="<?php echo esc_attr( $form_data['email'] ?? '' ); ?>" class="regular-text" required />
-                        <p class="description"><?php esc_html_e( 'Email must be unique for each teacher.', 'CTADZ-school-management' ); ?></p>
+                        <span id="email-validation-msg" style="display: inline-block; margin-left: 10px; font-size: 13px;"></span>
+                        <p class="description"><?php esc_html_e( 'Email must be unique and will be used as username.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
@@ -596,6 +892,8 @@ class SM_Teachers_Page {
                     </th>
                     <td>
                         <input type="text" id="teacher_phone" name="phone" value="<?php echo esc_attr( $form_data['phone'] ?? '' ); ?>" class="regular-text" required />
+                        <span id="phone-validation-msg" style="display: inline-block; margin-left: 10px; font-size: 13px;"></span>
+                        <p class="description"><?php esc_html_e( 'Enter a valid phone number (numbers, spaces, +, -, ( ) allowed).', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
@@ -656,6 +954,147 @@ class SM_Teachers_Page {
                 <span style="color: #d63638;">*</span> <?php esc_html_e( 'Required fields', 'CTADZ-school-management' ); ?>
             </p>
         </form>
+
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            var emailTimeout;
+            var emailValid = <?php echo $is_edit ? 'true' : 'false'; ?>;
+            var phoneValid = <?php echo ! empty( $form_data['phone'] ) ? 'true' : 'false'; ?>;
+            var originalEmail = '<?php echo esc_js( $form_data['email'] ?? '' ); ?>';
+
+            // Email validation
+            $('#teacher_email').on('input', function() {
+                clearTimeout(emailTimeout);
+                var email = $(this).val().trim();
+                var msgSpan = $('#email-validation-msg');
+
+                if (!email) {
+                    msgSpan.html('').css('color', '');
+                    emailValid = false;
+                    return;
+                }
+
+                // Check email format
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    msgSpan.html('✗ <?php esc_html_e( 'Invalid email format', 'CTADZ-school-management' ); ?>').css('color', '#d63638');
+                    emailValid = false;
+                    return;
+                }
+
+                // Skip AJAX check if email hasn't changed
+                if (email === originalEmail) {
+                    msgSpan.html('✓ <?php esc_html_e( 'Email unchanged', 'CTADZ-school-management' ); ?>').css('color', '#46b450');
+                    emailValid = true;
+                    return;
+                }
+
+                msgSpan.html('⏳ <?php esc_html_e( 'Checking...', 'CTADZ-school-management' ); ?>').css('color', '#999');
+
+                emailTimeout = setTimeout(function() {
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'sm_validate_teacher_email',
+                            nonce: '<?php echo wp_create_nonce( 'sm_validate_email' ); ?>',
+                            email: email,
+                            teacher_id: $('input[name="teacher_id"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                msgSpan.html('✓ ' + response.data.message).css('color', '#46b450');
+                                emailValid = true;
+                            } else {
+                                msgSpan.html('✗ ' + response.data.message).css('color', '#d63638');
+                                emailValid = false;
+                            }
+                        },
+                        error: function() {
+                            msgSpan.html('✗ <?php esc_html_e( 'Validation error', 'CTADZ-school-management' ); ?>').css('color', '#d63638');
+                            emailValid = false;
+                        }
+                    });
+                }, 500); // Wait 500ms after user stops typing
+            });
+
+            // Phone validation
+            var phoneTimeout;
+            var originalPhone = '<?php echo esc_js( $form_data['phone'] ?? '' ); ?>';
+
+            $('#teacher_phone').on('input', function() {
+                clearTimeout(phoneTimeout);
+                var phone = $(this).val().trim();
+                var msgSpan = $('#phone-validation-msg');
+
+                if (!phone) {
+                    msgSpan.html('').css('color', '');
+                    phoneValid = false;
+                    return;
+                }
+
+                // Phone regex: allows digits, spaces, +, -, (, )
+                var phoneRegex = /^[\d\s\+\-\(\)]{7,20}$/;
+                if (!phoneRegex.test(phone)) {
+                    msgSpan.html('✗ <?php esc_html_e( 'Invalid phone format', 'CTADZ-school-management' ); ?>').css('color', '#d63638');
+                    phoneValid = false;
+                    return;
+                }
+
+                // Skip AJAX check if phone hasn't changed
+                if (phone === originalPhone) {
+                    msgSpan.html('✓ <?php esc_html_e( 'Phone unchanged', 'CTADZ-school-management' ); ?>').css('color', '#46b450');
+                    phoneValid = true;
+                    return;
+                }
+
+                msgSpan.html('⏳ <?php esc_html_e( 'Checking...', 'CTADZ-school-management' ); ?>').css('color', '#999');
+
+                phoneTimeout = setTimeout(function() {
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'sm_validate_teacher_phone',
+                            nonce: '<?php echo wp_create_nonce( 'sm_validate_phone' ); ?>',
+                            phone: phone,
+                            teacher_id: $('input[name="teacher_id"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                msgSpan.html('✓ ' + response.data.message).css('color', '#46b450');
+                                phoneValid = true;
+                            } else {
+                                msgSpan.html('✗ ' + response.data.message).css('color', '#d63638');
+                                phoneValid = false;
+                            }
+                        },
+                        error: function() {
+                            msgSpan.html('✗ <?php esc_html_e( 'Validation error', 'CTADZ-school-management' ); ?>').css('color', '#d63638');
+                            phoneValid = false;
+                        }
+                    });
+                }, 500); // Wait 500ms after user stops typing
+            });
+
+            // Form submission validation
+            $('form').on('submit', function(e) {
+                if (!emailValid || !phoneValid) {
+                    e.preventDefault();
+                    alert('<?php esc_html_e( 'Please fix the validation errors before submitting.', 'CTADZ-school-management' ); ?>');
+                    return false;
+                }
+            });
+
+            // Trigger validation on page load if fields have values
+            if ($('#teacher_email').val()) {
+                $('#teacher_email').trigger('input');
+            }
+            if ($('#teacher_phone').val()) {
+                $('#teacher_phone').trigger('input');
+            }
+        });
+        </script>
         <?php
     }
 }
