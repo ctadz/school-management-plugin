@@ -3,7 +3,7 @@
 Plugin Name: School Management
 Plugin URI:  https://github.com/ahmedsebaa/school-management-plugin
 Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
-Version:     0.4.2
+Version:     0.5.0
 Author:      Ahmed Sebaa
 Author URI:  https://github.com/ahmedsebaa
 License:     GPL-2.0+
@@ -20,7 +20,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants.
 define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SM_VERSION', '0.4.2' );
+define( 'SM_VERSION', '0.5.0' );
+define( 'SM_DB_VERSION', '1.4.0' );
+
+/**
+ * Load plugin text domain for translations
+ */
+function sm_load_textdomain() {
+    load_plugin_textdomain(
+        'CTADZ-school-management',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages/'
+    );
+}
+add_action( 'plugins_loaded', 'sm_load_textdomain' );
 
 // Include the loader file.
 require_once SM_PLUGIN_DIR . 'includes/sm-loader.php';
@@ -33,6 +46,9 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
  */
 register_activation_hook( __FILE__, 'sm_activate_plugin' );
 function sm_activate_plugin() {
+    // Start output buffering to prevent any output during activation
+    ob_start();
+
     // Initialize roles and capabilities first
     SM_Roles::add_roles();
     SM_Roles::add_caps_to_admin();
@@ -372,7 +388,120 @@ dbDelta( $sql_enrollments );
 
     dbDelta( $sql_payments );
 
+    // --- Create Attendance Table ---
+    $attendance_table = $wpdb->prefix . 'sm_attendance';
+    $sql_attendance = "CREATE TABLE $attendance_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        student_id mediumint(9) NOT NULL,
+        course_id mediumint(9) NOT NULL,
+        schedule_id mediumint(9) DEFAULT NULL,
+        date date NOT NULL,
+        status varchar(20) NOT NULL,
+        notes text,
+        marked_by bigint(20) UNSIGNED DEFAULT NULL,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id),
+        KEY student_id (student_id),
+        KEY course_id (course_id),
+        KEY schedule_id (schedule_id),
+        KEY date (date),
+        KEY status (status),
+        KEY marked_by (marked_by)
+    ) $charset_collate;";
+
+    dbDelta( $sql_attendance );
+
+    // --- Database Version Check & Migrations ---
+    $current_db_version = get_option( 'sm_db_version', '1.0.0' );
+
+    if ( version_compare( $current_db_version, '1.2.0', '<' ) ) {
+        sm_update_to_1_2_0( $wpdb, $teachers_table, $students_table );
+        update_option( 'sm_db_version', '1.2.0' );
+        error_log('✅ SM Database updated to version 1.2.0');
+    }
+
+    if ( version_compare( $current_db_version, '1.3.0', '<' ) ) {
+        sm_update_to_1_3_0( $wpdb, $students_table );
+        update_option( 'sm_db_version', '1.3.0' );
+        error_log('✅ SM Database updated to version 1.3.0');
+    }
+
+    if ( version_compare( $current_db_version, '1.4.0', '<' ) ) {
+        update_option( 'sm_db_version', '1.4.0' );
+        error_log('✅ SM Database updated to version 1.4.0 - Attendance table created');
+    }
+
     error_log('✅ School Management plugin activated. All tables created or updated successfully.');
+
+    // Clear output buffer to prevent "headers already sent" errors
+    ob_end_clean();
+}
+
+/**
+ * Database migration to version 1.2.0
+ * Adds user_id field to teachers and students tables
+ */
+function sm_update_to_1_2_0( $wpdb, $teachers_table, $students_table ) {
+    // Check and add user_id to teachers table
+    $teachers_columns = $wpdb->get_results( "SHOW COLUMNS FROM $teachers_table", ARRAY_A );
+    $existing_teachers_columns = array_column( $teachers_columns, 'Field' );
+
+    if ( ! in_array( 'user_id', $existing_teachers_columns ) ) {
+        $wpdb->query( "ALTER TABLE $teachers_table ADD user_id bigint(20) UNSIGNED DEFAULT NULL AFTER id" );
+        $wpdb->query( "ALTER TABLE $teachers_table ADD UNIQUE KEY unique_user_id (user_id)" );
+        error_log('✅ Added user_id field to teachers table');
+    }
+
+    // Check and add user_id to students table
+    $students_columns = $wpdb->get_results( "SHOW COLUMNS FROM $students_table", ARRAY_A );
+    $existing_students_columns = array_column( $students_columns, 'Field' );
+
+    if ( ! in_array( 'user_id', $existing_students_columns ) ) {
+        $wpdb->query( "ALTER TABLE $students_table ADD user_id bigint(20) UNSIGNED DEFAULT NULL AFTER id" );
+        $wpdb->query( "ALTER TABLE $students_table ADD UNIQUE KEY unique_user_id (user_id)" );
+        error_log('✅ Added user_id field to students table');
+    }
+}
+
+/**
+ * Database migration to version 1.3.0
+ * Adds student_code field to students table and generates codes for existing students
+ */
+function sm_update_to_1_3_0( $wpdb, $students_table ) {
+    // Check and add student_code to students table
+    $students_columns = $wpdb->get_results( "SHOW COLUMNS FROM $students_table", ARRAY_A );
+    $existing_students_columns = array_column( $students_columns, 'Field' );
+
+    if ( ! in_array( 'student_code', $existing_students_columns ) ) {
+        $wpdb->query( "ALTER TABLE $students_table ADD student_code varchar(20) UNIQUE DEFAULT NULL AFTER id" );
+        error_log('✅ Added student_code field to students table');
+
+        // Generate student codes for existing students
+        $students = $wpdb->get_results( "SELECT id FROM $students_table ORDER BY id ASC" );
+        $year = date('Y');
+        $counter = 1;
+
+        foreach ( $students as $student ) {
+            $student_code = sprintf( 'STU%s%04d', $year, $counter );
+
+            // Ensure uniqueness
+            while ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $students_table WHERE student_code = %s", $student_code ) ) ) {
+                $counter++;
+                $student_code = sprintf( 'STU%s%04d', $year, $counter );
+            }
+
+            $wpdb->update(
+                $students_table,
+                array( 'student_code' => $student_code ),
+                array( 'id' => $student->id )
+            );
+
+            $counter++;
+        }
+
+        error_log('✅ Generated student codes for ' . count($students) . ' existing students');
+    }
 }
 
 

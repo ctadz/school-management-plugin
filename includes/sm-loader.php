@@ -7,6 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load roles management
 require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
 
+// Load user management
+require_once SM_PLUGIN_DIR . 'includes/class-sm-user-management.php';
+
 // Load admin redirect and cleanup
 require_once SM_PLUGIN_DIR . 'includes/class-sm-admin-redirect.php';
 
@@ -31,6 +34,7 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-payment-terms-page.php';
 
 // Load Teachers Page
 require_once SM_PLUGIN_DIR . 'includes/class-sm-teachers-page.php';
+SM_Teachers_Page::init();
 
 // Load Courses Page
 require_once SM_PLUGIN_DIR . 'includes/class-sm-courses-page.php';
@@ -44,8 +48,14 @@ require_once SM_PLUGIN_DIR . 'includes/class-sm-enrollments-page.php';
 // Load Payments Page
 require_once SM_PLUGIN_DIR . 'includes/class-sm-payments-page.php';
 
+// Load Payment Alerts Page
+require_once SM_PLUGIN_DIR . 'includes/class-sm-payment-alerts-page.php';
+
 // Load Payment Sync
 require_once SM_PLUGIN_DIR . 'includes/class-sm-payment-sync.php';
+
+// Load Attendance Page
+require_once SM_PLUGIN_DIR . 'includes/class-sm-attendance-page.php';
 
 // Load Enqueue scripts
 require_once SM_PLUGIN_DIR . 'includes/sm-enqueue.php';

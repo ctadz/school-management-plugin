@@ -117,10 +117,10 @@ class SM_Admin_Redirect {
     public static function custom_admin_footer( $text ) {
         if ( current_user_can( 'manage_school' ) ) {
             $settings = get_option( 'sm_school_settings', [] );
-            $school_name = $settings['school_name'] ?? __( 'School Management System', 'school-management' );
+            $school_name = $settings['school_name'] ?? __( 'School Management System', 'CTADZ-school-management' );
             
             return sprintf(
-                __( 'Thank you for using %s', 'school-management' ),
+                __( 'Thank you for using %s', 'CTADZ-school-management' ),
                 '<strong>' . esc_html( $school_name ) . '</strong>'
             );
         }

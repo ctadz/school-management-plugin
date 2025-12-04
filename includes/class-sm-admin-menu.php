@@ -183,8 +183,8 @@ class SM_Admin_Menu {
     public static function add_menus() {
         // Top-level menu
         add_menu_page(
-            __( 'School Management', 'school-management' ),
-            __( 'School Management', 'school-management' ),
+            __( 'School Management', 'CTADZ-school-management' ),
+            __( 'School Management', 'CTADZ-school-management' ),
             'manage_school',
             'school-management',
             [ __CLASS__, 'render_dashboard' ],
@@ -195,8 +195,8 @@ class SM_Admin_Menu {
         // Dashboard submenu
         add_submenu_page(
             'school-management',
-            __( 'Dashboard', 'school-management' ),
-            '<span class="dashicons dashicons-dashboard" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Dashboard', 'school-management' ),
+            __( 'Dashboard', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-dashboard" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Dashboard', 'CTADZ-school-management' ),
             'manage_school',
             'school-management',
             [ __CLASS__, 'render_dashboard' ]
@@ -205,8 +205,8 @@ class SM_Admin_Menu {
         // Students submenu
         add_submenu_page(
             'school-management',
-            __( 'Students', 'school-management' ),
-            '<span class="dashicons dashicons-groups" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Students', 'school-management' ),
+            __( 'Students', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-groups" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Students', 'CTADZ-school-management' ),
             'manage_students',
             'school-management-students',
             [ 'SM_Students_Page', 'render_students_page' ]
@@ -215,8 +215,8 @@ class SM_Admin_Menu {
         // Teachers submenu
         add_submenu_page(
             'school-management',
-            __( 'Teachers', 'school-management' ),
-            '<span class="dashicons dashicons-businessperson" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Teachers', 'school-management' ),
+            __( 'Teachers', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-businessperson" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Teachers', 'CTADZ-school-management' ),
             'manage_teachers',
             'school-management-teachers',
             [ 'SM_Teachers_Page', 'render_teachers_page' ]
@@ -225,8 +225,8 @@ class SM_Admin_Menu {
         // Courses submenu
         add_submenu_page(
             'school-management',
-            __( 'Courses', 'school-management' ),
-            '<span class="dashicons dashicons-book" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Courses', 'school-management' ),
+            __( 'Courses', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-book" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Courses', 'CTADZ-school-management' ),
             'manage_courses',
             'school-management-courses',
             [ 'SM_Courses_Page', 'render_courses_page' ]
@@ -235,8 +235,8 @@ class SM_Admin_Menu {
         // Levels submenu
         add_submenu_page(
             'school-management',
-            __( 'Levels', 'school-management' ),
-            '<span class="dashicons dashicons-awards" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Levels', 'school-management' ),
+            __( 'Levels', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-awards" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Levels', 'CTADZ-school-management' ),
             'manage_levels',
             'school-management-levels',
             [ 'SM_Levels_Page', 'render_levels_page' ]
@@ -245,8 +245,8 @@ class SM_Admin_Menu {
         // Classrooms submenu
         add_submenu_page(
             'school-management',
-            __( 'Classrooms', 'school-management' ),
-            '<span class="dashicons dashicons-building" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Classrooms', 'school-management' ),
+            __( 'Classrooms', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-building" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Classrooms', 'CTADZ-school-management' ),
             'manage_classrooms',
             'school-management-classrooms',
             [ 'SM_Classrooms_Page', 'render_classrooms_page' ]
@@ -255,18 +255,28 @@ class SM_Admin_Menu {
         // Enrollments submenu
         add_submenu_page(
             'school-management',
-            __( 'Enrollments', 'school-management' ),
-            '<span class="dashicons dashicons-welcome-learn-more" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Enrollments', 'school-management' ),
+            __( 'Enrollments', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-welcome-learn-more" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Enrollments', 'CTADZ-school-management' ),
             'manage_enrollments',
             'school-management-enrollments',
             [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
         );
 
+        // Attendance submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Attendance', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-yes-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Attendance', 'CTADZ-school-management' ),
+            'view_attendance',
+            'school-management-attendance',
+            [ 'SM_Attendance_Page', 'render_attendance_page' ]
+        );
+
         // Payment Terms submenu
         add_submenu_page(
             'school-management',
-            __( 'Payment Terms', 'school-management' ),
-            '<span class="dashicons dashicons-calendar-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Payment Terms', 'school-management' ),
+            __( 'Payment Terms', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-calendar-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Payment Terms', 'CTADZ-school-management' ),
             'manage_payments',
             'school-management-payment-terms',
             [ 'SM_Payment_Terms_Page', 'render_payment_terms_page' ]
@@ -275,22 +285,32 @@ class SM_Admin_Menu {
         // Payments submenu
         add_submenu_page(
             'school-management',
-            __( 'Payments', 'school-management' ),
-            '<span class="dashicons dashicons-money-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Payments', 'school-management' ),
+            __( 'Payments', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-money-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Payments', 'CTADZ-school-management' ),
             'manage_payments',
             'school-management-payments',
             [ 'SM_Payments_Page', 'render_payments_page' ]
         );
+
+        // Payment Alerts submenu
+        add_submenu_page(
+            'school-management',
+            __( 'Payment Alerts', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-warning" style="font-size: 17px; vertical-align: middle; color: #dc2626;"></span> ' . __( 'Payment Alerts', 'CTADZ-school-management' ),
+            'manage_payments',
+            'school-management-payment-alerts',
+            [ 'SM_Payment_Alerts_Page', 'render_page' ]
+        );
     }
-        /**
+
+    /**
      * Add settings menu last (runs after calendar add-on menus)
      */
     public static function add_settings_menu() {
         add_submenu_page(
             'school-management',
-            __( 'Settings', 'school-management' ),
-            __( 'Settings', 'school-management' ),
-            '<span class="dashicons dashicons-admin-generic" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Settings', 'school-management' ),
+            __( 'Settings', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-admin-generic" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Settings', 'CTADZ-school-management' ),
             'manage_school_settings',
             'school-management-settings',
             [ 'SM_Settings_Page', 'render_settings_page' ]
@@ -303,14 +323,14 @@ class SM_Admin_Menu {
     public static function render_dashboard() {
         // Security check
         if ( ! current_user_can( 'manage_school' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'school-management' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
         }
 
         global $wpdb;
     
         // Get school settings
         $settings = get_option( 'sm_school_settings', [] );
-        $school_name = $settings['school_name'] ?? __( 'School Management System', 'school-management' );
+        $school_name = $settings['school_name'] ?? __( 'School Management System', 'CTADZ-school-management' );
         $school_logo = $settings['logo'] ?? '';
     
 // Get statistics
@@ -349,7 +369,7 @@ class SM_Admin_Menu {
             
             <div>
                 <h1 style="margin: 0; font-size: 32px; color: #23282d;"><?php echo esc_html( $school_name ); ?></h1>
-                <p style="margin: 5px 0 0 0; color: #666; font-size: 16px;"><?php esc_html_e( 'Management Dashboard', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 16px;"><?php esc_html_e( 'Management Dashboard', 'CTADZ-school-management' ); ?></p>
             </div>
         </div>
         
@@ -360,11 +380,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #0073aa;"><?php echo intval( $students_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Total Students', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Total Students', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-groups" style="font-size: 40px; color: #0073aa; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-students" class="button"><?php esc_html_e( 'Manage Students', 'school-management' ); ?></a>
+        <a href="?page=school-management-students" class="button"><?php esc_html_e( 'Manage Students', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Teachers -->
@@ -372,11 +392,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #f56e28;"><?php echo intval( $teachers_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Teachers', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Teachers', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-businessperson" style="font-size: 40px; color: #f56e28; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-teachers" class="button"><?php esc_html_e( 'Manage Teachers', 'school-management' ); ?></a>
+        <a href="?page=school-management-teachers" class="button"><?php esc_html_e( 'Manage Teachers', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Courses -->
@@ -384,11 +404,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #46b450;"><?php echo intval( $courses_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Courses', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Courses', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-book" style="font-size: 40px; color: #46b450; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-courses" class="button"><?php esc_html_e( 'Manage Courses', 'school-management' ); ?></a>
+        <a href="?page=school-management-courses" class="button"><?php esc_html_e( 'Manage Courses', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Levels -->
@@ -396,11 +416,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #9b59b6;"><?php echo intval( $levels_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Course Levels', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Course Levels', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-awards" style="font-size: 40px; color: #9b59b6; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-levels" class="button"><?php esc_html_e( 'Manage Levels', 'school-management' ); ?></a>
+        <a href="?page=school-management-levels" class="button"><?php esc_html_e( 'Manage Levels', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Enrollments -->
@@ -408,11 +428,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #00a0d2;"><?php echo intval( $enrollments_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Enrollments', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Enrollments', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-welcome-learn-more" style="font-size: 40px; color: #00a0d2; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-enrollments" class="button"><?php esc_html_e( 'Manage Enrollments', 'school-management' ); ?></a>
+        <a href="?page=school-management-enrollments" class="button"><?php esc_html_e( 'Manage Enrollments', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Classrooms -->
@@ -420,11 +440,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #e67e22;"><?php echo intval( $classrooms_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Classrooms', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Classrooms', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-building" style="font-size: 40px; color: #e67e22; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-classrooms" class="button"><?php esc_html_e( 'Manage Classrooms', 'school-management' ); ?></a>
+        <a href="?page=school-management-classrooms" class="button"><?php esc_html_e( 'Manage Classrooms', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Payment Terms -->
@@ -432,11 +452,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #16a085;"><?php echo intval( $payment_terms_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Payment Terms', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Payment Terms', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-calendar-alt" style="font-size: 40px; color: #16a085; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-payment-terms" class="button"><?php esc_html_e( 'Manage Terms', 'school-management' ); ?></a>
+        <a href="?page=school-management-payment-terms" class="button"><?php esc_html_e( 'Manage Terms', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Payments -->
@@ -444,24 +464,96 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 20px; color: #27ae60;"><?php echo number_format( $outstanding_balance, 2 ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Outstanding Balance', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Outstanding Balance', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-money-alt" style="font-size: 40px; color: #27ae60; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'Manage Payments', 'school-management' ); ?></a>
+        <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'Manage Payments', 'CTADZ-school-management' ); ?></a>
+    </div>
+
+
+    <!-- Payment Alerts -->
+    <?php
+    // Get payment alerts data
+    $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+    $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+
+    // Count overdue payments
+    $overdue_count = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM $payment_schedules_table ps
+        LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+        WHERE ps.status IN ('pending', 'partial')
+        AND ps.due_date < CURDATE()
+        AND e.status = 'active'
+    ");
+
+    // Count due this week (1-7 days)
+    $week_count = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM $payment_schedules_table ps
+        LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+        WHERE ps.status IN ('pending', 'partial')
+        AND ps.due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+        AND e.status = 'active'
+    ");
+
+    // Count due next week (8-14 days)
+    $next_week_count = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM $payment_schedules_table ps
+        LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+        WHERE ps.status IN ('pending', 'partial')
+        AND ps.due_date BETWEEN DATE_ADD(CURDATE(), INTERVAL 8 DAY) AND DATE_ADD(CURDATE(), INTERVAL 14 DAY)
+        AND e.status = 'active'
+    ");
+
+    $total_alerts = $overdue_count + $week_count + $next_week_count;
+    $alert_color = '#dc2626'; // Red for alerts
+    $alert_text = '';
+    
+    if ( $overdue_count > 0 ) {
+        $alert_text = sprintf( _n( '%d overdue', '%d overdue', $overdue_count, 'CTADZ-school-management' ), $overdue_count );
+        $alert_color = '#dc2626'; // Red
+    } elseif ( $week_count > 0 ) {
+        $alert_text = sprintf( _n( '%d due this week', '%d due this week', $week_count, 'CTADZ-school-management' ), $week_count );
+        $alert_color = '#f59e0b'; // Orange
+    } elseif ( $next_week_count > 0 ) {
+        $alert_text = sprintf( _n( '%d due next week', '%d due next week', $next_week_count, 'CTADZ-school-management' ), $next_week_count );
+        $alert_color = '#eab308'; // Yellow
+    } else {
+        $alert_text = __( 'All up to date', 'CTADZ-school-management' );
+        $alert_color = '#22c55e'; // Green
+    }
+    ?>
+    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid <?php echo $alert_color; ?>; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <h3 style="margin: 0; font-size: 32px; color: <?php echo $alert_color; ?>;"><?php echo intval( $total_alerts ); ?></h3>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Payment Alerts', 'CTADZ-school-management' ); ?></p>
+                <?php if ( $alert_text ) : ?>
+                    <p style="margin: 5px 0 0 0; color: <?php echo $alert_color; ?>; font-size: 13px;">
+                        <?php echo esc_html( $alert_text ); ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+            <span class="dashicons dashicons-warning" style="font-size: 40px; color: <?php echo $alert_color; ?>; opacity: 0.3; margin-left: 15px;"></span>
+        </div>
+        <a href="?page=school-management-payment-alerts" class="button"><?php esc_html_e( 'View Alerts', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <?php if ( defined( 'SMC_VERSION' ) ) : ?>
     <!-- Schedules (Calendar Plugin) -->
     <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #8e44ad; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #8e44ad;"><?php echo intval( $schedules_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Schedules', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Schedules', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-calendar" style="font-size: 40px; color: #8e44ad; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-schedules" class="button"><?php esc_html_e( 'Manage Schedules', 'school-management' ); ?></a>
+        <a href="?page=school-management-schedules" class="button"><?php esc_html_e( 'Manage Schedules', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Events (Calendar Plugin) -->
@@ -469,11 +561,11 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 32px; color: #c0392b;"><?php echo intval( $events_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Upcoming Events', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Upcoming Events', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-megaphone" style="font-size: 40px; color: #c0392b; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-events" class="button"><?php esc_html_e( 'Manage Events', 'school-management' ); ?></a>
+        <a href="?page=school-management-events" class="button"><?php esc_html_e( 'Manage Events', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Calendar View -->
@@ -481,30 +573,30 @@ class SM_Admin_Menu {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <h3 style="margin: 0; font-size: 24px; color: #2c3e50;">📅</h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'School Calendar', 'school-management' ); ?></p>
+                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'School Calendar', 'CTADZ-school-management' ); ?></p>
             </div>
             <span class="dashicons dashicons-calendar-alt" style="font-size: 40px; color: #2c3e50; opacity: 0.3; margin-left: 15px;"></span>
         </div>
-        <a href="?page=school-management-calendar" class="button"><?php esc_html_e( 'View Calendar', 'school-management' ); ?></a>
+        <a href="?page=school-management-calendar" class="button"><?php esc_html_e( 'View Calendar', 'CTADZ-school-management' ); ?></a>
     </div>
     <?php endif; ?>
 
 </div>
 <div style="margin-top: 40px; background: white; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h2><?php esc_html_e( 'Quick Actions', 'school-management' ); ?></h2>
-            <p><?php esc_html_e( 'Common actions to get started:', 'school-management' ); ?></p>
+            <h2><?php esc_html_e( 'Quick Actions', 'CTADZ-school-management' ); ?></h2>
+            <p><?php esc_html_e( 'Common actions to get started:', 'CTADZ-school-management' ); ?></p>
             <p>
-                <a href="?page=school-management-students&action=add" class="button"><?php esc_html_e( 'Add New Student', 'school-management' ); ?></a>
-                <a href="?page=school-management-courses&action=add" class="button"><?php esc_html_e( 'Add New Course', 'school-management' ); ?></a>
-                <a href="?page=school-management-enrollments&action=add" class="button"><?php esc_html_e( 'New Enrollment', 'school-management' ); ?></a>
-                <a href="?page=school-management-teachers&action=add" class="button"><?php esc_html_e( 'Add New Teacher', 'school-management' ); ?></a>
-                <a href="?page=school-management-classrooms&action=add" class="button"><?php esc_html_e( 'Add Classroom', 'school-management' ); ?></a>
-                <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'View Payments', 'school-management' ); ?></a>
+                <a href="?page=school-management-students&action=add" class="button"><?php esc_html_e( 'Add New Student', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-courses&action=add" class="button"><?php esc_html_e( 'Add New Course', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-enrollments&action=add" class="button"><?php esc_html_e( 'New Enrollment', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-teachers&action=add" class="button"><?php esc_html_e( 'Add New Teacher', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-classrooms&action=add" class="button"><?php esc_html_e( 'Add Classroom', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'View Payments', 'CTADZ-school-management' ); ?></a>
                 <?php if ( defined( 'SMC_VERSION' ) ) : ?>
-                <a href="?page=school-management-calendar" class="button"><?php esc_html_e( 'View Calendar', 'school-management' ); ?></a>
+                <a href="?page=school-management-calendar" class="button"><?php esc_html_e( 'View Calendar', 'CTADZ-school-management' ); ?></a>
                 <?php endif; ?>
                 <?php if ( current_user_can( 'manage_school_settings' ) ) : ?>
-                <a href="?page=school-management-settings" class="button"><?php esc_html_e( 'Settings', 'school-management' ); ?></a>
+                <a href="?page=school-management-settings" class="button"><?php esc_html_e( 'Settings', 'CTADZ-school-management' ); ?></a>
                 <?php endif; ?>
             </p>
         </div>
