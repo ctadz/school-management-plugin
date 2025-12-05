@@ -243,30 +243,33 @@ class SM_Students_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for search
-        $where_clause = '';
+        // Build WHERE clause for search - SQL and params separately
+        $where_sql = '';
+        $where_params = array();
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clause = $wpdb->prepare( 
-                "WHERE (s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s)", 
-                $search_term, 
-                $search_term, 
-                $search_term 
-            );
+            $where_sql = "WHERE (s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s)";
+            $where_params = array( $search_term, $search_term, $search_term );
         }
 
-        $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table s $where_clause" );
+        // Count total for pagination
+        if ( ! empty( $where_params ) ) {
+            $count_query = "SELECT COUNT(*) FROM $students_table s $where_sql";
+            $total_students = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
+        } else {
+            $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table s" );
+        }
         $total_pages = ceil( $total_students / $per_page );
 
-        // Validate and set ORDER BY clause
-        $valid_columns = [
+        // Validate and set ORDER BY clause - simple columns only
+        $valid_columns = array(
             'name' => 's.name',
             'email' => 's.email',
             'phone' => 's.phone',
             'level' => 'l.name',
             'enrollment_date' => 's.enrollment_date',
             'active_enrollments' => 'active_enrollments'
-        ];
+        );
         $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 's.name';
         $order_clause = "$orderby_column $order";
 
@@ -295,13 +298,20 @@ class SM_Students_Page {
             LEFT JOIN $enrollments_table e ON s.id = e.student_id
             LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
             LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id
-            $where_clause
+            $where_sql
             GROUP BY s.id
             ORDER BY $order_clause
             LIMIT %d OFFSET %d
         ";
-        
-        $students = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+
+        // Merge all parameters
+        $all_params = array_merge( $where_params, array( $per_page, $offset ) );
+
+        if ( ! empty( $all_params ) ) {
+            $students = $wpdb->get_results( $wpdb->prepare( $query, $all_params ) );
+        } else {
+            $students = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+        }
 
         // Helper function to generate sortable column URL
         $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {

@@ -459,14 +459,8 @@ class SM_Attendance_Page {
      * Render mark attendance section
      */
     private static function render_mark_attendance_section( $teacher_id, $is_admin ) {
-        // Debug logging
-        error_log( 'SM Attendance: render_mark_attendance_section called' );
-        error_log( 'SM Attendance: teacher_id = ' . $teacher_id );
-        error_log( 'SM Attendance: is_admin = ' . ( $is_admin ? 'yes' : 'no' ) );
-
         // Check if calendar plugin is active
         if ( ! class_exists( 'SMC_Schedules_Page' ) ) {
-            error_log( 'SM Attendance: Calendar plugin not active' );
             echo '<div class="notice notice-warning"><p>' . esc_html__( 'The School Management Calendar plugin is required to mark attendance for scheduled classes.', 'CTADZ-school-management' ) . '</p></div>';
             return;
         }
@@ -479,9 +473,6 @@ class SM_Attendance_Page {
 
         $current_date = current_time( 'Y-m-d' );
         $where_clause = $is_admin ? '' : $wpdb->prepare( ' AND s.teacher_id = %d', $teacher_id );
-
-        error_log( 'SM Attendance: current_date = ' . $current_date );
-        error_log( 'SM Attendance: where_clause = ' . $where_clause );
 
         // Get all past and today's schedule instances that don't have attendance marked
         // We need to find dates between effective_from and today for each schedule
@@ -498,10 +489,7 @@ class SM_Attendance_Page {
             $current_date
         ) );
 
-        error_log( 'SM Attendance: schedules found = ' . count( $schedules ) );
-
         if ( empty( $schedules ) ) {
-            error_log( 'SM Attendance: No schedules found, returning' );
             echo '<p class="sm-no-data">' . esc_html__( 'No classes scheduled.', 'CTADZ-school-management' ) . '</p>';
             return;
         }
@@ -553,10 +541,7 @@ class SM_Attendance_Page {
             }
         }
 
-        error_log( 'SM Attendance: classes_needing_attendance count = ' . count( $classes_needing_attendance ) );
-
         if ( empty( $classes_needing_attendance ) ) {
-            error_log( 'SM Attendance: No classes needing attendance' );
             echo '<div class="notice notice-success inline"><p>';
             echo '<strong>' . esc_html__( '✓ All caught up!', 'CTADZ-school-management' ) . '</strong> ';
             echo esc_html__( 'All scheduled classes have attendance marked.', 'CTADZ-school-management' );
@@ -1016,10 +1001,16 @@ class SM_Attendance_Page {
     public static function ajax_get_class_students() {
         check_ajax_referer( 'sm_attendance_nonce', 'nonce' );
 
+        // Check permissions - NEVER trust user input for admin status
+        if ( ! current_user_can( 'view_attendance' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied', 'CTADZ-school-management' ) ) );
+        }
+
         $schedule_id = intval( $_POST['schedule_id'] ?? 0 );
         $course_id = intval( $_POST['course_id'] ?? 0 );
         $date = sanitize_text_field( $_POST['date'] ?? '' );
-        $is_admin = isset( $_POST['is_admin'] ) && $_POST['is_admin'] == '1';
+        // Determine admin status from actual user capabilities, not POST data
+        $is_admin = current_user_can( 'manage_attendance' );
 
         if ( ! $course_id || ! $date ) {
             wp_send_json_error( array( 'message' => __( 'Invalid parameters', 'CTADZ-school-management' ) ) );
@@ -1201,11 +1192,17 @@ class SM_Attendance_Page {
     public static function ajax_get_attendance_history() {
         check_ajax_referer( 'sm_attendance_nonce', 'nonce' );
 
+        // Check permissions - NEVER trust user input for admin status
+        if ( ! current_user_can( 'view_attendance' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied', 'CTADZ-school-management' ) ) );
+        }
+
         $from_date = sanitize_text_field( $_POST['from_date'] ?? '' );
         $to_date = sanitize_text_field( $_POST['to_date'] ?? '' );
         $course_id = intval( $_POST['course_id'] ?? 0 );
         $teacher_id = intval( $_POST['teacher_id'] ?? 0 );
-        $is_admin = isset( $_POST['is_admin'] ) && $_POST['is_admin'] == '1';
+        // Determine admin status from actual user capabilities, not POST data
+        $is_admin = current_user_can( 'manage_attendance' );
 
         if ( ! $from_date || ! $to_date ) {
             wp_send_json_error( array( 'message' => __( 'Invalid date range', 'CTADZ-school-management' ) ) );

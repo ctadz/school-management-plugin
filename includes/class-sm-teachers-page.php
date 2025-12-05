@@ -464,52 +464,61 @@ class SM_Teachers_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for search
-        $where_clause = '';
+        // Build WHERE clause for search - SQL and params separately
+        $where_sql = '';
+        $where_params = array();
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clause = $wpdb->prepare( 
-                "WHERE (t.first_name LIKE %s OR t.last_name LIKE %s OR t.email LIKE %s OR t.phone LIKE %s OR pt.name LIKE %s)", 
-                $search_term, 
-                $search_term,
-                $search_term,
-                $search_term,
-                $search_term
-            );
+            $where_sql = "WHERE (t.first_name LIKE %s OR t.last_name LIKE %s OR t.email LIKE %s OR t.phone LIKE %s OR pt.name LIKE %s)";
+            $where_params = array( $search_term, $search_term, $search_term, $search_term, $search_term );
         }
 
-        $total_teachers = $wpdb->get_var( "SELECT COUNT(*) FROM $teachers_table t $where_clause" );
+        // Count total for pagination
+        if ( ! empty( $where_params ) ) {
+            $count_query = "SELECT COUNT(*) FROM $teachers_table t LEFT JOIN $terms_table pt ON t.payment_term_id = pt.id $where_sql";
+            $total_teachers = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
+        } else {
+            $total_teachers = $wpdb->get_var( "SELECT COUNT(*) FROM $teachers_table t" );
+        }
         $total_pages = ceil( $total_teachers / $per_page );
 
-        // Validate and set ORDER BY clause
-        $valid_columns = [
-            'name' => 'CONCAT(t.first_name, " ", t.last_name)',
+        // Validate and set ORDER BY clause - use simple column names only, not complex expressions
+        $valid_columns = array(
+            'name' => 't.first_name, t.last_name',
             'email' => 't.email',
             'phone' => 't.phone',
             'payment_term' => 'pt.name',
             'hourly_rate' => 't.hourly_rate',
             'course_count' => 'course_count',
             'status' => 't.is_active'
-        ];
-        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'CONCAT(t.first_name, " ", t.last_name)';
+        );
+        $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 't.first_name, t.last_name';
+
+        // Order direction already validated above - only ASC or DESC
         $order_clause = "$orderby_column $order";
 
-        // Get teachers with payment term names, course count, and user account status
-        $teachers = $wpdb->get_results( $wpdb->prepare(
-            "SELECT t.*,
+        // Build complete query with all parameters
+        $query = "SELECT t.*,
                     pt.name as payment_term_name,
                     COUNT(DISTINCT c.id) as course_count,
                     CASE WHEN t.user_id IS NOT NULL THEN 1 ELSE 0 END as has_account
              FROM $teachers_table t
              LEFT JOIN $terms_table pt ON t.payment_term_id = pt.id
              LEFT JOIN $courses_table c ON t.id = c.teacher_id
-             $where_clause
+             $where_sql
              GROUP BY t.id
              ORDER BY $order_clause
-             LIMIT %d OFFSET %d",
-            $per_page,
-            $offset
-        ) );
+             LIMIT %d OFFSET %d";
+
+        // Merge all parameters
+        $all_params = array_merge( $where_params, array( $per_page, $offset ) );
+
+        // Get teachers with payment term names, course count, and user account status
+        if ( ! empty( $all_params ) ) {
+            $teachers = $wpdb->get_results( $wpdb->prepare( $query, $all_params ) );
+        } else {
+            $teachers = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+        }
 
         // Helper function to generate sortable column URL
         $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {
