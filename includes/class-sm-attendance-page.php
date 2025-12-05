@@ -32,7 +32,7 @@ class SM_Attendance_Page {
         // Check if user has permission to view attendance
         $current_user = wp_get_current_user();
         $is_teacher = in_array( 'school_teacher', $current_user->roles );
-        $is_admin = current_user_can( 'manage_school' );
+        $is_admin = current_user_can( 'manage_attendance' );
 
         if ( ! current_user_can( 'view_attendance' ) ) {
             wp_die( __( 'You do not have permission to access this page.', 'CTADZ-school-management' ) );
@@ -77,6 +77,14 @@ class SM_Attendance_Page {
                 <div id="attendance-history-tab" class="sm-tab-content">
                     <?php self::render_attendance_history_section( $teacher_id, $is_admin ); ?>
                 </div>
+            </div>
+        </div>
+
+        <!-- Modal for attendance (shared between both tabs) -->
+        <div id="sm-attendance-modal" class="sm-modal" style="display: none;">
+            <div class="sm-modal-content">
+                <span class="sm-modal-close">&times;</span>
+                <div id="sm-modal-body"></div>
             </div>
         </div>
 
@@ -148,6 +156,19 @@ class SM_Attendance_Page {
                 border-radius: 3px;
                 font-size: 12px;
                 font-weight: 500;
+            }
+            .sm-attendance-marked-badge {
+                display: inline-block;
+                background: #46b450;
+                color: #fff;
+                padding: 2px 8px;
+                border-radius: 3px;
+                font-size: 11px;
+                font-weight: 500;
+                margin-left: 8px;
+            }
+            .sm-card-marked {
+                border-left-color: #46b450;
             }
             .sm-class-card .sm-class-meta {
                 display: flex;
@@ -267,10 +288,70 @@ class SM_Attendance_Page {
                 background: #fff9e6;
                 color: #f0b849;
             }
+            /* Modal styles */
+            .sm-modal {
+                position: fixed;
+                z-index: 100000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.6);
+            }
+            .sm-modal-content {
+                background-color: #fff;
+                margin: 5% auto;
+                padding: 0;
+                border: 1px solid #ccd0d4;
+                width: 90%;
+                max-width: 1200px;
+                border-radius: 4px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+            .sm-modal-close {
+                color: #50575e;
+                float: right;
+                font-size: 32px;
+                font-weight: bold;
+                padding: 10px 20px;
+                cursor: pointer;
+            }
+            .sm-modal-close:hover,
+            .sm-modal-close:focus {
+                color: #2271b1;
+            }
+            #sm-modal-body {
+                padding: 20px;
+                clear: both;
+            }
         </style>
 
         <script>
         jQuery(document).ready(function($) {
+            // Modal setup
+            var modal = $('#sm-attendance-modal');
+
+            // Close modal when clicking X or outside
+            $('.sm-modal-close').on('click', function() {
+                modal.hide();
+            });
+
+            $(window).on('click', function(event) {
+                if (event.target.id === 'sm-attendance-modal') {
+                    modal.hide();
+                }
+            });
+
+            // Close modal with ESC key
+            $(document).on('keydown', function(event) {
+                if (event.key === 'Escape' && modal.is(':visible')) {
+                    modal.hide();
+                }
+            });
+
             // Tab switching
             $('.sm-tab-button').on('click', function() {
                 var tab = $(this).data('tab');
@@ -454,6 +535,7 @@ class SM_Attendance_Page {
                         $date_str
                     ) );
 
+                    // Only show classes without attendance (both teachers and admins)
                     if ( ! $has_attendance ) {
                         $classes_needing_attendance[] = array(
                             'schedule_id' => $schedule->id,
@@ -492,7 +574,7 @@ class SM_Attendance_Page {
         krsort( $grouped );
 
         echo '<p class="description" style="margin-bottom: 20px;">';
-        echo esc_html__( 'Classes below need attendance marked. Click on a class card to mark attendance.', 'CTADZ-school-management' );
+        echo esc_html__( 'Classes below need attendance marked. Click on a class card to mark attendance. To edit existing attendance, use the "Attendance History" tab.', 'CTADZ-school-management' );
         echo '</p>';
 
         echo '<div class="sm-classes-list">';
@@ -530,84 +612,10 @@ class SM_Attendance_Page {
             }
         }
         echo '</div>';
-
         ?>
-        <!-- Modal for attendance -->
-        <div id="sm-attendance-modal" class="sm-modal" style="display: none;">
-            <div class="sm-modal-content">
-                <span class="sm-modal-close">&times;</span>
-                <div id="sm-modal-body"></div>
-            </div>
-        </div>
-
-        <style>
-            .sm-card-selected {
-                border-left-color: #00a32a !important;
-                background: #e7f5e9 !important;
-            }
-
-            /* Modal styles */
-            .sm-modal {
-                position: fixed;
-                z-index: 100000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0,0,0,0.6);
-            }
-            .sm-modal-content {
-                background-color: #fff;
-                margin: 5% auto;
-                padding: 0;
-                border: 1px solid #ccd0d4;
-                width: 90%;
-                max-width: 1200px;
-                border-radius: 4px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                max-height: 85vh;
-                overflow-y: auto;
-            }
-            .sm-modal-close {
-                color: #50575e;
-                float: right;
-                font-size: 32px;
-                font-weight: bold;
-                padding: 10px 20px;
-                cursor: pointer;
-            }
-            .sm-modal-close:hover,
-            .sm-modal-close:focus {
-                color: #2271b1;
-            }
-            #sm-modal-body {
-                padding: 20px;
-                clear: both;
-            }
-        </style>
-
         <script>
         jQuery(document).ready(function($) {
             var modal = $('#sm-attendance-modal');
-
-            // Close modal when clicking X or outside
-            $('.sm-modal-close').on('click', function() {
-                modal.hide();
-            });
-
-            $(window).on('click', function(event) {
-                if (event.target.id === 'sm-attendance-modal') {
-                    modal.hide();
-                }
-            });
-
-            // Close modal with ESC key
-            $(document).on('keydown', function(event) {
-                if (event.key === 'Escape' && modal.is(':visible')) {
-                    modal.hide();
-                }
-            });
 
             $('.sm-class-card').on('click', function() {
                 var classId = $(this).data('class-id');
@@ -878,6 +886,8 @@ class SM_Attendance_Page {
                     success: function(response) {
                         if (response.success) {
                             $('#sm-history-results').html(response.data.html);
+                            // Initialize edit buttons
+                            initHistoryEditButtons();
                         } else {
                             $('#sm-history-results').html('<p class="sm-no-data">' + response.data.message + '</p>');
                         }
@@ -889,6 +899,112 @@ class SM_Attendance_Page {
                     }
                 });
             });
+
+            // Initialize edit buttons for attendance history
+            function initHistoryEditButtons() {
+                $('.sm-edit-attendance-btn').on('click', function() {
+                    var scheduleId = $(this).data('schedule-id');
+                    var courseId = $(this).data('course-id');
+                    var date = $(this).data('date');
+
+                    // Open modal from Mark Attendance tab
+                    var modal = $('#sm-attendance-modal');
+                    modal.show();
+                    $('#sm-modal-body').html('<p style="text-align: center; padding: 40px;">Loading attendance data...</p>');
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'sm_get_class_students',
+                            nonce: '<?php echo wp_create_nonce( 'sm_attendance_nonce' ); ?>',
+                            schedule_id: scheduleId,
+                            course_id: courseId,
+                            date: date,
+                            is_admin: 1
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#sm-modal-body').html(response.data.html);
+                                // Initialize the form with callback to reload history after save
+                                initializeAttendanceFormInHistory(response.data.is_readonly);
+                            } else {
+                                $('#sm-modal-body').html('<p class="sm-no-data">' + response.data.message + '</p>');
+                            }
+                        },
+                        error: function() {
+                            $('#sm-modal-body').html('<p class="sm-no-data">An error occurred. Please try again.</p>');
+                        }
+                    });
+                });
+            }
+
+            // Initialize form in history mode
+            function initializeAttendanceFormInHistory(isReadonly) {
+                if (!isReadonly) {
+                    $('.sm-status-btn').on('click', function() {
+                        $(this).siblings().removeClass('active');
+                        $(this).addClass('active');
+                    });
+                }
+
+                $('#sm-save-attendance-btn').on('click', function() {
+                    var button = $(this);
+                    button.prop('disabled', true).text('Saving...');
+
+                    var attendanceData = [];
+                    $('.sm-student-row').each(function() {
+                        var studentId = $(this).data('student-id');
+                        var status = $(this).find('.sm-status-btn.active').data('status');
+                        var notes = $(this).find('.sm-notes-input').val();
+
+                        if (status) {
+                            attendanceData.push({
+                                student_id: studentId,
+                                status: status,
+                                notes: notes
+                            });
+                        }
+                    });
+
+                    var scheduleId = $('#sm-attendance-form').data('schedule-id');
+                    var courseId = $('#sm-attendance-form').data('course-id');
+                    var date = $('#sm-attendance-form').data('date');
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'sm_save_attendance',
+                            nonce: '<?php echo wp_create_nonce( 'sm_attendance_nonce' ); ?>',
+                            schedule_id: scheduleId,
+                            course_id: courseId,
+                            date: date,
+                            attendance: JSON.stringify(attendanceData)
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                var modal = $('#sm-attendance-modal');
+                                modal.hide();
+                                // Show success message
+                                $('<div class="notice notice-success is-dismissible" style="margin: 15px 0;"><p><strong>Success!</strong> Attendance updated successfully.</p></div>')
+                                    .insertAfter('.wrap h1')
+                                    .delay(3000)
+                                    .fadeOut(400, function() { $(this).remove(); });
+                                // Reload history
+                                $('#sm-filter-history').click();
+                            } else {
+                                alert('Error: ' + response.data.message);
+                                button.prop('disabled', false).text('Save Attendance');
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred. Please try again.');
+                            button.prop('disabled', false).text('Save Attendance');
+                        }
+                    });
+                });
+            }
         });
         </script>
         <?php
@@ -1145,7 +1261,9 @@ class SM_Attendance_Page {
             if ( ! isset( $grouped[$key] ) ) {
                 $grouped[$key] = array(
                     'date' => $record->date,
+                    'course_id' => $record->course_id,
                     'course_name' => $record->course_name,
+                    'schedule_id' => $record->schedule_id,
                     'students' => array()
                 );
             }
@@ -1164,8 +1282,18 @@ class SM_Attendance_Page {
 
             $html .= '<div class="sm-history-group">';
             $html .= '<div class="sm-history-header">';
+            $html .= '<div>';
             $html .= '<h3>' . esc_html( $group['course_name'] ) . '</h3>';
+            $html .= '</div>';
+            $html .= '<div style="display: flex; align-items: center; gap: 10px;">';
             $html .= '<span class="sm-history-date">' . esc_html( $date_formatted ) . '</span>';
+            if ( $is_admin ) {
+                $html .= '<button type="button" class="button button-small sm-edit-attendance-btn"
+                          data-schedule-id="' . esc_attr( $group['schedule_id'] ) . '"
+                          data-course-id="' . esc_attr( $group['course_id'] ) . '"
+                          data-date="' . esc_attr( $group['date'] ) . '">' . __( 'Edit', 'CTADZ-school-management' ) . '</button>';
+            }
+            $html .= '</div>';
             $html .= '</div>';
             $html .= '<div class="sm-history-summary">';
             $html .= '<span class="sm-summary-item"><strong>' . __( 'Total:', 'CTADZ-school-management' ) . '</strong> ' . $total_students . '</span>';
