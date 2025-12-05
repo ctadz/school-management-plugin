@@ -85,7 +85,7 @@ class SM_Enqueue {
             'sm-admin-css',
             SM_PLUGIN_URL . 'assets/css/sm-admin.css',
             [],
-            '1.0.3' // Incremented version
+            '2.0.0' // Major update: Mobile-responsive redesign
         );
     }
 

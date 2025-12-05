@@ -1,3 +1,8 @@
+/* =================================================
+   School Management - Admin Styles
+   Mobile-First Responsive Design
+   ================================================= */
+
 /* --- Student Picture Upload Box --- */
 #sm_student_picture_box {
     width: 100px;
@@ -13,11 +18,16 @@
     top: 0;
     background: #fafafa;
     border-radius: 4px;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, transform 0.2s;
 }
 
 #sm_student_picture_box:hover {
     border-color: #0073aa;
+    transform: scale(1.02);
+}
+
+#sm_student_picture_box:active {
+    transform: scale(0.98);
 }
 
 #sm_student_picture_box img {
@@ -37,39 +47,56 @@
 /* --- Level Badge --- */
 .sm-level-badge {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 4px 10px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     background: #0073aa;
     color: white;
+    white-space: nowrap;
 }
 
 /* --- Empty State --- */
+.sm-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
 .sm-empty-state h3 {
     color: #666;
     margin-bottom: 8px;
+    font-size: 20px;
 }
 
 .sm-empty-state p {
     color: #999;
     margin-bottom: 20px;
+    font-size: 14px;
 }
 
 /* --- Form Header --- */
 .sm-form-header {
     border-bottom: 1px solid #ddd;
     padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 /* --- Action Buttons in Table --- */
 .wp-list-table .button-small {
     margin-right: 5px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .wp-list-table .button-small .dashicons {
-    font-size: 14px;
-    line-height: 26px;
+    font-size: 16px;
+    line-height: 1;
+    width: 16px;
+    height: 16px;
 }
 
 /* --- Header Actions --- */
@@ -79,17 +106,398 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
 }
 
-/* --- Responsive adjustments --- */
+/* --- Responsive Table Wrapper --- */
+.sm-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -20px;
+    padding: 0 20px;
+}
+
+.sm-table-wrapper .wp-list-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 800px;
+}
+
+/* --- Touch-Friendly Buttons --- */
+.button,
+.button-primary,
+.button-secondary {
+    min-height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+    line-height: 36px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* --- Status Badges --- */
+.sm-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sm-status-badge .sm-status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* --- Improved Form Layout --- */
+.sm-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sm-form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.sm-form-field label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1d2327;
+}
+
+.sm-form-field input[type="text"],
+.sm-form-field input[type="email"],
+.sm-form-field input[type="tel"],
+.sm-form-field input[type="date"],
+.sm-form-field input[type="number"],
+.sm-form-field select,
+.sm-form-field textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-height: 40px;
+}
+
+.sm-form-field input:focus,
+.sm-form-field select:focus,
+.sm-form-field textarea:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+/* --- Data Visualization Containers --- */
+.sm-dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.sm-widget {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sm-widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sm-widget-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0;
+}
+
+.sm-widget-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0073aa;
+    margin: 10px 0;
+}
+
+.sm-widget-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.sm-widget-trend {
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sm-widget-trend.positive {
+    color: #46b450;
+}
+
+.sm-widget-trend.negative {
+    color: #d63638;
+}
+
+/* --- Accessibility Improvements --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #0073aa;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 100000;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* =================================================
+   RESPONSIVE BREAKPOINTS
+   ================================================= */
+
+/* --- Tablets and Small Desktops (782px - 1024px) --- */
+@media (max-width: 1024px) {
+    .sm-dashboard-widgets {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 15px;
+    }
+
+    .sm-widget {
+        padding: 15px;
+    }
+
+    .sm-widget-value {
+        font-size: 28px;
+    }
+}
+
+/* --- WordPress Admin Breakpoint (Mobile) --- */
 @media (max-width: 782px) {
+    /* Reposition student picture box */
     #sm_student_picture_box {
         position: relative;
-        margin-bottom: 20px;
+        margin: 0 auto 20px;
+        width: 120px;
+        height: 120px;
     }
-    
+
+    /* Stack header actions */
     .sm-header-actions {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sm-header-actions .button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Make tables horizontally scrollable */
+    .sm-table-wrapper {
+        margin: 0 -12px;
+        padding: 0 12px;
+    }
+
+    /* Improve touch targets */
+    .button,
+    .button-primary,
+    .button-secondary {
+        min-height: 44px;
+        line-height: 44px;
+        font-size: 16px;
+    }
+
+    .wp-list-table .button-small {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 8px;
+    }
+
+    /* Responsive form grid */
+    .sm-form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    /* Widget adjustments */
+    .sm-dashboard-widgets {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .sm-widget-value {
+        font-size: 24px;
+    }
+
+    /* Table cells - hide less important columns on mobile */
+    .wp-list-table th.hide-on-mobile,
+    .wp-list-table td.hide-on-mobile {
+        display: none;
+    }
+
+    /* Reduce padding in tables */
+    .wp-list-table th,
+    .wp-list-table td {
+        padding: 12px 8px;
+    }
+
+    /* Stack status badges */
+    .sm-status-badge {
+        display: flex;
+        margin-bottom: 4px;
+    }
+}
+
+/* --- Small Mobile Devices (Max 480px) --- */
+@media (max-width: 480px) {
+    .sm-header-actions {
+        padding: 12px;
+    }
+
+    .sm-widget {
+        padding: 12px;
+    }
+
+    .sm-widget-header {
+        flex-direction: column;
+        align-items: flex-start;
         gap: 10px;
+    }
+
+    .sm-widget-value {
+        font-size: 20px;
+    }
+
+    .sm-widget-title {
+        font-size: 14px;
+    }
+
+    /* Make pagination more compact */
+    .tablenav-pages {
+        text-align: center;
+    }
+
+    .tablenav-pages a,
+    .tablenav-pages span {
+        margin: 0 2px;
+        padding: 4px 8px;
+    }
+
+    /* Reduce form field padding */
+    .sm-form-field input[type="text"],
+    .sm-form-field input[type="email"],
+    .sm-form-field input[type="tel"],
+    .sm-form-field input[type="date"],
+    .sm-form-field input[type="number"],
+    .sm-form-field select,
+    .sm-form-field textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+}
+
+/* --- Print Styles --- */
+@media print {
+    .sm-header-actions,
+    .button,
+    .wp-list-table .button-small {
+        display: none;
+    }
+
+    .sm-table-wrapper {
+        overflow: visible;
+    }
+
+    .wp-list-table {
+        border: 1px solid #ddd;
+    }
+
+    .wp-list-table th,
+    .wp-list-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+}
+
+/* =================================================
+   DARK MODE SUPPORT (Prefers-color-scheme)
+   ================================================= */
+@media (prefers-color-scheme: dark) {
+    .sm-widget {
+        background: #1e1e1e;
+        border-color: #333;
+        color: #e0e0e0;
+    }
+
+    .sm-widget-title {
+        color: #e0e0e0;
+    }
+
+    .sm-widget-header {
+        border-bottom-color: #333;
+    }
+}
+
+/* =================================================
+   REDUCED MOTION SUPPORT (Accessibility)
+   ================================================= */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    #sm_student_picture_box {
+        transition: none;
     }
 }
