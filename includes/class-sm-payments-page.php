@@ -71,30 +71,33 @@ class SM_Payments_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for filtering and search
-        $where_clauses = [ "e.status = 'active'" ];
-        
+        // Build WHERE clause - SQL and params separately
+        $where_sql_parts = [ "e.status = 'active'" ];
+        $where_params = [];
+
         // Search condition
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clauses[] = $wpdb->prepare( 
-                "(s.name LIKE %s OR c.name LIKE %s OR e.payment_plan LIKE %s)", 
-                $search_term, 
-                $search_term,
-                $search_term 
-            );
+            $where_sql_parts[] = "(s.name LIKE %s OR c.name LIKE %s OR e.payment_plan LIKE %s)";
+            $where_params[] = $search_term;
+            $where_params[] = $search_term;
+            $where_params[] = $search_term;
         }
-        
-        $where_clause = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
+
+        $where_sql = ! empty( $where_sql_parts ) ? 'WHERE ' . implode( ' AND ', $where_sql_parts ) : '';
 
         // Get total enrollments count (before status filtering)
-        $total_enrollments = $wpdb->get_var( "
-            SELECT COUNT(DISTINCT e.id) 
-            FROM $enrollments_table e 
-            LEFT JOIN $students_table s ON e.student_id = s.id 
-            LEFT JOIN $courses_table c ON e.course_id = c.id 
-            $where_clause
-        " );
+        $count_query = "SELECT COUNT(DISTINCT e.id)
+            FROM $enrollments_table e
+            LEFT JOIN $students_table s ON e.student_id = s.id
+            LEFT JOIN $courses_table c ON e.course_id = c.id
+            $where_sql";
+
+        if ( ! empty( $where_params ) ) {
+            $total_enrollments = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
+        } else {
+            $total_enrollments = $wpdb->get_var( $count_query );
+        }
 
         // Validate and set ORDER BY clause
         $valid_columns = [
@@ -110,10 +113,8 @@ class SM_Payments_Page {
         $order_clause = "$orderby_column $order";
 
         // Get active enrollments with payment info
-        $enrollments = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT e.*, 
-                        s.name as student_name, 
+        $query = "SELECT e.*,
+                        s.name as student_name,
                         c.name as course_name,
                         c.price_per_month,
                         c.total_months,
@@ -125,13 +126,18 @@ class SM_Payments_Page {
                  FROM $enrollments_table e
                  LEFT JOIN $students_table s ON e.student_id = s.id
                  LEFT JOIN $courses_table c ON e.course_id = c.id
-                 $where_clause
+                 $where_sql
                  ORDER BY $order_clause
-                 LIMIT %d OFFSET %d",
-                $per_page,
-                $offset
-            )
-        );
+                 LIMIT %d OFFSET %d";
+
+        // Merge all parameters
+        $all_params = array_merge( $where_params, array( $per_page, $offset ) );
+
+        if ( ! empty( $all_params ) ) {
+            $enrollments = $wpdb->get_results( $wpdb->prepare( $query, $all_params ) );
+        } else {
+            $enrollments = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+        }
 
         // Apply status filtering after fetching (since it's calculated)
         if ( ! empty( $filter_status ) && $enrollments ) {

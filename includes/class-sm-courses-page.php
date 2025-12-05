@@ -273,34 +273,38 @@ class SM_Courses_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for filtering and search
-        $where_clauses = [];
-        
+        // Build WHERE clause - SQL and params separately
+        $where_sql_parts = [];
+        $where_params = [];
+
         // Search condition
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clauses[] = $wpdb->prepare( 
-                "(c.name LIKE %s OR c.language LIKE %s OR CONCAT(t.first_name, ' ', t.last_name) LIKE %s)", 
-                $search_term, 
-                $search_term,
-                $search_term 
-            );
+            $where_sql_parts[] = "(c.name LIKE %s OR c.language LIKE %s OR CONCAT(t.first_name, ' ', t.last_name) LIKE %s)";
+            $where_params[] = $search_term;
+            $where_params[] = $search_term;
+            $where_params[] = $search_term;
         }
-        
+
         // Payment model filter
         if ( ! empty( $filter_payment_model ) ) {
-            $where_clauses[] = $wpdb->prepare( "c.payment_model = %s", $filter_payment_model );
+            $where_sql_parts[] = "c.payment_model = %s";
+            $where_params[] = $filter_payment_model;
         }
-        
-        $where_clause = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
+
+        $where_sql = ! empty( $where_sql_parts ) ? 'WHERE ' . implode( ' AND ', $where_sql_parts ) : '';
 
         // Get total courses count (with filter applied)
-        $total_courses = $wpdb->get_var( "
-            SELECT COUNT(DISTINCT c.id) 
-            FROM $courses_table c 
-            LEFT JOIN $teachers_table t ON c.teacher_id = t.id 
-            $where_clause
-        " );
+        $count_query = "SELECT COUNT(DISTINCT c.id)
+            FROM $courses_table c
+            LEFT JOIN $teachers_table t ON c.teacher_id = t.id
+            $where_sql";
+
+        if ( ! empty( $where_params ) ) {
+            $total_courses = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
+        } else {
+            $total_courses = $wpdb->get_var( $count_query );
+        }
         $total_pages = ceil( $total_courses / $per_page );
 
         // Validate and set ORDER BY clause
@@ -318,24 +322,29 @@ class SM_Courses_Page {
         $order_clause = "$orderby_column $order";
 
         // Get courses with level, teacher, classroom names, and enrollment count
-        $query = "
-            SELECT c.*, 
-                   l.name as level_name, 
+        $query = "SELECT c.*,
+                   l.name as level_name,
                    CONCAT(t.first_name, ' ', t.last_name) as teacher_name,
                    cr.name as classroom_name,
                    COUNT(DISTINCT e.id) as enrollment_count
-            FROM $courses_table c 
-            LEFT JOIN $levels_table l ON c.level_id = l.id 
-            LEFT JOIN $teachers_table t ON c.teacher_id = t.id 
+            FROM $courses_table c
+            LEFT JOIN $levels_table l ON c.level_id = l.id
+            LEFT JOIN $teachers_table t ON c.teacher_id = t.id
             LEFT JOIN {$wpdb->prefix}sm_classrooms cr ON c.classroom_id = cr.id
             LEFT JOIN $enrollments_table e ON c.id = e.course_id AND e.status != 'cancelled'
-            $where_clause
+            $where_sql
             GROUP BY c.id
             ORDER BY $order_clause
-            LIMIT %d OFFSET %d
-        ";
-        
-        $courses = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+            LIMIT %d OFFSET %d";
+
+        // Merge all parameters for the main query
+        $all_params = array_merge( $where_params, array( $per_page, $offset ) );
+
+        if ( ! empty( $all_params ) ) {
+            $courses = $wpdb->get_results( $wpdb->prepare( $query, $all_params ) );
+        } else {
+            $courses = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+        }
 
         // Helper function to generate sortable column URL
         $get_sort_url = function( $column ) use ( $orderby, $order, $search, $filter_payment_model ) {

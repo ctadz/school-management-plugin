@@ -176,14 +176,12 @@ class SM_Levels_Page {
         $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'ASC';
 
         // Build WHERE clause for search
-        $where_clause = '';
+        $where_sql = '';
+        $where_params = array();
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clause = $wpdb->prepare( 
-                "WHERE (l.name LIKE %s OR l.description LIKE %s)", 
-                $search_term, 
-                $search_term
-            );
+            $where_sql = "WHERE (l.name LIKE %s OR l.description LIKE %s)";
+            $where_params = array( $search_term, $search_term );
         }
 
         // Validate and set ORDER BY clause
@@ -198,17 +196,21 @@ class SM_Levels_Page {
         $order_clause = "$orderby_column $order";
 
         // Get levels with student and course counts
-        $levels = $wpdb->get_results( 
-            "SELECT l.*, 
+        $query = "SELECT l.*,
                     COUNT(DISTINCT s.id) as student_count,
                     COUNT(DISTINCT c.id) as course_count
-             FROM $levels_table l 
+             FROM $levels_table l
              LEFT JOIN $students_table s ON l.id = s.level_id
              LEFT JOIN $courses_table c ON l.id = c.level_id
-             $where_clause
+             $where_sql
              GROUP BY l.id
-             ORDER BY $order_clause" 
-        );
+             ORDER BY $order_clause";
+
+        if ( ! empty( $where_params ) ) {
+            $levels = $wpdb->get_results( $wpdb->prepare( $query, $where_params ) );
+        } else {
+            $levels = $wpdb->get_results( $query );
+        }
 
         $total_levels = count( $levels );
 
