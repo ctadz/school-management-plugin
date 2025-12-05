@@ -385,87 +385,73 @@ class SM_Admin_Menu {
         <a href="?page=school-management-students" class="button button-primary"><?php esc_html_e( 'Manage Students', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Teachers -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #f56e28; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #f56e28;"><?php echo intval( $teachers_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Teachers', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-businessperson" style="font-size: 40px; color: #f56e28; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Teachers Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #f56e28;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Active Teachers', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-businessperson" style="font-size: 24px; color: #f56e28; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #f56e28;"><?php echo intval( $teachers_count ); ?></div>
         <a href="?page=school-management-teachers" class="button"><?php esc_html_e( 'Manage Teachers', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Courses -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #46b450; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #46b450;"><?php echo intval( $courses_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Courses', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-book" style="font-size: 40px; color: #46b450; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Courses Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #46b450;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Active Courses', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-book" style="font-size: 24px; color: #46b450; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #46b450;"><?php echo intval( $courses_count ); ?></div>
         <a href="?page=school-management-courses" class="button"><?php esc_html_e( 'Manage Courses', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Levels -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #9b59b6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #9b59b6;"><?php echo intval( $levels_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Course Levels', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-awards" style="font-size: 40px; color: #9b59b6; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Levels Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #9b59b6;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Course Levels', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-awards" style="font-size: 24px; color: #9b59b6; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #9b59b6;"><?php echo intval( $levels_count ); ?></div>
         <a href="?page=school-management-levels" class="button"><?php esc_html_e( 'Manage Levels', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Enrollments -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #00a0d2; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #00a0d2;"><?php echo intval( $enrollments_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Enrollments', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-welcome-learn-more" style="font-size: 40px; color: #00a0d2; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Enrollments Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #00a0d2;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Active Enrollments', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-welcome-learn-more" style="font-size: 24px; color: #00a0d2; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #00a0d2;"><?php echo intval( $enrollments_count ); ?></div>
         <a href="?page=school-management-enrollments" class="button"><?php esc_html_e( 'Manage Enrollments', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Classrooms -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #e67e22; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #e67e22;"><?php echo intval( $classrooms_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Classrooms', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-building" style="font-size: 40px; color: #e67e22; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Classrooms Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #e67e22;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Classrooms', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-building" style="font-size: 24px; color: #e67e22; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #e67e22;"><?php echo intval( $classrooms_count ); ?></div>
         <a href="?page=school-management-classrooms" class="button"><?php esc_html_e( 'Manage Classrooms', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Payment Terms -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #16a085; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #16a085;"><?php echo intval( $payment_terms_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Payment Terms', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-calendar-alt" style="font-size: 40px; color: #16a085; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Payment Terms Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #16a085;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Payment Terms', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-calendar-alt" style="font-size: 24px; color: #16a085; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #16a085;"><?php echo intval( $payment_terms_count ); ?></div>
         <a href="?page=school-management-payment-terms" class="button"><?php esc_html_e( 'Manage Terms', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Payments -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #27ae60; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 20px; color: #27ae60;"><?php echo number_format( $outstanding_balance, 2 ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Outstanding Balance', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-money-alt" style="font-size: 40px; color: #27ae60; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Payments Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #27ae60;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Outstanding Balance', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-money-alt" style="font-size: 24px; color: #27ae60; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #27ae60; font-size: 24px;"><?php echo number_format( $outstanding_balance, 2 ); ?> DZD</div>
         <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'Manage Payments', 'CTADZ-school-management' ); ?></a>
     </div>
 
@@ -509,7 +495,7 @@ class SM_Admin_Menu {
     $total_alerts = $overdue_count + $week_count + $next_week_count;
     $alert_color = '#dc2626'; // Red for alerts
     $alert_text = '';
-    
+
     if ( $overdue_count > 0 ) {
         $alert_text = sprintf( _n( '%d overdue', '%d overdue', $overdue_count, 'CTADZ-school-management' ), $overdue_count );
         $alert_color = '#dc2626'; // Red
@@ -524,57 +510,49 @@ class SM_Admin_Menu {
         $alert_color = '#22c55e'; // Green
     }
     ?>
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid <?php echo $alert_color; ?>; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: <?php echo $alert_color; ?>;"><?php echo intval( $total_alerts ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Payment Alerts', 'CTADZ-school-management' ); ?></p>
-                <?php if ( $alert_text ) : ?>
-                    <p style="margin: 5px 0 0 0; color: <?php echo $alert_color; ?>; font-size: 13px;">
-                        <?php echo esc_html( $alert_text ); ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-            <span class="dashicons dashicons-warning" style="font-size: 40px; color: <?php echo $alert_color; ?>; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Payment Alerts Widget -->
+    <div class="sm-widget" style="border-left: 4px solid <?php echo esc_attr( $alert_color ); ?>;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Payment Alerts', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-warning" style="font-size: 24px; color: <?php echo esc_attr( $alert_color ); ?>; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: <?php echo esc_attr( $alert_color ); ?>;"><?php echo intval( $total_alerts ); ?></div>
+        <?php if ( $alert_text ) : ?>
+            <p class="sm-widget-label" style="color: <?php echo esc_attr( $alert_color ); ?>; margin-bottom: 15px;">
+                <?php echo esc_html( $alert_text ); ?>
+            </p>
+        <?php endif; ?>
         <a href="?page=school-management-payment-alerts" class="button"><?php esc_html_e( 'View Alerts', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <?php if ( defined( 'SMC_VERSION' ) ) : ?>
-    <!-- Schedules (Calendar Plugin) -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #8e44ad; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #8e44ad;"><?php echo intval( $schedules_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Active Schedules', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-calendar" style="font-size: 40px; color: #8e44ad; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Schedules Widget (Calendar Plugin) -->
+    <div class="sm-widget" style="border-left: 4px solid #8e44ad;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Active Schedules', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-calendar" style="font-size: 24px; color: #8e44ad; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #8e44ad;"><?php echo intval( $schedules_count ); ?></div>
         <a href="?page=school-management-schedules" class="button"><?php esc_html_e( 'Manage Schedules', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Events (Calendar Plugin) -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #c0392b; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #c0392b;"><?php echo intval( $events_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Upcoming Events', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-megaphone" style="font-size: 40px; color: #c0392b; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Events Widget (Calendar Plugin) -->
+    <div class="sm-widget" style="border-left: 4px solid #c0392b;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Upcoming Events', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-megaphone" style="font-size: 24px; color: #c0392b; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #c0392b;"><?php echo intval( $events_count ); ?></div>
         <a href="?page=school-management-events" class="button"><?php esc_html_e( 'Manage Events', 'CTADZ-school-management' ); ?></a>
     </div>
 
-    <!-- Calendar View -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #2c3e50; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 24px; color: #2c3e50;">📅</h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'School Calendar', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-calendar-alt" style="font-size: 40px; color: #2c3e50; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Calendar View Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #2c3e50;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'School Calendar', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-calendar-alt" style="font-size: 24px; color: #2c3e50; opacity: 0.5;"></span>
         </div>
+        <div class="sm-widget-value" style="color: #2c3e50; font-size: 40px;">📅</div>
         <a href="?page=school-management-calendar" class="button"><?php esc_html_e( 'View Calendar', 'CTADZ-school-management' ); ?></a>
     </div>
     <?php endif; ?>
