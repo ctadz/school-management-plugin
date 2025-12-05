@@ -366,25 +366,23 @@ class SM_Admin_Menu {
                     <span class="dashicons dashicons-welcome-learn-more" style="font-size: 40px; color: white;"></span>
                 </div>
             <?php endif; ?>
-            
+
             <div>
                 <h1 style="margin: 0; font-size: 32px; color: #23282d;"><?php echo esc_html( $school_name ); ?></h1>
                 <p style="margin: 5px 0 0 0; color: #666; font-size: 16px;"><?php esc_html_e( 'Management Dashboard', 'CTADZ-school-management' ); ?></p>
             </div>
         </div>
-        
-<div class="sm-dashboard-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+
+<div class="sm-dashboard-widgets">
     
-    <!-- Students -->
-    <div class="sm-stat-card" style="background: white; padding: 20px; border-left: 4px solid #0073aa; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <h3 style="margin: 0; font-size: 32px; color: #0073aa;"><?php echo intval( $students_count ); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #666;"><?php esc_html_e( 'Total Students', 'CTADZ-school-management' ); ?></p>
-            </div>
-            <span class="dashicons dashicons-groups" style="font-size: 40px; color: #0073aa; opacity: 0.3; margin-left: 15px;"></span>
+    <!-- Students Widget -->
+    <div class="sm-widget" style="border-left: 4px solid #0073aa;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Total Students', 'CTADZ-school-management' ); ?></h3>
+            <span class="dashicons dashicons-groups" style="font-size: 24px; color: #0073aa; opacity: 0.5;"></span>
         </div>
-        <a href="?page=school-management-students" class="button"><?php esc_html_e( 'Manage Students', 'CTADZ-school-management' ); ?></a>
+        <div class="sm-widget-value" style="color: #0073aa;"><?php echo intval( $students_count ); ?></div>
+        <a href="?page=school-management-students" class="button button-primary"><?php esc_html_e( 'Manage Students', 'CTADZ-school-management' ); ?></a>
     </div>
 
     <!-- Teachers -->
