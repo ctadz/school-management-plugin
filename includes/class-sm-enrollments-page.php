@@ -419,31 +419,33 @@ class SM_Enrollments_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for filtering and search
-        $where_clauses = [];
-        
+        // Build WHERE clause - SQL and params separately
+        $where_sql_parts = [];
+        $where_params = [];
+
         // Search condition
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clauses[] = $wpdb->prepare( 
-                "(s.name LIKE %s OR c.name LIKE %s)", 
-                $search_term, 
-                $search_term 
-            );
+            $where_sql_parts[] = "(s.name LIKE %s OR c.name LIKE %s)";
+            $where_params[] = $search_term;
+            $where_params[] = $search_term;
         }
-        
+
         // Filter conditions
         if ( ! empty( $filter_payment_status ) ) {
-            $where_clauses[] = $wpdb->prepare( "e.payment_status = %s", $filter_payment_status );
+            $where_sql_parts[] = "e.payment_status = %s";
+            $where_params[] = $filter_payment_status;
         }
         if ( ! empty( $filter_enrollment_status ) ) {
-            $where_clauses[] = $wpdb->prepare( "e.status = %s", $filter_enrollment_status );
+            $where_sql_parts[] = "e.status = %s";
+            $where_params[] = $filter_enrollment_status;
         }
         if ( ! empty( $filter_payment_model ) ) {
-            $where_clauses[] = $wpdb->prepare( "c.payment_model = %s", $filter_payment_model );
+            $where_sql_parts[] = "c.payment_model = %s";
+            $where_params[] = $filter_payment_model;
         }
-        
-        $where_clause = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
+
+        $where_sql = ! empty( $where_sql_parts ) ? 'WHERE ' . implode( ' AND ', $where_sql_parts ) : '';
 
         // Validate and set ORDER BY clause
         $valid_columns = [
@@ -458,27 +460,38 @@ class SM_Enrollments_Page {
         $order_clause = "$orderby_column $order";
 
         // Get total count for pagination
-        $total_enrollments = $wpdb->get_var( "SELECT COUNT(*) FROM $enrollments_table e LEFT JOIN $students_table s ON e.student_id = s.id LEFT JOIN $courses_table c ON e.course_id = c.id $where_clause" );
+        $count_query = "SELECT COUNT(*) FROM $enrollments_table e LEFT JOIN $students_table s ON e.student_id = s.id LEFT JOIN $courses_table c ON e.course_id = c.id $where_sql";
+
+        if ( ! empty( $where_params ) ) {
+            $total_enrollments = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
+        } else {
+            $total_enrollments = $wpdb->get_var( $count_query );
+        }
         $total_pages = ceil( $total_enrollments / $per_page );
 
         // Get enrollments with student and course names, plus payment info
-        $enrollments = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT e.*, 
-                    s.name as student_name, 
+        $query = "SELECT e.*,
+                    s.name as student_name,
                     c.name as course_name,
                     c.payment_model,
                     c.price_per_month,
                     c.total_price,
                     c.total_months
-             FROM $enrollments_table e 
-             LEFT JOIN $students_table s ON e.student_id = s.id 
-             LEFT JOIN $courses_table c ON e.course_id = c.id 
-             $where_clause
+             FROM $enrollments_table e
+             LEFT JOIN $students_table s ON e.student_id = s.id
+             LEFT JOIN $courses_table c ON e.course_id = c.id
+             $where_sql
              ORDER BY $order_clause
-             LIMIT %d OFFSET %d", 
-            $per_page, 
-            $offset 
-        ) );
+             LIMIT %d OFFSET %d";
+
+        // Merge all parameters for the main query
+        $all_params = array_merge( $where_params, array( $per_page, $offset ) );
+
+        if ( ! empty( $all_params ) ) {
+            $enrollments = $wpdb->get_results( $wpdb->prepare( $query, $all_params ) );
+        } else {
+            $enrollments = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+        }
 
         // Calculate payment progress for each enrollment
         foreach ( $enrollments as $enrollment ) {

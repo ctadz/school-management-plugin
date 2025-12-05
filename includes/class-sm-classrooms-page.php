@@ -187,18 +187,20 @@ class SM_Classrooms_Page {
         $offset = ( $current_page - 1 ) * $per_page;
 
         // Build WHERE clause for search
-        $where_clause = '';
+        $where_sql = '';
+        $where_params = array();
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_clause = $wpdb->prepare( 
-                "WHERE (c.name LIKE %s OR c.location LIKE %s OR c.facilities LIKE %s)", 
-                $search_term, 
-                $search_term,
-                $search_term
-            );
+            $where_sql = "WHERE (c.name LIKE %s OR c.location LIKE %s OR c.facilities LIKE %s)";
+            $where_params = array( $search_term, $search_term, $search_term );
         }
 
-        $total_classrooms = $wpdb->get_var( "SELECT COUNT(*) FROM $classrooms_table c $where_clause" );
+        // Get total count
+        if ( ! empty( $where_params ) ) {
+            $total_classrooms = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $classrooms_table c $where_sql", $where_params ) );
+        } else {
+            $total_classrooms = $wpdb->get_var( "SELECT COUNT(*) FROM $classrooms_table c" );
+        }
         $total_pages = ceil( $total_classrooms / $per_page );
 
         // Validate and set ORDER BY clause
@@ -212,17 +214,20 @@ class SM_Classrooms_Page {
         $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 'c.name';
         $order_clause = "$orderby_column $order";
 
-        // Get classrooms with course count
-        $classrooms = $wpdb->get_results( $wpdb->prepare( 
-            "SELECT c.*, 
+        // Get classrooms with course count - merge all parameters
+        $query = "SELECT c.*,
                     (SELECT COUNT(*) FROM $courses_table WHERE classroom_id = c.id) as course_count
-             FROM $classrooms_table c 
-             $where_clause
+             FROM $classrooms_table c
+             $where_sql
              ORDER BY $order_clause
-             LIMIT %d OFFSET %d", 
-            $per_page, 
-            $offset 
-        ) );
+             LIMIT %d OFFSET %d";
+        $all_params = array_merge( $where_params, array( $per_page, $offset ) );
+
+        if ( ! empty( $all_params ) ) {
+            $classrooms = $wpdb->get_results( $wpdb->prepare( $query, $all_params ) );
+        } else {
+            $classrooms = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
+        }
 
         // Helper function to generate sortable column URL
         $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {
