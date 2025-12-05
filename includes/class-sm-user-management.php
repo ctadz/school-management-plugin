@@ -278,6 +278,34 @@ class SM_User_Management {
     }
 
     /**
+     * Sanitize CSV cell to prevent formula injection
+     *
+     * Prevents CSV injection by prefixing cells that start with dangerous
+     * characters (=, +, -, @, tab, carriage return) with a single quote.
+     *
+     * @param string $value The cell value to sanitize
+     * @return string Sanitized value safe for CSV export
+     */
+    private static function sanitize_csv_cell( $value ) {
+        // Convert to string and trim
+        $value = (string) $value;
+        $value = trim( $value );
+
+        // Check if value starts with dangerous characters
+        if ( ! empty( $value ) ) {
+            $first_char = substr( $value, 0, 1 );
+            $dangerous_chars = array( '=', '+', '-', '@', "\t", "\r" );
+
+            if ( in_array( $first_char, $dangerous_chars, true ) ) {
+                // Prefix with single quote to prevent formula execution
+                $value = "'" . $value;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * Export credentials to CSV file
      *
      * @param array $accounts Array of account data
@@ -303,14 +331,14 @@ class SM_User_Management {
         // Write CSV header
         fputcsv( $file, array( 'Name', 'Username', 'Password', 'Email', 'Role' ), ',', '"', '\\' );
 
-        // Write account data
+        // Write account data with CSV injection prevention
         foreach ( $accounts as $account ) {
             fputcsv( $file, array(
-                $account['name'],
-                $account['username'],
-                $account['password'],
-                $account['email'],
-                ucfirst( $type )
+                self::sanitize_csv_cell( $account['name'] ),
+                self::sanitize_csv_cell( $account['username'] ),
+                self::sanitize_csv_cell( $account['password'] ),
+                self::sanitize_csv_cell( $account['email'] ),
+                self::sanitize_csv_cell( ucfirst( $type ) )
             ), ',', '"', '\\' );
         }
 
