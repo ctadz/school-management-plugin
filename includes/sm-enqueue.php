@@ -43,12 +43,21 @@ class SM_Enqueue {
         // WordPress Media Uploader (required for image and file uploads)
         wp_enqueue_media();
 
+        // Chart.js for data visualizations
+        wp_enqueue_script(
+            'chartjs',
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+            [],
+            '4.4.0',
+            true
+        );
+
         // Custom JavaScript
         wp_enqueue_script(
             'sm-admin-js',
             SM_PLUGIN_URL . 'assets/js/sm-admin.js',
-            [ 'jquery' ],
-            '1.0.3', // Incremented version
+            [ 'jquery', 'chartjs' ],
+            '1.0.4', // Incremented version for dashboard improvements
             true
         );
 

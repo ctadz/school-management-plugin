@@ -558,6 +558,36 @@ class SM_Admin_Menu {
     <?php endif; ?>
 
 </div>
+
+<!-- Data Visualization Section -->
+<div class="sm-dashboard-widgets" style="margin-top: 30px;">
+
+    <!-- Enrollment Trends Chart -->
+    <div class="sm-widget" style="grid-column: span 2;">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Enrollment Trends', 'CTADZ-school-management' ); ?></h3>
+        </div>
+        <canvas id="enrollmentTrendsChart" style="max-height: 300px;"></canvas>
+    </div>
+
+    <!-- Payment Status Breakdown -->
+    <div class="sm-widget">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></h3>
+        </div>
+        <canvas id="paymentStatusChart" style="max-height: 250px;"></canvas>
+    </div>
+
+    <!-- Students by Level -->
+    <div class="sm-widget">
+        <div class="sm-widget-header">
+            <h3 class="sm-widget-title"><?php esc_html_e( 'Students by Level', 'CTADZ-school-management' ); ?></h3>
+        </div>
+        <canvas id="studentsByLevelChart" style="max-height: 250px;"></canvas>
+    </div>
+
+</div>
+
 <div style="margin-top: 40px; background: white; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <h2><?php esc_html_e( 'Quick Actions', 'CTADZ-school-management' ); ?></h2>
             <p><?php esc_html_e( 'Common actions to get started:', 'CTADZ-school-management' ); ?></p>
@@ -576,6 +606,134 @@ class SM_Admin_Menu {
                 <?php endif; ?>
             </p>
         </div>
+
+        <?php
+        // Prepare chart data
+
+        // Enrollment Trends (last 6 months)
+        $enrollment_data = [];
+        for ( $i = 5; $i >= 0; $i-- ) {
+            $month_start = date( 'Y-m-01', strtotime( "-$i months" ) );
+            $month_end = date( 'Y-m-t', strtotime( "-$i months" ) );
+            $count = $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}sm_enrollments
+                 WHERE created_at BETWEEN %s AND %s",
+                $month_start, $month_end
+            ) );
+            $enrollment_data[] = [
+                'month' => date( 'M Y', strtotime( $month_start ) ),
+                'count' => intval( $count )
+            ];
+        }
+
+        // Payment Status Breakdown
+        $paid_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_schedules WHERE status = 'paid'" );
+        $partial_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_schedules WHERE status = 'partial'" );
+        $pending_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_schedules WHERE status = 'pending'" );
+
+        // Students by Level
+        $students_by_level = $wpdb->get_results(
+            "SELECT l.name as level_name, COUNT(s.id) as student_count
+             FROM {$wpdb->prefix}sm_levels l
+             LEFT JOIN {$wpdb->prefix}sm_students s ON l.id = s.level_id
+             WHERE l.is_active = 1
+             GROUP BY l.id, l.name
+             ORDER BY l.name"
+        );
+        ?>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart.js default config
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = true;
+
+            // Enrollment Trends Chart (Line)
+            const enrollmentCtx = document.getElementById('enrollmentTrendsChart');
+            if (enrollmentCtx) {
+                new Chart(enrollmentCtx, {
+                    type: 'line',
+                    data: {
+                        labels: <?php echo json_encode( array_column( $enrollment_data, 'month' ) ); ?>,
+                        datasets: [{
+                            label: '<?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?>',
+                            data: <?php echo json_encode( array_column( $enrollment_data, 'count' ) ); ?>,
+                            borderColor: '#0073aa',
+                            backgroundColor: 'rgba(0, 115, 170, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Payment Status Chart (Doughnut)
+            const paymentCtx = document.getElementById('paymentStatusChart');
+            if (paymentCtx) {
+                new Chart(paymentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [
+                            '<?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?>',
+                            '<?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?>',
+                            '<?php esc_html_e( 'Pending', 'CTADZ-school-management' ); ?>'
+                        ],
+                        datasets: [{
+                            data: [
+                                <?php echo intval( $paid_count ); ?>,
+                                <?php echo intval( $partial_count ); ?>,
+                                <?php echo intval( $pending_count ); ?>
+                            ],
+                            backgroundColor: ['#46b450', '#f0ad4e', '#d63638']
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // Students by Level Chart (Bar)
+            const levelCtx = document.getElementById('studentsByLevelChart');
+            if (levelCtx) {
+                new Chart(levelCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: <?php echo json_encode( array_column( $students_by_level, 'level_name' ) ); ?>,
+                        datasets: [{
+                            label: '<?php esc_html_e( 'Students', 'CTADZ-school-management' ); ?>',
+                            data: <?php echo json_encode( array_map( 'intval', array_column( $students_by_level, 'student_count' ) ) ); ?>,
+                            backgroundColor: '#9b59b6'
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        </script>
         <?php
     }
 }
