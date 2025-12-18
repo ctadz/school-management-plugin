@@ -498,11 +498,11 @@ class SM_Courses_Page {
                 <?php if ( ! empty( $filter_payment_model ) ) : ?>
                     <input type="hidden" name="filter_payment_model" value="<?php echo esc_attr( $filter_payment_model ); ?>">
                 <?php endif; ?>
-                <input type="search" 
-                       name="s" 
-                       value="<?php echo esc_attr( $search ); ?>" 
-                       placeholder="<?php esc_attr_e( 'Search courses by name, language, or teacher...', 'CTADZ-school-management' ); ?>"
-                       style="width: 300px; margin-right: 5px;">
+                <input type="search"
+                       name="s"
+                       value="<?php echo esc_attr( $search ); ?>"
+                       placeholder="<?php esc_attr_e( 'Enter course information', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                 <?php if ( ! empty( $search ) ) : ?>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'school-management-courses', 'filter_payment_model' => $filter_payment_model ), admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left: 5px;">

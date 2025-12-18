@@ -138,6 +138,62 @@
     touch-action: manipulation;
 }
 
+/* --- Search Box --- */
+.search-box,
+input[type="search"] {
+    width: 500px !important;
+    max-width: 100% !important;
+    padding: 8px 12px !important;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    height: 38px;
+    vertical-align: middle;
+}
+
+.search-box:focus,
+input[type="search"]:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+/* Search button next to search box */
+input[type="search"] + .button,
+.search-box + .button {
+    height: 38px;
+    line-height: 36px;
+    padding: 0 16px;
+    vertical-align: middle;
+}
+
+.tablenav .search-box,
+.tablenav input[type="search"] {
+    width: 420px !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 782px) {
+    .search-box,
+    input[type="search"],
+    .tablenav .search-box,
+    .tablenav input[type="search"] {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin-bottom: 8px !important;
+        margin-right: 0 !important;
+    }
+
+    /* Make search button full width on mobile */
+    input[type="search"] + .button,
+    .search-box + .button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
 /* --- Status Badges --- */
 .sm-status-badge {
     display: inline-flex;
@@ -895,18 +951,563 @@ textarea:focus {
    DARK MODE SUPPORT (Prefers-color-scheme)
    ================================================= */
 @media (prefers-color-scheme: dark) {
-    .sm-widget {
+    /* ===== Core WordPress Admin Overrides ===== */
+
+    /* AGGRESSIVE: Entire WordPress admin area - Black */
+    html,
+    body,
+    body.wp-admin,
+    #wpwrap,
+    #wpcontent,
+    #wpbody,
+    #wpbody-content,
+    #wpfooter,
+    .wp-admin,
+    .wrap {
+        background-color: #000000 !important;
+        background: #000000 !important;
+        color: #e0e0e0 !important;
+    }
+
+    /* Force all content areas to have dark background or transparent */
+    .wrap > *,
+    #wpbody-content > *,
+    #wpbody-content,
+    .postbox,
+    .stuffbox,
+    .inside,
+    .form-wrap,
+    .col-wrap,
+    .col-left,
+    .col-right,
+    #col-container,
+    #col-left,
+    #col-right,
+    .metabox-holder,
+    .meta-box-sortables,
+    .if-js-closed .inside {
+        background: transparent !important;
+    }
+
+    /* Ensure no white backgrounds anywhere */
+    * {
+        background-image: none !important;
+    }
+
+    /* Override any WordPress defaults that may set white backgrounds */
+    body.wp-admin #wpbody,
+    body.wp-admin #wpcontent,
+    body.wp-admin .wrap,
+    body.wp-admin #wpwrap {
+        background-color: #000000 !important;
+    }
+
+    /* Headers - White text */
+    h1, h2, h3, h4, h5, h6,
+    .wrap h1,
+    .wrap h2,
+    .wrap h3,
+    .page-title-action {
+        color: #ffffff !important;
+    }
+
+    /* ===== AGGRESSIVE: All Labels & Text Must Be White/Light ===== */
+
+    /* All labels - Force white */
+    label,
+    label *,
+    th > label,
+    td > label,
+    .form-table label,
+    .form-table th label,
+    .form-table td label,
+    legend,
+    .wp-list-table th,
+    th,
+    strong,
+    b,
+    dt {
+        color: #ffffff !important;
+    }
+
+    /* All body text - Force light grey (but preserve special elements) */
+    p,
+    td,
+    li,
+    dd {
+        color: #e0e0e0 !important;
+    }
+
+    /* Override WordPress core label colors */
+    body.wp-admin label,
+    body.wp-admin th,
+    body.wp-admin .form-table th,
+    body.wp-admin .form-table label,
+    body.wp-admin legend {
+        color: #ffffff !important;
+    }
+
+    /* Checkbox and radio labels */
+    body.wp-admin input[type="checkbox"] + label,
+    body.wp-admin input[type="radio"] + label {
+        color: #e0e0e0 !important;
+    }
+
+    /* Required field asterisks */
+    .text-danger,
+    span.text-danger,
+    .required,
+    abbr[title] {
+        color: #ff6b6b !important;
+    }
+
+    /* ===== Tables ===== */
+
+    /* Table backgrounds - Different shades of grey */
+    .wp-list-table {
+        background: #1a1a1a;
+        color: #e0e0e0;
+        border-color: #333333;
+    }
+
+    .wp-list-table thead th,
+    .wp-list-table tfoot th {
+        background: #0a0a0a;
+        color: #ffffff;
+        border-color: #333333;
+    }
+
+    .wp-list-table tbody tr {
+        background: #1a1a1a;
+        border-color: #333333;
+    }
+
+    .wp-list-table tbody tr:hover,
+    .wp-list-table tr:hover {
+        background: #252525 !important;
+    }
+
+    .wp-list-table.striped tbody tr:nth-child(odd) {
         background: #1e1e1e;
-        border-color: #333;
+    }
+
+    .wp-list-table tbody td {
+        color: #e0e0e0;
+        border-color: #333333;
+    }
+
+    /* Table links */
+    .wp-list-table a {
+        color: #5eb3f6;
+    }
+
+    .wp-list-table a:hover {
+        color: #8ec9ff;
+    }
+
+    /* ===== Forms ===== */
+
+    .form-table {
+        background: #1a1a1a;
+    }
+
+    .form-table th,
+    .form-table td {
+        color: #e0e0e0;
+        border-color: #333333;
+    }
+
+    .form-table th,
+    .form-table th label,
+    .form-table label {
+        color: #ffffff !important;
+    }
+
+    .form-table td label {
+        color: #ffffff !important;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="password"],
+    input[type="search"],
+    .search-box,
+    textarea,
+    select {
+        background: #2a2a2a !important;
+        border-color: #444444 !important;
+        color: #e0e0e0 !important;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    input[type="search"]:focus,
+    .search-box:focus,
+    textarea:focus,
+    select:focus {
+        background: #333333 !important;
+        border-color: #5eb3f6 !important;
+        color: #ffffff !important;
+    }
+
+    /* Search box placeholder */
+    input[type="search"]::placeholder,
+    .search-box::placeholder {
+        color: #999999 !important;
+        opacity: 1;
+    }
+
+    /* ===== Buttons ===== */
+
+    .button,
+    .button-secondary {
+        background: #2a2a2a !important;
+        border-color: #444444 !important;
+        color: #e0e0e0 !important;
+        box-shadow: none !important;
+    }
+
+    .button:hover,
+    .button-secondary:hover {
+        background: #333333 !important;
+        border-color: #555555 !important;
+        color: #ffffff !important;
+    }
+
+    .button-primary {
+        background: #0073aa !important;
+        border-color: #005177 !important;
+        color: #ffffff !important;
+    }
+
+    .button-primary:hover {
+        background: #005177 !important;
+        border-color: #003f5c !important;
+    }
+
+    /* ===== Dashboard Widgets ===== */
+
+    .sm-widget {
+        background: #1a1a1a;
+        border-color: #333333;
         color: #e0e0e0;
     }
 
     .sm-widget-title {
-        color: #e0e0e0;
+        color: #ffffff;
     }
 
     .sm-widget-header {
-        border-bottom-color: #333;
+        border-bottom-color: #333333;
+    }
+
+    .sm-widget-value {
+        color: inherit;
+    }
+
+    .sm-dashboard-header {
+        background: #000000;
+        border-bottom-color: #333333 !important;
+    }
+
+    /* ===== Status Badges ===== */
+
+    .sm-status-badge {
+        background: #2a2a2a !important;
+        border-color: #444444;
+    }
+
+    .sm-status-badge.sm-status-active {
+        background: rgba(70, 180, 80, 0.2) !important;
+        color: #6fd67f;
+    }
+
+    .sm-status-badge.sm-status-inactive {
+        background: rgba(220, 50, 50, 0.2) !important;
+        color: #ff6b6b;
+    }
+
+    .sm-status-badge.sm-status-pending {
+        background: rgba(240, 173, 78, 0.2) !important;
+        color: #ffb84d;
+    }
+
+    /* Portal Access badge (with inline styles) */
+    .sm-status-badge strong,
+    .sm-status-badge .sm-status-dot {
+        color: inherit !important;
+    }
+
+    /* Override light green portal access background */
+    .sm-status-badge[style*="background: #ecf7ed"],
+    .sm-status-badge[style*="background:#ecf7ed"] {
+        background: rgba(70, 180, 80, 0.2) !important;
+    }
+
+    .sm-status-badge strong[style*="color: #46b450"],
+    .sm-status-badge strong[style*="color:#46b450"] {
+        color: #6fd67f !important;
+    }
+
+    /* ===== Notices ===== */
+
+    .notice,
+    .notice-success,
+    .notice-error,
+    .notice-warning,
+    .notice-info {
+        background: #1a1a1a !important;
+        border-left-color: currentColor !important;
+        color: #e0e0e0 !important;
+    }
+
+    .notice-success {
+        border-left-color: #46b450 !important;
+    }
+
+    .notice-error {
+        border-left-color: #dc3232 !important;
+    }
+
+    .notice-warning {
+        border-left-color: #f0ad4e !important;
+    }
+
+    .notice-info {
+        border-left-color: #00a0d2 !important;
+    }
+
+    /* ===== Mobile Cards ===== */
+
+    @media (max-width: 1200px) {
+        /* Override white card backgrounds with dark */
+        .wp-list-table.mobile-card-layout tr {
+            background: #1a1a1a !important;
+            border: 1px solid #333333 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+        }
+
+        .mobile-card-layout tbody tr {
+            background: #1a1a1a !important;
+            border: 1px solid #333333 !important;
+        }
+
+        .mobile-label {
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+
+        .wp-list-table.mobile-card-layout .mobile-label {
+            color: #ffffff !important;
+        }
+
+        .wp-list-table.mobile-card-layout td {
+            border-bottom: 1px solid #2a2a2a !important;
+        }
+
+        .mobile-card-layout tbody td {
+            border-bottom: 1px solid #2a2a2a !important;
+        }
+
+        /* Actions area - dark background */
+        .wp-list-table.mobile-card-layout td.actions,
+        .wp-list-table.mobile-card-layout td.column-actions {
+            background: #0a0a0a !important;
+            border-top: 1px solid #333333 !important;
+        }
+
+        .mobile-card-layout tbody td.actions,
+        .mobile-card-layout tbody td.column-actions {
+            background: #0a0a0a !important;
+            border-top: 1px solid #333333 !important;
+        }
+
+        /* Buttons in actions area */
+        .wp-list-table.mobile-card-layout td.actions .button,
+        .wp-list-table.mobile-card-layout td.column-actions .button {
+            background: #2a2a2a !important;
+            border-color: #444444 !important;
+            color: #e0e0e0 !important;
+        }
+
+        .wp-list-table.mobile-card-layout td.actions .button:hover,
+        .wp-list-table.mobile-card-layout td.column-actions .button:hover {
+            background: #333333 !important;
+            color: #ffffff !important;
+        }
+
+        .wp-list-table.mobile-card-layout td.actions .button-primary,
+        .wp-list-table.mobile-card-layout td.column-actions .button-primary {
+            background: #0073aa !important;
+            color: #ffffff !important;
+        }
+    }
+
+    /* ===== Links ===== */
+
+    a {
+        color: #5eb3f6;
+    }
+
+    a:hover,
+    a:focus {
+        color: #8ec9ff;
+    }
+
+    /* ===== Descriptions & Helper Text ===== */
+
+    .description,
+    .help,
+    p.description {
+        color: #999999 !important;
+    }
+
+    /* Labels in checkboxes and radio buttons */
+    input[type="checkbox"] + label,
+    input[type="radio"] + label {
+        color: #e0e0e0 !important;
+    }
+
+    /* ===== Borders & Separators ===== */
+
+    hr,
+    .hr-separator {
+        border-color: #333333 !important;
+        background: #333333;
+    }
+
+    /* ===== Empty States ===== */
+
+    .sm-empty-state {
+        background: #1a1a1a !important;
+        border-color: #333333 !important;
+        color: #999999;
+    }
+
+    /* ===== Charts (if using Chart.js) ===== */
+
+    canvas {
+        filter: brightness(0.9) contrast(1.1);
+    }
+
+    /* ===== Dashicons ===== */
+
+    .dashicons {
+        color: inherit;
+    }
+
+    /* ===== Pagination ===== */
+
+    .tablenav-pages,
+    .tablenav-pages-navspan {
+        color: #e0e0e0;
+    }
+
+    .tablenav-pages a {
+        background: #2a2a2a;
+        border-color: #444444;
+        color: #e0e0e0;
+    }
+
+    .tablenav-pages a:hover {
+        background: #333333;
+        color: #ffffff;
+    }
+
+    /* ===== Filters & Search ===== */
+
+    .tablenav {
+        background: #0a0a0a;
+        border-color: #333333;
+    }
+
+    /* ===== Header Actions ===== */
+
+    .sm-header-actions {
+        background: transparent;
+    }
+
+    /* ===== Text Colors ===== */
+
+    .text-muted {
+        color: #999999 !important;
+    }
+
+    .text-danger {
+        color: #ff6b6b !important;
+    }
+
+    /* ===== WordPress Core Overrides ===== */
+
+    #adminmenuback,
+    #adminmenuwrap,
+    #adminmenu,
+    #adminmenu .wp-submenu {
+        background: #0a0a0a !important;
+    }
+
+    .wp-submenu {
+        background: #0a0a0a !important;
+    }
+
+    /* WordPress admin bar */
+    #wpadminbar {
+        background: #0a0a0a !important;
+    }
+
+    /* Screen options, help tabs */
+    #screen-meta,
+    #screen-meta-links {
+        background: #1a1a1a !important;
+        border-color: #333333 !important;
+    }
+
+    /* ===== Specific Plugin Elements ===== */
+
+    /* Logo preview */
+    .sm-logo-preview {
+        background: #2a2a2a;
+        border: 1px solid #444444;
+    }
+
+    /* Student/Teacher rows */
+    .sm-student-row,
+    .sm-teacher-row {
+        background: #1a1a1a;
+        border-color: #333333;
+    }
+
+    /* Attendance cards */
+    .sm-class-card {
+        background: #1a1a1a;
+        border-color: #333333;
+    }
+
+    .sm-class-card:hover {
+        background: #252525;
+    }
+
+    /* History tables */
+    .sm-history-table {
+        background: #1a1a1a;
+    }
+
+    .sm-history-group {
+        background: #1a1a1a;
+        border-color: #333333;
+    }
+
+    .sm-history-header {
+        background: #0a0a0a;
+        border-bottom-color: #333333;
     }
 }
 

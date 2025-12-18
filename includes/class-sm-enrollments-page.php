@@ -670,7 +670,7 @@ class SM_Enrollments_Page {
                     <?php if ( ! empty( $order ) ) : ?>
                         <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>" />
                     <?php endif; ?>
-                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search students, courses...', 'CTADZ-school-management' ); ?>" style="width: 250px;" />
+                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Enter enrollment information', 'CTADZ-school-management' ); ?>" />
                     <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                     <?php if ( ! empty( $search ) ) : ?>
                         <a href="<?php echo esc_url( remove_query_arg( 's' ) ); ?>" class="button"><?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?></a>

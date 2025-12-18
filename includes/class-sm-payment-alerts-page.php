@@ -180,9 +180,8 @@ class SM_Payment_Alerts_Page {
                     <input type="hidden" name="page" value="school-management-payment-alerts">
                     <input type="hidden" name="filter" value="<?php echo esc_attr( $filter ); ?>">
                     
-                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" 
-                           placeholder="<?php esc_attr_e( 'Search by student or course...', 'CTADZ-school-management' ); ?>"
-                           style="width: 250px;">
+                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>"
+                           placeholder="<?php esc_attr_e( 'Enter student or course', 'CTADZ-school-management' ); ?>">
                     
                     <select name="level">
                         <option value=""><?php esc_html_e( 'All Levels', 'CTADZ-school-management' ); ?></option>

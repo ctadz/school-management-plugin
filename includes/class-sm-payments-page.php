@@ -303,11 +303,11 @@ class SM_Payments_Page {
                 <?php if ( ! empty( $filter_status ) ) : ?>
                     <input type="hidden" name="filter_status" value="<?php echo esc_attr( $filter_status ); ?>">
                 <?php endif; ?>
-                <input type="search" 
-                       name="s" 
-                       value="<?php echo esc_attr( $search ); ?>" 
-                       placeholder="<?php esc_attr_e( 'Search by student, course, or payment plan...', 'CTADZ-school-management' ); ?>"
-                       style="width: 300px; margin-right: 5px;">
+                <input type="search"
+                       name="s"
+                       value="<?php echo esc_attr( $search ); ?>"
+                       placeholder="<?php esc_attr_e( 'Enter payment information', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                 <?php if ( ! empty( $search ) ) : ?>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'school-management-payments', 'filter_status' => $filter_status ), admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left: 5px;">
