@@ -59,7 +59,7 @@ class SM_Payment_Terms_Page {
                 }
             } else {
                 echo '<div class="error notice"><p><strong>' . esc_html__( 'Please correct the following errors:', 'CTADZ-school-management' ) . '</strong></p>';
-                echo '<ul style="margin-left: 20px;">';
+                echo '<ul class="ml-10">';
                 foreach ( $validation_result['errors'] as $error ) {
                     echo '<li>' . esc_html( $error ) . '</li>';
                 }
@@ -162,59 +162,80 @@ class SM_Payment_Terms_Page {
         $terms = $wpdb->get_results( "SELECT * FROM $table ORDER BY sort_order ASC, name ASC" );
 
         ?>
-        <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="sm-header-actions d-flex justify-between align-items-center mb-20">
             <div>
-                <h2 style="margin: 0;"><?php esc_html_e( 'Payment Terms', 'CTADZ-school-management' ); ?></h2>
+                <h2 class="m-0"><?php esc_html_e( 'Payment Terms', 'CTADZ-school-management' ); ?></h2>
                 <p class="description"><?php esc_html_e( 'Manage payment schedules for teachers', 'CTADZ-school-management' ); ?></p>
             </div>
             <div>
                 <a href="?page=school-management-payment-terms&action=add" class="button button-primary">
-                    <span class="dashicons dashicons-plus-alt" style="vertical-align: middle;"></span>
+                    <span class="dashicons dashicons-plus-alt align-middle"></span>
                     <?php esc_html_e( 'Add New Payment Term', 'CTADZ-school-management' ); ?>
                 </a>
             </div>
         </div>
 
         <?php if ( $terms ) : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Order', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Percentage', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Sort Order', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
-                        <th style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ( $terms as $term ) : ?>
                         <tr>
-                            <td><?php echo intval( $term->sort_order ); ?></td>
-                            <td><strong><?php echo esc_html( $term->name ); ?></strong></td>
-                            <td><?php echo esc_html( $term->description ?: '—' ); ?></td>
-                            <td><?php echo esc_html( number_format( $term->percentage, 2 ) . '%' ); ?></td>
-                            <td>
+                            <td data-label="<?php esc_attr_e( 'Name', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?>:</span>
+                                <strong><?php echo esc_html( $term->name ); ?></strong>
+                            </td>
+                            <td data-label="<?php esc_attr_e( 'Description', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $term->description ?: '—' ); ?>
+                            </td>
+                            <td data-label="<?php esc_attr_e( 'Percentage', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Percentage', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( number_format( $term->percentage, 2 ) . '%' ); ?>
+                            </td>
+                            <td data-label="<?php esc_attr_e( 'Sort Order', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Sort Order', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo intval( $term->sort_order ); ?>
+                            </td>
+                            <td data-label="<?php esc_attr_e( 'Status', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $term->is_active ) : ?>
-                                    <span style="color: #46b450;">● <?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></span>
+                                    <span class="sm-status-badge sm-status-active">
+                                        <span class="sm-status-dot"></span>
+                                        <?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?>
+                                    </span>
                                 <?php else : ?>
-                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
+                                    <span class="sm-status-badge sm-status-inactive">
+                                        <span class="sm-status-dot"></span>
+                                        <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?>
+                                    </span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td data-label="<?php esc_attr_e( 'Actions', 'CTADZ-school-management' ); ?>" class="actions">
                                 <a href="?page=school-management-payment-terms&action=edit&term_id=<?php echo intval( $term->id ); ?>" class="button button-small">
-                                    <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
+                                    <span class="dashicons dashicons-edit align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-payment-terms&delete=' . intval( $term->id ), 
-                                    'sm_delete_term_' . intval( $term->id ) 
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-payment-terms&delete=' . intval( $term->id ),
+                                    'sm_delete_term_' . intval( $term->id )
                                 );
                                 ?>
-                                <a href="<?php echo esc_url( $delete_url ); ?>" 
+                                <a href="<?php echo esc_url( $delete_url ); ?>"
                                    class="button button-small button-link-delete"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this payment term?', 'CTADZ-school-management' ) ); ?>')">
-                                    <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
+                                    <span class="dashicons dashicons-trash align-middle text-danger"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Delete', 'CTADZ-school-management' ); ?></span>
                                 </a>
                             </td>
                         </tr>
@@ -250,12 +271,12 @@ class SM_Payment_Terms_Page {
         }
         
         ?>
-        <div class="sm-form-header" style="margin-bottom: 20px;">
+        <div class="sm-form-header mb-20">
             <a href="?page=school-management-payment-terms" class="button">
-                <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
+                <span class="dashicons dashicons-arrow-left-alt2 align-middle"></span>
                 <?php esc_html_e( 'Back to Payment Terms', 'CTADZ-school-management' ); ?>
             </a>
-            <h2 style="display: inline-block; margin-left: 10px;">
+            <h2 class="d-inline-block ml-10">
                 <?php echo $is_edit ? esc_html__( 'Edit Payment Term', 'CTADZ-school-management' ) : esc_html__( 'Add New Payment Term', 'CTADZ-school-management' ); ?>
             </h2>
         </div>
@@ -267,7 +288,7 @@ class SM_Payment_Terms_Page {
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="term_name"><?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
+                        <label for="term_name"><?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?> <span class="text-danger">*</span></label>
                     </th>
                     <td>
                         <input type="text" id="term_name" name="name" value="<?php echo esc_attr( $form_data['name'] ?? '' ); ?>" class="regular-text" required />
@@ -320,13 +341,13 @@ class SM_Payment_Terms_Page {
             </table>
 
             <p class="submit">
-                <?php submit_button( 
-                    $is_edit ? __( 'Update Payment Term', 'CTADZ-school-management' ) : __( 'Add Payment Term', 'CTADZ-school-management' ), 
-                    'primary', 
-                    'sm_save_term', 
-                    false 
+                <?php submit_button(
+                    $is_edit ? __( 'Update Payment Term', 'CTADZ-school-management' ) : __( 'Add Payment Term', 'CTADZ-school-management' ),
+                    'primary',
+                    'sm_save_term',
+                    false
                 ); ?>
-                <a href="?page=school-management-payment-terms" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-payment-terms" class="button ml-10"><?php esc_html_e( 'Cancel', 'CTADZ-school-management' ); ?></a>
             </p>
         </form>
         <?php

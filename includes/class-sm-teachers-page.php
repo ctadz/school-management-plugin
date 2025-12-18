@@ -646,7 +646,7 @@ class SM_Teachers_Page {
         </div>
 
         <?php if ( $teachers ) : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout">
                 <thead>
                     <tr>
                         <th class="non-sortable" style="width: 60px;"><?php esc_html_e( 'Picture', 'CTADZ-school-management' ); ?></th>
@@ -692,45 +692,65 @@ class SM_Teachers_Page {
                 <tbody>
                     <?php foreach ( $teachers as $teacher ) : ?>
                         <tr>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Picture', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Picture', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $teacher->picture ) : ?>
                                     <img src="<?php echo esc_url( $teacher->picture ); ?>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" alt="<?php echo esc_attr( $teacher->first_name . ' ' . $teacher->last_name ); ?>" />
                                 <?php else : ?>
                                     <div style="width:40px;height:40px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">No Photo</div>
                                 <?php endif; ?>
                             </td>
-                            <td><strong><?php echo esc_html( $teacher->first_name . ' ' . $teacher->last_name ); ?></strong></td>
-                            <td><?php echo esc_html( $teacher->email ); ?></td>
-                            <td><?php echo esc_html( $teacher->phone ); ?></td>
-                            <td><?php echo esc_html( $teacher->payment_term_name ?: '—' ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Name', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Name', 'CTADZ-school-management' ); ?>:</span>
+                                <strong><?php echo esc_html( $teacher->first_name . ' ' . $teacher->last_name ); ?></strong>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Email', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Email', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $teacher->email ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Phone', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Phone', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $teacher->phone ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Payment Term', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Payment Term', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $teacher->payment_term_name ?: '—' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Courses', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Courses', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $count = intval( $teacher->course_count );
                                 if ( $count > 0 ) {
-                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'course', 'courses', $count, 'CTADZ-school-management' ) ) . '</span>';
+                                    echo '<span class="text-primary"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'course', 'courses', $count, 'CTADZ-school-management' ) ) . '</span>';
                                 } else {
-                                    echo '<span style="color: #999;">' . esc_html__( 'No courses', 'CTADZ-school-management' ) . '</span>';
+                                    echo '<span class="text-muted">' . esc_html__( 'No courses', 'CTADZ-school-management' ) . '</span>';
                                 }
                                 ?>
                             </td>
-                            <td><?php echo esc_html( number_format( $teacher->hourly_rate, 2 ) ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Hourly Rate', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Hourly Rate', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( number_format( $teacher->hourly_rate, 2 ) ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Status', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $teacher->is_active ) : ?>
                                     <span style="color: #46b450;">● <?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
+                                    <span class="text-danger">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Account', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Account', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $teacher->has_account ) : ?>
                                     <span style="color: #46b450;">✓ <?php esc_html_e( 'Created', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #999;">— <?php esc_html_e( 'None', 'CTADZ-school-management' ); ?></span>
+                                    <span class="text-muted">— <?php esc_html_e( 'None', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td class="actions">
                                 <a href="?page=school-management-teachers&action=edit&teacher_id=<?php echo intval( $teacher->id ); ?>" class="button button-small">
-                                    <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
+                                    <span class="dashicons dashicons-edit align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php if ( ! $teacher->has_account && $teacher->is_active ) : ?>
                                     <?php
@@ -742,7 +762,8 @@ class SM_Teachers_Page {
                                     <a href="<?php echo esc_url( $create_account_url ); ?>"
                                        class="button button-small"
                                        title="<?php esc_attr_e( 'Create Account', 'CTADZ-school-management' ); ?>">
-                                        <span class="dashicons dashicons-admin-users" style="vertical-align: middle;"></span>
+                                        <span class="dashicons dashicons-admin-users align-middle"></span>
+                                        <span class="button-text"><?php esc_html_e( 'Create Account', 'CTADZ-school-management' ); ?></span>
                                     </a>
                                 <?php endif; ?>
                                 <?php
@@ -752,9 +773,10 @@ class SM_Teachers_Page {
                                 );
                                 ?>
                                 <a href="<?php echo esc_url( $delete_url ); ?>"
-                                   class="button button-small button-link-delete"
+                                   class="button button-small button-link-delete text-danger"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this teacher?', 'CTADZ-school-management' ) ); ?>')">
-                                    <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
+                                    <span class="dashicons dashicons-trash align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Delete', 'CTADZ-school-management' ); ?></span>
                                 </a>
                             </td>
                         </tr>

@@ -347,7 +347,7 @@ class SM_Classrooms_Page {
         </div>
 
         <?php if ( $classrooms ) : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout">
                 <thead>
                     <tr>
                         <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
@@ -381,31 +381,46 @@ class SM_Classrooms_Page {
                 <tbody>
                     <?php foreach ( $classrooms as $classroom ) : ?>
                         <tr>
-                            <td><strong><?php echo esc_html( $classroom->name ); ?></strong></td>
-                            <td><?php echo intval( $classroom->capacity ); ?> <?php esc_html_e( 'students', 'CTADZ-school-management' ); ?></td>
-                            <td><?php echo esc_html( $classroom->location ?: '—' ); ?></td>
-                            <td><?php echo intval( $classroom->course_count ); ?> <?php esc_html_e( 'course(s)', 'CTADZ-school-management' ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Classroom Name', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Classroom Name', 'CTADZ-school-management' ); ?>:</span>
+                                <strong><?php echo esc_html( $classroom->name ); ?></strong>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Capacity', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Capacity', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo intval( $classroom->capacity ); ?> <?php esc_html_e( 'students', 'CTADZ-school-management' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Location', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Location', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $classroom->location ?: '—' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Courses', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Courses', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo intval( $classroom->course_count ); ?> <?php esc_html_e( 'course(s)', 'CTADZ-school-management' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Status', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $classroom->is_active ) : ?>
                                     <span style="color: #46b450;">● <?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
+                                    <span class="text-danger">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td class="actions">
                                 <a href="?page=school-management-classrooms&action=edit&classroom_id=<?php echo intval( $classroom->id ); ?>" class="button button-small">
-                                    <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
+                                    <span class="dashicons dashicons-edit align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-classrooms&delete=' . intval( $classroom->id ), 
-                                    'sm_delete_classroom_' . intval( $classroom->id ) 
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-classrooms&delete=' . intval( $classroom->id ),
+                                    'sm_delete_classroom_' . intval( $classroom->id )
                                 );
                                 ?>
-                                <a href="<?php echo esc_url( $delete_url ); ?>" 
-                                   class="button button-small button-link-delete"
+                                <a href="<?php echo esc_url( $delete_url ); ?>"
+                                   class="button button-small button-link-delete text-danger"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this classroom?', 'CTADZ-school-management' ) ); ?>')">
-                                    <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
+                                    <span class="dashicons dashicons-trash align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Delete', 'CTADZ-school-management' ); ?></span>
                                 </a>
                             </td>
                         </tr>

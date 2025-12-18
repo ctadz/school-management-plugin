@@ -117,11 +117,11 @@ class SM_Settings_Page {
         $settings = get_option( 'sm_school_settings', [] );
         $logo = $settings['logo'] ?? '';
         ?>
-        <input type="text" id="sm_school_logo" name="sm_school_settings[logo]" value="<?php echo esc_attr( $logo ); ?>" style="width: 300px;" />
+        <input type="text" id="sm_school_logo" name="sm_school_settings[logo]" value="<?php echo esc_attr( $logo ); ?>" class="regular-text" />
         <button type="button" class="button sm-upload-logo"><?php esc_html_e( 'Upload Logo', 'CTADZ-school-management' ); ?></button>
         <?php if ( $logo ) : ?>
-            <div class="sm-logo-preview" style="margin-top:10px;">
-                <img id="sm_school_logo_preview" src="<?php echo esc_url( $logo ); ?>" style="max-height:80px;" />
+            <div class="sm-logo-preview mt-10">
+                <img id="sm_school_logo_preview" src="<?php echo esc_url( $logo ); ?>" alt="<?php esc_attr_e( 'School Logo', 'CTADZ-school-management' ); ?>" style="max-height:80px;" />
             </div>
         <?php endif;
     }

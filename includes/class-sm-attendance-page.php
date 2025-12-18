@@ -558,7 +558,7 @@ class SM_Attendance_Page {
         // Sort by date descending (most recent first)
         krsort( $grouped );
 
-        echo '<p class="description" style="margin-bottom: 20px;">';
+        echo '<p class="description mb-20">';
         echo esc_html__( 'Classes below need attendance marked. Click on a class card to mark attendance. To edit existing attendance, use the "Attendance History" tab.', 'CTADZ-school-management' );
         echo '</p>';
 
@@ -771,7 +771,7 @@ class SM_Attendance_Page {
 
             $status_badge = '';
             if ( $attendance_count > 0 ) {
-                $status_badge = '<span style="display: inline-block; padding: 3px 8px; background: #46b450; color: #fff; border-radius: 3px; font-size: 11px; margin-left: 10px;">✓ Marked</span>';
+                $status_badge = '<span class="sm-attendance-marked-badge">✓ Marked</span>';
             }
 
             $html .= '<div class="sm-class-card"
@@ -1056,7 +1056,7 @@ class SM_Attendance_Page {
                      data-course-id="' . esc_attr( $course_id ) . '" data-date="' . esc_attr( $date ) . '">';
 
         if ( $is_readonly ) {
-            $html .= '<div class="notice notice-info inline" style="margin: 0 0 15px 0; padding: 10px;"><p>';
+            $html .= '<div class="notice notice-info inline mb-15 p-10"><p>';
             $html .= '<strong>' . __( 'Read-Only Mode:', 'CTADZ-school-management' ) . '</strong> ';
             $html .= __( 'Attendance has already been submitted for this class. Only administrators can edit submitted attendance.', 'CTADZ-school-management' );
             $html .= '</p></div>';
@@ -1072,7 +1072,7 @@ class SM_Attendance_Page {
             $html .= '<div class="sm-student-row" data-student-id="' . esc_attr( $student->id ) . '">';
             $html .= '<div class="sm-student-name">' . esc_html( $student->name );
             if ( $student->student_code ) {
-                $html .= ' <span style="color: #999; font-size: 12px;">(' . esc_html( $student->student_code ) . ')</span>';
+                $html .= ' <span class="text-muted" style="font-size: 12px;">(' . esc_html( $student->student_code ) . ')</span>';
             }
             $html .= '</div>';
 
@@ -1282,7 +1282,7 @@ class SM_Attendance_Page {
             $html .= '<div>';
             $html .= '<h3>' . esc_html( $group['course_name'] ) . '</h3>';
             $html .= '</div>';
-            $html .= '<div style="display: flex; align-items: center; gap: 10px;">';
+            $html .= '<div class="d-flex align-items-center gap-10">';
             $html .= '<span class="sm-history-date">' . esc_html( $date_formatted ) . '</span>';
             if ( $is_admin ) {
                 $html .= '<button type="button" class="button button-small sm-edit-attendance-btn"
@@ -1299,7 +1299,7 @@ class SM_Attendance_Page {
             $html .= '<span class="sm-summary-item sm-summary-late"><strong>' . __( 'Late:', 'CTADZ-school-management' ) . '</strong> ' . $late_count . '</span>';
             $html .= '</div>';
 
-            $html .= '<table class="sm-history-table">';
+            $html .= '<table class="sm-history-table mobile-card-layout">';
             $html .= '<thead><tr>';
             $html .= '<th>' . __( 'Student', 'CTADZ-school-management' ) . '</th>';
             $html .= '<th>' . __( 'Code', 'CTADZ-school-management' ) . '</th>';
@@ -1310,11 +1310,21 @@ class SM_Attendance_Page {
 
             foreach ( $group['students'] as $student ) {
                 $html .= '<tr>';
-                $html .= '<td>' . esc_html( $student->student_name ) . '</td>';
-                $html .= '<td>' . esc_html( $student->student_code ?: '-' ) . '</td>';
-                $html .= '<td><span class="sm-status-badge ' . esc_attr( $student->status ) . '">' . esc_html( ucfirst( $student->status ) ) . '</span></td>';
-                $html .= '<td>' . esc_html( $student->notes ?: '-' ) . '</td>';
-                $html .= '<td>' . esc_html( $student->marked_by_name ?: '-' ) . '</td>';
+                $html .= '<td data-label="' . esc_attr__( 'Student', 'CTADZ-school-management' ) . '">';
+                $html .= '<span class="mobile-label">' . __( 'Student', 'CTADZ-school-management' ) . ':</span>';
+                $html .= esc_html( $student->student_name ) . '</td>';
+                $html .= '<td data-label="' . esc_attr__( 'Code', 'CTADZ-school-management' ) . '">';
+                $html .= '<span class="mobile-label">' . __( 'Code', 'CTADZ-school-management' ) . ':</span>';
+                $html .= esc_html( $student->student_code ?: '-' ) . '</td>';
+                $html .= '<td data-label="' . esc_attr__( 'Status', 'CTADZ-school-management' ) . '">';
+                $html .= '<span class="mobile-label">' . __( 'Status', 'CTADZ-school-management' ) . ':</span>';
+                $html .= '<span class="sm-status-badge ' . esc_attr( $student->status ) . '">' . esc_html( ucfirst( $student->status ) ) . '</span></td>';
+                $html .= '<td data-label="' . esc_attr__( 'Notes', 'CTADZ-school-management' ) . '">';
+                $html .= '<span class="mobile-label">' . __( 'Notes', 'CTADZ-school-management' ) . ':</span>';
+                $html .= esc_html( $student->notes ?: '-' ) . '</td>';
+                $html .= '<td data-label="' . esc_attr__( 'Marked By', 'CTADZ-school-management' ) . '">';
+                $html .= '<span class="mobile-label">' . __( 'Marked By', 'CTADZ-school-management' ) . ':</span>';
+                $html .= esc_html( $student->marked_by_name ?: '-' ) . '</td>';
                 $html .= '</tr>';
             }
 
