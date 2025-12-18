@@ -214,15 +214,15 @@ class SM_Payment_Alerts_Page {
 
             <?php if ( $alerts ) : ?>
                 <p style="color: #666;">
-                    <?php 
-                    printf( 
+                    <?php
+                    printf(
                         esc_html__( 'Showing %d payment alerts', 'CTADZ-school-management' ),
                         count( $alerts )
-                    ); 
+                    );
                     ?>
                 </p>
 
-                <table class="wp-list-table widefat fixed striped">
+                <table class="wp-list-table widefat fixed striped mobile-card-layout">
                     <thead>
                         <tr>
                             <th><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?></th>
@@ -235,12 +235,13 @@ class SM_Payment_Alerts_Page {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ( $alerts as $alert ) : 
+                        <?php foreach ( $alerts as $alert ) :
                             $is_overdue = $alert->days_overdue > 0;
                             $balance = floatval( $alert->balance );
                         ?>
                             <tr>
-                                <td>
+                                <td data-label="<?php echo esc_attr__( 'Student', 'CTADZ-school-management' ); ?>">
+                                    <span class="mobile-label"><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?>:</span>
                                     <strong><?php echo esc_html( $alert->student_name ); ?></strong>
                                     <?php if ( $alert->email ) : ?>
                                         <br><small style="color: #666;">📧 <?php echo esc_html( $alert->email ); ?></small>

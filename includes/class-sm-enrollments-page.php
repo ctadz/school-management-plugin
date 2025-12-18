@@ -735,7 +735,7 @@ class SM_Enrollments_Page {
         </script>
 
         <?php if ( $enrollments ) : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout">
                 <thead>
                     <tr>
                         <th class="<?php echo $orderby === 'student_name' ? 'sorted' : 'sortable'; ?>">
@@ -771,11 +771,18 @@ class SM_Enrollments_Page {
                 <tbody>
                     <?php foreach ( $enrollments as $enrollment ) : ?>
                         <tr>
-                            <td><strong><?php echo esc_html( $enrollment->student_name ?: '—' ); ?></strong></td>
-                            <td><?php echo esc_html( $enrollment->course_name ?: '—' ); ?></td>
-                            
+                            <td data-label="<?php echo esc_attr__( 'Student', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?>:</span>
+                                <strong><?php echo esc_html( $enrollment->student_name ?: '—' ); ?></strong>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Course', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $enrollment->course_name ?: '—' ); ?>
+                            </td>
+
                             <!-- Payment Model Badge -->
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Payment Model', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 // Payment model display with icons and colors (matching Courses List)
                                 $payment_model_display = [
@@ -807,9 +814,10 @@ class SM_Enrollments_Page {
                                     <strong style="color: <?php echo esc_attr( $display['color'] ); ?>;"><?php echo esc_html( $display['label'] ); ?></strong>
                                 </span>
                             </td>
-                            
+
                             <!-- Payment Plan -->
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Payment Plan', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Payment Plan', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $payment_plan_labels = [
                                     'monthly' => __( 'Monthly', 'CTADZ-school-management' ),
@@ -820,9 +828,10 @@ class SM_Enrollments_Page {
                                 echo esc_html( $plan_label );
                                 ?>
                             </td>
-                            
+
                             <!-- Payment Progress -->
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Payment Progress', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Payment Progress', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $progress = round( $enrollment->payment_progress );
                                 $progress_class = $progress >= 75 ? 'high' : ( $progress >= 40 ? 'medium' : 'low' );
@@ -833,8 +842,8 @@ class SM_Enrollments_Page {
                                     </div>
                                 </div>
                                 <div style="font-size: 11px; color: #666; text-align: center;">
-                                    <?php 
-                                    printf( 
+                                    <?php
+                                    printf(
                                         esc_html__( '%s / %s', 'CTADZ-school-management' ),
                                         '<strong>' . number_format( $enrollment->paid_amount, 2 ) . '</strong>',
                                         number_format( $enrollment->total_amount, 2 )
@@ -842,11 +851,15 @@ class SM_Enrollments_Page {
                                     ?>
                                 </div>
                             </td>
-                            
-                            <td><?php echo esc_html( date( 'M j, Y', strtotime( $enrollment->enrollment_date ) ) ); ?></td>
-                            
+
+                            <td data-label="<?php echo esc_attr__( 'Enrolled', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Enrolled', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( date( 'M j, Y', strtotime( $enrollment->enrollment_date ) ) ); ?>
+                            </td>
+
                             <!-- Enrollment Status -->
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Status', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $status_colors = [
                                     'active' => '#46b450',
@@ -865,22 +878,24 @@ class SM_Enrollments_Page {
                                 ?>
                                 <span style="color: <?php echo esc_attr( $color ); ?>;">● <?php echo esc_html( $label ); ?></span>
                             </td>
-                            
+
                             <!-- Actions -->
-                            <td>
+                            <td class="actions">
                                 <a href="?page=school-management-enrollments&action=edit&enrollment_id=<?php echo intval( $enrollment->id ); ?>" class="button button-small">
-                                    <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
+                                    <span class="dashicons dashicons-edit"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-enrollments&delete=' . intval( $enrollment->id ), 
-                                    'sm_delete_enrollment_' . intval( $enrollment->id ) 
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-enrollments&delete=' . intval( $enrollment->id ),
+                                    'sm_delete_enrollment_' . intval( $enrollment->id )
                                 );
                                 ?>
-                                <a href="<?php echo esc_url( $delete_url ); ?>" 
+                                <a href="<?php echo esc_url( $delete_url ); ?>"
                                    class="button button-small button-link-delete"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this enrollment?', 'CTADZ-school-management' ) ); ?>')">
-                                    <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
+                                    <span class="dashicons dashicons-trash text-danger"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Delete', 'CTADZ-school-management' ); ?></span>
                                 </a>
                             </td>
                         </tr>

@@ -332,7 +332,7 @@ class SM_Levels_Page {
         </div>
 
         <?php if ( $levels ) : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout">
                 <thead>
                     <tr>
                         <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
@@ -367,50 +367,64 @@ class SM_Levels_Page {
                 <tbody>
                     <?php foreach ( $levels as $level ) : ?>
                         <tr>
-                            <td><strong><?php echo esc_html( $level->name ); ?></strong></td>
-                            <td><?php echo esc_html( $level->description ?: '—' ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Level Name', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Level Name', 'CTADZ-school-management' ); ?>:</span>
+                                <strong><?php echo esc_html( $level->name ); ?></strong>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Description', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $level->description ?: '—' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Students', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Students', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $student_count = intval( $level->student_count );
                                 if ( $student_count > 0 ) {
-                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $student_count ) . '</strong> ' . esc_html( _n( 'student', 'students', $student_count, 'CTADZ-school-management' ) ) . '</span>';
+                                    echo '<span class="text-primary"><strong>' . esc_html( $student_count ) . '</strong> ' . esc_html( _n( 'student', 'students', $student_count, 'CTADZ-school-management' ) ) . '</span>';
                                 } else {
-                                    echo '<span style="color: #999;">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
+                                    echo '<span class="text-muted">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
                                 }
                                 ?>
                             </td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Courses', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Courses', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $course_count = intval( $level->course_count );
                                 if ( $course_count > 0 ) {
-                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $course_count ) . '</strong> ' . esc_html( _n( 'course', 'courses', $course_count, 'CTADZ-school-management' ) ) . '</span>';
+                                    echo '<span class="text-primary"><strong>' . esc_html( $course_count ) . '</strong> ' . esc_html( _n( 'course', 'courses', $course_count, 'CTADZ-school-management' ) ) . '</span>';
                                 } else {
-                                    echo '<span style="color: #999;">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
+                                    echo '<span class="text-muted">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
                                 }
                                 ?>
                             </td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Status', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $level->is_active ) : ?>
                                     <span style="color: #46b450;">● <?php esc_html_e( 'Active', 'CTADZ-school-management' ); ?></span>
                                 <?php else : ?>
-                                    <span style="color: #dc3232;">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
+                                    <span class="text-danger">● <?php esc_html_e( 'Inactive', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo intval( $level->sort_order ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Order', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Order', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo intval( $level->sort_order ); ?>
+                            </td>
+                            <td class="actions">
                                 <a href="?page=school-management-levels&action=edit&level_id=<?php echo intval( $level->id ); ?>" class="button button-small">
-                                    <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
+                                    <span class="dashicons dashicons-edit align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-levels&delete=' . intval( $level->id ), 
-                                    'sm_delete_level_' . intval( $level->id ) 
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-levels&delete=' . intval( $level->id ),
+                                    'sm_delete_level_' . intval( $level->id )
                                 );
                                 ?>
-                                <a href="<?php echo esc_url( $delete_url ); ?>" 
-                                   class="button button-small button-link-delete"
+                                <a href="<?php echo esc_url( $delete_url ); ?>"
+                                   class="button button-small button-link-delete text-danger"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this level?', 'CTADZ-school-management' ) ); ?>')">
-                                    <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
+                                    <span class="dashicons dashicons-trash align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Delete', 'CTADZ-school-management' ); ?></span>
                                 </a>
                             </td>
                         </tr>

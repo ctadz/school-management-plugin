@@ -28,6 +28,12 @@ class SM_Admin_Menu {
     public static function add_menu_icon_styles() {
         ?>
         <style>
+            /* Menu icon utility class */
+            .sm-menu-icon {
+                font-size: 17px !important;
+                vertical-align: middle !important;
+            }
+
             /* Main menu icon - School Management */
             #adminmenu .toplevel_page_school-management .wp-menu-image img {
                 opacity: 1 !important;
@@ -196,7 +202,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Dashboard', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-dashboard" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Dashboard', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-dashboard sm-menu-icon"></span> ' . __( 'Dashboard', 'CTADZ-school-management' ),
             'manage_school',
             'school-management',
             [ __CLASS__, 'render_dashboard' ]
@@ -206,7 +212,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Students', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-groups" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Students', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-groups sm-menu-icon"></span> ' . __( 'Students', 'CTADZ-school-management' ),
             'manage_students',
             'school-management-students',
             [ 'SM_Students_Page', 'render_students_page' ]
@@ -216,7 +222,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Teachers', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-businessperson" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Teachers', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-businessperson" class="sm-menu-icon"></span> ' . __( 'Teachers', 'CTADZ-school-management' ),
             'manage_teachers',
             'school-management-teachers',
             [ 'SM_Teachers_Page', 'render_teachers_page' ]
@@ -226,7 +232,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Courses', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-book" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Courses', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-book" class="sm-menu-icon"></span> ' . __( 'Courses', 'CTADZ-school-management' ),
             'manage_courses',
             'school-management-courses',
             [ 'SM_Courses_Page', 'render_courses_page' ]
@@ -236,7 +242,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Levels', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-awards" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Levels', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-awards" class="sm-menu-icon"></span> ' . __( 'Levels', 'CTADZ-school-management' ),
             'manage_levels',
             'school-management-levels',
             [ 'SM_Levels_Page', 'render_levels_page' ]
@@ -246,7 +252,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Classrooms', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-building" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Classrooms', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-building" class="sm-menu-icon"></span> ' . __( 'Classrooms', 'CTADZ-school-management' ),
             'manage_classrooms',
             'school-management-classrooms',
             [ 'SM_Classrooms_Page', 'render_classrooms_page' ]
@@ -256,7 +262,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Enrollments', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-welcome-learn-more" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Enrollments', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-welcome-learn-more" class="sm-menu-icon"></span> ' . __( 'Enrollments', 'CTADZ-school-management' ),
             'manage_enrollments',
             'school-management-enrollments',
             [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
@@ -266,7 +272,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Attendance', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-yes-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Attendance', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-yes-alt" class="sm-menu-icon"></span> ' . __( 'Attendance', 'CTADZ-school-management' ),
             'view_attendance',
             'school-management-attendance',
             [ 'SM_Attendance_Page', 'render_attendance_page' ]
@@ -276,7 +282,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Payment Terms', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-calendar-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Payment Terms', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-calendar-alt" class="sm-menu-icon"></span> ' . __( 'Payment Terms', 'CTADZ-school-management' ),
             'manage_payments',
             'school-management-payment-terms',
             [ 'SM_Payment_Terms_Page', 'render_payment_terms_page' ]
@@ -286,7 +292,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Payments', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-money-alt" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Payments', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-money-alt" class="sm-menu-icon"></span> ' . __( 'Payments', 'CTADZ-school-management' ),
             'manage_payments',
             'school-management-payments',
             [ 'SM_Payments_Page', 'render_payments_page' ]
@@ -296,7 +302,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Payment Alerts', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-warning" style="font-size: 17px; vertical-align: middle; color: #dc2626;"></span> ' . __( 'Payment Alerts', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-warning sm-menu-icon" style="color: #dc2626;"></span> ' . __( 'Payment Alerts', 'CTADZ-school-management' ),
             'manage_payments',
             'school-management-payment-alerts',
             [ 'SM_Payment_Alerts_Page', 'render_page' ]
@@ -310,7 +316,7 @@ class SM_Admin_Menu {
         add_submenu_page(
             'school-management',
             __( 'Settings', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-admin-generic" style="font-size: 17px; vertical-align: middle;"></span> ' . __( 'Settings', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-admin-generic" class="sm-menu-icon"></span> ' . __( 'Settings', 'CTADZ-school-management' ),
             'manage_school_settings',
             'school-management-settings',
             [ 'SM_Settings_Page', 'render_settings_page' ]

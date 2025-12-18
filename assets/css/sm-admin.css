@@ -442,6 +442,432 @@ textarea:focus {
     }
 }
 
+/* =================================================
+   RESPONSIVE TABLES - CARD LAYOUT FOR MOBILE
+   ================================================= */
+
+/* Mobile Table Card Layout - Converts tables to stacked cards */
+/* Increased breakpoint to 1200px to include tablets */
+@media (max-width: 1200px) {
+    /* Force table to not be like tables anymore */
+    .wp-list-table.mobile-card-layout,
+    .wp-list-table.mobile-card-layout thead,
+    .wp-list-table.mobile-card-layout tbody,
+    .wp-list-table.mobile-card-layout th,
+    .wp-list-table.mobile-card-layout td,
+    .wp-list-table.mobile-card-layout tr {
+        display: block;
+    }
+
+    /* Hide table headers (but not display: none;, for accessibility) */
+    .wp-list-table.mobile-card-layout thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .wp-list-table.mobile-card-layout tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #fff;
+        padding: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Mobile labels - hidden on desktop, shown on mobile */
+    .mobile-label {
+        display: none;
+    }
+
+    .wp-list-table.mobile-card-layout .mobile-label {
+        display: inline-block;
+        font-weight: 600;
+        color: #1d2327;
+        margin-right: 8px;
+        min-width: 120px;
+    }
+
+    .wp-list-table.mobile-card-layout td {
+        /* Behave like a "row" */
+        border: none;
+        border-bottom: 1px solid #f0f0f1;
+        position: relative;
+        padding: 10px;
+        text-align: left;
+        min-height: 40px;
+        display: block;
+    }
+
+    .wp-list-table.mobile-card-layout td:before {
+        /* Hide the CSS-generated label since we're using HTML labels */
+        display: none;
+    }
+
+    /* Actions column */
+    .wp-list-table.mobile-card-layout td.actions,
+    .wp-list-table.mobile-card-layout td.column-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+        background: #f9f9f9;
+        border-top: 1px solid #ddd;
+        border-bottom: none;
+        margin: 0 -12px -12px -12px;
+        border-radius: 0 0 4px 4px;
+        justify-content: center;
+        grid-column: 1 / -1;
+    }
+
+    .wp-list-table.mobile-card-layout td.actions:before,
+    .wp-list-table.mobile-card-layout td.column-actions:before {
+        display: none;
+    }
+
+    /* Checkbox column */
+    .wp-list-table.mobile-card-layout td.check-column {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 0;
+        width: auto;
+        display: block;
+    }
+
+    .wp-list-table.mobile-card-layout td.check-column:before {
+        display: none;
+    }
+
+    .wp-list-table.mobile-card-layout td.check-column input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Larger student avatar in card view */
+    .wp-list-table.mobile-card-layout .student-avatar,
+    .wp-list-table.mobile-card-layout .student-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        font-size: 12px;
+    }
+}
+
+/* Alternative: Horizontal Scroll for Complex Tables */
+.wp-list-table.mobile-scroll-layout {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+}
+
+@media (max-width: 782px) {
+    .mobile-scroll-layout {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+}
+
+/* =================================================
+   COMMON INLINE STYLE REPLACEMENTS
+   ================================================= */
+
+/* Vertical alignment helpers */
+.align-middle {
+    vertical-align: middle !important;
+}
+
+.align-top {
+    vertical-align: top !important;
+}
+
+/* Display helpers */
+.d-flex {
+    display: flex !important;
+}
+
+.d-inline-flex {
+    display: inline-flex !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+/* Flex helpers */
+.flex-column {
+    flex-direction: column !important;
+}
+
+.flex-row {
+    flex-direction: row !important;
+}
+
+.justify-between {
+    justify-content: space-between !important;
+}
+
+.justify-center {
+    justify-content: center !important;
+}
+
+.justify-start {
+    justify-content: flex-start !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.align-items-start {
+    align-items: flex-start !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+/* Gap helpers */
+.gap-5 {
+    gap: 5px !important;
+}
+
+.gap-10 {
+    gap: 10px !important;
+}
+
+.gap-15 {
+    gap: 15px !important;
+}
+
+.gap-20 {
+    gap: 20px !important;
+}
+
+/* Margin helpers */
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-0 {
+    margin-top: 0 !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.ml-10 {
+    margin-left: 10px !important;
+}
+
+.ml-15 {
+    margin-left: 15px !important;
+}
+
+.mr-10 {
+    margin-right: 10px !important;
+}
+
+.mb-5 {
+    margin-bottom: 5px !important;
+}
+
+.mb-10 {
+    margin-bottom: 10px !important;
+}
+
+.mb-15 {
+    margin-bottom: 15px !important;
+}
+
+.mb-20 {
+    margin-bottom: 20px !important;
+}
+
+.mt-20 {
+    margin-top: 20px !important;
+}
+
+/* Padding helpers */
+.p-0 {
+    padding: 0 !important;
+}
+
+.p-10 {
+    padding: 10px !important;
+}
+
+.p-15 {
+    padding: 15px !important;
+}
+
+.p-20 {
+    padding: 20px !important;
+}
+
+/* Background helpers */
+.bg-white {
+    background: #fff !important;
+}
+
+.bg-light {
+    background: #f9f9f9 !important;
+}
+
+.bg-gray {
+    background: #f0f0f1 !important;
+}
+
+/* Border helpers */
+.border {
+    border: 1px solid #ddd !important;
+}
+
+.border-top {
+    border-top: 1px solid #ddd !important;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #ddd !important;
+}
+
+.border-radius {
+    border-radius: 4px !important;
+}
+
+/* Text helpers */
+.text-center {
+    text-align: center !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.font-bold {
+    font-weight: bold !important;
+}
+
+.font-normal {
+    font-weight: normal !important;
+}
+
+/* Color helpers */
+.text-muted {
+    color: #666 !important;
+}
+
+.text-danger {
+    color: #d63638 !important;
+}
+
+.text-success {
+    color: #46b450 !important;
+}
+
+/* Width helpers */
+.w-100 {
+    width: 100% !important;
+}
+
+.w-auto {
+    width: auto !important;
+}
+
+/* Specific component styles */
+.info-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.info-box h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #1d2327;
+}
+
+.info-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 150px;
+}
+
+.info-value {
+    color: #1d2327;
+}
+
+/* Student avatar */
+.student-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.student-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #666;
+}
+
+.student-code {
+    color: #2271b1;
+    font-family: monospace;
+}
+
+.text-primary {
+    color: #2271b1 !important;
+}
+
+/* Button text - hidden on desktop, shown on mobile */
+.button .button-text {
+    display: none;
+}
+
+@media (max-width: 782px) {
+    .button .button-text {
+        display: inline;
+        margin-left: 4px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .info-label {
+        min-width: 0;
+    }
+}
+
 /* --- Print Styles --- */
 @media print {
     .sm-header-actions,

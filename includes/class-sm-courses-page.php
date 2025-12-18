@@ -533,7 +533,7 @@ class SM_Courses_Page {
         </script>
 
         <?php if ( $courses ) : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout">
                 <thead>
                     <tr>
                         <th class="<?php echo $orderby === 'name' ? 'sorted' : 'sortable'; ?>">
@@ -583,12 +583,28 @@ class SM_Courses_Page {
                 <tbody>
                     <?php foreach ( $courses as $course ) : ?>
                         <tr>
-                            <td><strong><?php echo esc_html( $course->name ); ?></strong></td>
-                            <td><?php echo esc_html( $course->language ); ?></td>
-                            <td><?php echo esc_html( $course->level_name ?: '—' ); ?></td>
-                            <td><?php echo esc_html( $course->teacher_name ?: '—' ); ?></td>
-                            <td><?php echo esc_html( $course->total_weeks . ' ' . __( 'weeks', 'CTADZ-school-management' ) ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Course Name', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?>:</span>
+                                <strong><?php echo esc_html( $course->name ); ?></strong>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Language', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Language', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $course->language ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Level', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $course->level_name ?: '—' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Teacher', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $course->teacher_name ?: '—' ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Duration', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Duration', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( $course->total_weeks . ' ' . __( 'weeks', 'CTADZ-school-management' ) ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Payment Model', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 // Payment model display with icons and colors
                                 $payment_model_display = [
@@ -611,7 +627,7 @@ class SM_Courses_Page {
                                         'bg' => '#fef8e7',
                                     ],
                                 ];
-                                
+
                                 $model = $course->payment_model ?? 'monthly_installments';
                                 $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
                                 ?>
@@ -620,18 +636,23 @@ class SM_Courses_Page {
                                     <strong style="color: <?php echo esc_attr( $display['color'] ); ?>;"><?php echo esc_html( $display['label'] ); ?></strong>
                                 </span>
                             </td>
-                            <td><?php echo esc_html( number_format( $course->price_per_month, 2 ) ); ?></td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Price/Month', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Price/Month', 'CTADZ-school-management' ); ?>:</span>
+                                <?php echo esc_html( number_format( $course->price_per_month, 2 ) ); ?>
+                            </td>
+                            <td data-label="<?php echo esc_attr__( 'Enrollments', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $count = intval( $course->enrollment_count );
                                 if ( $count > 0 ) {
-                                    echo '<span style="color: #2271b1;"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'student', 'students', $count, 'CTADZ-school-management' ) ) . '</span>';
+                                    echo '<span class="text-primary"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'student', 'students', $count, 'CTADZ-school-management' ) ) . '</span>';
                                 } else {
-                                    echo '<span style="color: #999;">' . esc_html__( 'No enrollments', 'CTADZ-school-management' ) . '</span>';
+                                    echo '<span class="text-muted">' . esc_html__( 'No enrollments', 'CTADZ-school-management' ) . '</span>';
                                 }
                                 ?>
                             </td>
-                            <td>
+                            <td data-label="<?php echo esc_attr__( 'Status', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 $status_colors = [
                                     'upcoming' => '#f0ad4e',
@@ -650,20 +671,22 @@ class SM_Courses_Page {
                                 ?>
                                 <span style="color: <?php echo esc_attr( $color ); ?>;">● <?php echo esc_html( $label ); ?></span>
                             </td>
-                            <td>
+                            <td class="actions">
                                 <a href="?page=school-management-courses&action=edit&course_id=<?php echo intval( $course->id ); ?>" class="button button-small">
-                                    <span class="dashicons dashicons-edit" style="vertical-align: middle;"></span>
+                                    <span class="dashicons dashicons-edit align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-courses&delete=' . intval( $course->id ), 
-                                    'sm_delete_course_' . intval( $course->id ) 
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-courses&delete=' . intval( $course->id ),
+                                    'sm_delete_course_' . intval( $course->id )
                                 );
                                 ?>
-                                <a href="<?php echo esc_url( $delete_url ); ?>" 
-                                   class="button button-small button-link-delete"
+                                <a href="<?php echo esc_url( $delete_url ); ?>"
+                                   class="button button-small button-link-delete text-danger"
                                    onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this course?', 'CTADZ-school-management' ) ); ?>')">
-                                    <span class="dashicons dashicons-trash" style="vertical-align: middle; color: #d63638;"></span>
+                                    <span class="dashicons dashicons-trash align-middle"></span>
+                                    <span class="button-text"><?php esc_html_e( 'Delete', 'CTADZ-school-management' ); ?></span>
                                 </a>
                             </td>
                         </tr>
