@@ -804,3 +804,50 @@ msgstr "Permission refusée."
 
 msgid "Course not found."
 msgstr "Cours non trouvé."
+
+# NEW: Search box placeholders (added 2025-12-18)
+msgid "Enter teacher information"
+msgstr "Saisir les informations de l'enseignant"
+
+msgid "Enter student information"
+msgstr "Saisir les informations de l'étudiant"
+
+msgid "Enter course information"
+msgstr "Saisir les informations du cours"
+
+msgid "Enter classroom information"
+msgstr "Saisir les informations de la salle de classe"
+
+msgid "Enter level information"
+msgstr "Saisir les informations du niveau"
+
+msgid "Enter payment information"
+msgstr "Saisir les informations de paiement"
+
+msgid "Enter enrollment information"
+msgstr "Saisir les informations d'inscription"
+
+msgid "Enter student or course"
+msgstr "Saisir l'étudiant ou le cours"
+
+# NEW: Dashboard Quick Actions (added 2025-12-18)
+msgid "Quick Actions"
+msgstr "Actions Rapides"
+
+msgid "Common actions to get started:"
+msgstr "Actions courantes pour commencer :"
+
+# NEW: Thank you message (added 2025-12-18)
+msgid "Thank you for using %s"
+msgstr "Merci d'utiliser %s"
+
+# NEW: Portal Access strings (added 2025-12-18)
+msgid "Portal Access"
+msgstr "Accès au Portail"
+
+msgid "Reset Password"
+msgstr "Réinitialiser le Mot de Passe"
+
+msgid "Create Portal Access"
+msgstr "Créer un Accès au Portail"
+
