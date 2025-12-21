@@ -273,8 +273,17 @@ class SM_Students_Page {
         $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 's.name';
         $order_clause = "$orderby_column $order";
 
-        // Get students with level names, enrollment count, payment info, and portal access
-        $portal_credentials_table = $wpdb->prefix . 'smsp_student_credentials';
+        // Get students with level names, enrollment count, payment info, and portal access (if plugin is active)
+        $has_portal_plugin = class_exists( 'SMSP_Auth' );
+
+        // Build portal access SELECT and JOIN conditionally
+        $portal_select = '';
+        $portal_join = '';
+        if ( $has_portal_plugin ) {
+            $portal_credentials_table = $wpdb->prefix . 'smsp_student_credentials';
+            $portal_select = ', spc.student_id as has_portal_access';
+            $portal_join = "LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id";
+        }
 
         $query = "
             SELECT s.*,
@@ -291,13 +300,13 @@ class SM_Students_Page {
                        WHEN ps.status IN ('pending', 'partial')
                        THEN (ps.expected_amount - ps.paid_amount)
                        ELSE 0
-                   END) as total_outstanding,
-                   spc.student_id as has_portal_access
+                   END) as total_outstanding
+                   $portal_select
             FROM $students_table s
             LEFT JOIN $levels_table l ON s.level_id = l.id
             LEFT JOIN $enrollments_table e ON s.id = e.student_id
             LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
-            LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id
+            $portal_join
             $where_sql
             GROUP BY s.id
             ORDER BY $order_clause
