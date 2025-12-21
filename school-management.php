@@ -41,6 +41,23 @@ require_once SM_PLUGIN_DIR . 'includes/sm-loader.php';
 // Include roles management
 require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
 
+// Include GitHub updater for automatic plugin updates
+require_once SM_PLUGIN_DIR . 'includes/class-sm-github-updater.php';
+
+/**
+ * Initialize automatic updates from GitHub
+ */
+function sm_init_github_updater() {
+	if ( is_admin() ) {
+		new SM_GitHub_Updater(
+			__FILE__,
+			'ahmedsebaa/school-management-plugin', // GitHub repository
+			null // GitHub token (optional, set in wp-config.php: define('SM_GITHUB_TOKEN', 'your_token'))
+		);
+	}
+}
+add_action( 'admin_init', 'sm_init_github_updater' );
+
 /**
  * Plugin activation hook
  */
