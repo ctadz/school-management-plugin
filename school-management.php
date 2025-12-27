@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: School Management
-Plugin URI:  https://github.com/ahmedsebaa/school-management-plugin
+Plugin URI:  https://github.com/ctadz/school-management-plugin
 Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
-Version:     0.5.3
+Version:     0.5.4
 Author:      Ahmed Sebaa
-Author URI:  https://github.com/ahmedsebaa
+Author URI:  https://github.com/ctadz
 License:     GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: CTADZ-school-management
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants.
 define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SM_VERSION', '0.5.3' );
+define( 'SM_VERSION', '0.5.4' );
 define( 'SM_DB_VERSION', '1.4.0' );
 
 /**
@@ -57,7 +57,7 @@ function sm_init_github_updater() {
 	if ( is_admin() ) {
 		new SM_GitHub_Updater(
 			__FILE__,
-			'ahmedsebaa/school-management-plugin', // GitHub repository
+			'ctadz/school-management-plugin', // GitHub repository
 			null // GitHub token (optional, set in wp-config.php: define('SM_GITHUB_TOKEN', 'your_token'))
 		);
 	}
