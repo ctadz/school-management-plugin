@@ -303,11 +303,11 @@ class SM_Payments_Page {
                 <?php if ( ! empty( $filter_status ) ) : ?>
                     <input type="hidden" name="filter_status" value="<?php echo esc_attr( $filter_status ); ?>">
                 <?php endif; ?>
-                <input type="search" 
-                       name="s" 
-                       value="<?php echo esc_attr( $search ); ?>" 
-                       placeholder="<?php esc_attr_e( 'Search by student, course, or payment plan...', 'CTADZ-school-management' ); ?>"
-                       style="width: 300px; margin-right: 5px;">
+                <input type="search"
+                       name="s"
+                       value="<?php echo esc_attr( $search ); ?>"
+                       placeholder="<?php esc_attr_e( 'Enter payment information', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                 <?php if ( ! empty( $search ) ) : ?>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'school-management-payments', 'filter_status' => $filter_status ), admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left: 5px;">
@@ -663,6 +663,7 @@ class SM_Payments_Page {
                         <th><?php esc_html_e( 'Installment', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Expected Amount', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Due Date', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Discount', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Paid Amount', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Paid Date', 'CTADZ-school-management' ); ?></th>
                         <th><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?></th>
@@ -676,6 +677,18 @@ class SM_Payments_Page {
                             <td><strong>#<?php echo intval( $schedule->installment_number ); ?></strong></td>
                             <td><?php echo number_format( $schedule->expected_amount, 2 ); ?></td>
                             <td><?php echo esc_html( date( 'M j, Y', strtotime( $schedule->due_date ) ) ); ?></td>
+                            <td>
+                                <?php if ( ! empty( $schedule->discount_percentage ) && $schedule->discount_percentage > 0 ) : ?>
+                                    <span style="color: #46b450; font-weight: 600;" title="<?php echo esc_attr( $schedule->discount_reason ); ?>">
+                                        <?php echo number_format( $schedule->discount_percentage, 1 ); ?>%
+                                    </span>
+                                    <?php if ( ! empty( $schedule->discount_reason ) ) : ?>
+                                        <br><small style="color: #666;"><?php echo esc_html( $schedule->discount_reason ); ?></small>
+                                    <?php endif; ?>
+                                <?php else : ?>
+                                    <span style="color: #999;">—</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo number_format( $schedule->paid_amount, 2 ); ?></td>
                             <td><?php echo $schedule->paid_date ? esc_html( date( 'M j, Y', strtotime( $schedule->paid_date ) ) ) : '—'; ?></td>
                             <td>

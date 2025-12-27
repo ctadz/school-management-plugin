@@ -805,7 +805,7 @@ msgstr "Permission refusée."
 msgid "Course not found."
 msgstr "Cours non trouvé."
 
-# NEW: Search box placeholders (added 2025-12-18)
+# Search box placeholders
 msgid "Enter teacher information"
 msgstr "Saisir les informations de l'enseignant"
 
@@ -830,32 +830,302 @@ msgstr "Saisir les informations d'inscription"
 msgid "Enter student or course"
 msgstr "Saisir l'étudiant ou le cours"
 
-# NEW: Dashboard Quick Actions (added 2025-12-18)
+# Dashboard Quick Actions
 msgid "Quick Actions"
 msgstr "Actions Rapides"
 
 msgid "Common actions to get started:"
 msgstr "Actions courantes pour commencer :"
 
-# NEW: Thank you message (added 2025-12-18)
+msgid "Add New Student"
+msgstr "Ajouter un Nouvel Étudiant"
+
+msgid "Add New Teacher"
+msgstr "Ajouter un Nouvel Enseignant"
+
+msgid "Add New Course"
+msgstr "Ajouter un Nouveau Cours"
+
+msgid "View Payments"
+msgstr "Voir les Paiements"
+
+msgid "View Payment Alerts"
+msgstr "Voir les Alertes de Paiement"
+
+# Thank you message
 msgid "Thank you for using %s"
 msgstr "Merci d'utiliser %s"
 
-# NEW: Thank you message with version (added 2025-12-27)
-msgid "Thank you for using %s - Version %s"
-msgstr "Merci d'utiliser %s - Version %s"
-
-# NEW: Plugin name (added 2025-12-27)
-msgid "CTADZ-School Management"
-msgstr "CTADZ-Gestion Scolaire"
-
-# NEW: Portal Access strings (added 2025-12-18)
+# Portal Access
 msgid "Portal Access"
 msgstr "Accès au Portail"
+
+msgid "Active"
+msgstr "Actif"
 
 msgid "Reset Password"
 msgstr "Réinitialiser le Mot de Passe"
 
 msgid "Create Portal Access"
 msgstr "Créer un Accès au Portail"
+
+# Search button
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Clear"
+msgstr "Effacer"
+
+# Payment Alerts
+msgid "Payment Alerts"
+msgstr "Alertes de Paiement"
+
+msgid "All Levels"
+msgstr "Tous les Niveaux"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+# Status indicators
+msgid "Paid"
+msgstr "Payé"
+
+msgid "Pending"
+msgstr "En Attente"
+
+msgid "Partial"
+msgstr "Partiel"
+
+msgid "Overdue"
+msgstr "En Retard"
+
+msgid "Cancelled"
+msgstr "Annulé"
+
+# Common UI elements
+msgid "Actions"
+msgstr "Actions"
+
+msgid "View"
+msgstr "Voir"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Add New"
+msgstr "Ajouter Nouveau"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Update"
+msgstr "Mettre à Jour"
+
+# Date and time
+msgid "Start Date"
+msgstr "Date de Début"
+
+msgid "End Date"
+msgstr "Date de Fin"
+
+msgid "Created"
+msgstr "Créé"
+
+msgid "Modified"
+msgstr "Modifié"
+
+# Course related
+msgid "Course Name"
+msgstr "Nom du Cours"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Payment Model"
+msgstr "Modèle de Paiement"
+
+msgid "Select Payment Model"
+msgstr "Sélectionner le Modèle de Paiement"
+
+msgid "Per Course"
+msgstr "Par Cours"
+
+msgid "Per Session"
+msgstr "Par Session"
+
+msgid "Description"
+msgstr "Description"
+
+# Classroom related
+msgid "Classroom Name"
+msgstr "Nom de la Salle de Classe"
+
+msgid "Location"
+msgstr "Emplacement"
+
+msgid "Capacity"
+msgstr "Capacité"
+
+msgid "Facilities"
+msgstr "Équipements"
+
+# Level related
+msgid "Level Name"
+msgstr "Nom du Niveau"
+
+msgid "Sort Order"
+msgstr "Ordre de Tri"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+# Enrollment related
+msgid "Enrollment Date"
+msgstr "Date d'Inscription"
+
+msgid "Student Name"
+msgstr "Nom de l'Étudiant"
+
+msgid "Course"
+msgstr "Cours"
+
+msgid "Level"
+msgstr "Niveau"
+
+# Payment related
+msgid "Amount"
+msgstr "Montant"
+
+msgid "Payment Date"
+msgstr "Date de Paiement"
+
+msgid "Payment Method"
+msgstr "Méthode de Paiement"
+
+msgid "Payment Plan"
+msgstr "Plan de Paiement"
+
+msgid "Expected Amount"
+msgstr "Montant Attendu"
+
+msgid "Paid Amount"
+msgstr "Montant Payé"
+
+msgid "Balance"
+msgstr "Solde"
+
+msgid "Payment Status"
+msgstr "Statut de Paiement"
+
+msgid "Due Date"
+msgstr "Date d'Échéance"
+
+# Student related
+msgid "Student ID"
+msgstr "ID Étudiant"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Date of Birth"
+msgstr "Date de Naissance"
+
+msgid "Guardian Name"
+msgstr "Nom du Tuteur"
+
+msgid "Guardian Phone"
+msgstr "Téléphone du Tuteur"
+
+msgid "Emergency Contact"
+msgstr "Contact d'Urgence"
+
+msgid "Notes"
+msgstr "Notes"
+
+msgid "Active Enrollments"
+msgstr "Inscriptions Actives"
+
+# Teacher related
+msgid "Teacher Name"
+msgstr "Nom de l'Enseignant"
+
+msgid "Specialization"
+msgstr "Spécialisation"
+
+msgid "Hire Date"
+msgstr "Date d'Embauche"
+
+msgid "Payment Term"
+msgstr "Modalité de Paiement"
+
+msgid "Rate"
+msgstr "Tarif"
+
+msgid "Courses Taught"
+msgstr "Cours Enseignés"
+
+# Settings
+msgid "Upload Logo"
+msgstr "Télécharger le Logo"
+
+msgid "Use PHP date format, e.g., Y-m-d, d/m/Y, m/d/Y"
+msgstr "Utiliser le format de date PHP, ex: Y-m-d, d/m/Y, m/d/Y"
+
+msgid "Use PHP time format, e.g., H:i, g:i a"
+msgstr "Utiliser le format d'heure PHP, ex: H:i, g:i a"
+
+msgid "First Day of the Week"
+msgstr "Premier Jour de la Semaine"
+
+msgid "Sunday"
+msgstr "Dimanche"
+
+msgid "Monday"
+msgstr "Lundi"
+
+msgid "Choose the first day of the week for calendars."
+msgstr "Choisir le premier jour de la semaine pour les calendriers."
+
+# Messages
+msgid "No students found."
+msgstr "Aucun étudiant trouvé."
+
+msgid "No teachers found."
+msgstr "Aucun enseignant trouvé."
+
+msgid "No courses found."
+msgstr "Aucun cours trouvé."
+
+msgid "No classrooms found."
+msgstr "Aucune salle de classe trouvée."
+
+msgid "No levels found."
+msgstr "Aucun niveau trouvé."
+
+msgid "No enrollments found."
+msgstr "Aucune inscription trouvée."
+
+msgid "No payments found."
+msgstr "Aucun paiement trouvé."
+
+msgid "Are you sure you want to delete this item?"
+msgstr "Êtes-vous sûr de vouloir supprimer cet élément ?"
+
+msgid "This action cannot be undone."
+msgstr "Cette action ne peut pas être annulée."
 

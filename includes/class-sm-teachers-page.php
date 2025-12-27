@@ -631,11 +631,11 @@ class SM_Teachers_Page {
                     <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
                     <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
                 <?php endif; ?>
-                <input type="search" 
-                       name="s" 
-                       value="<?php echo esc_attr( $search ); ?>" 
-                       placeholder="<?php esc_attr_e( 'Search teachers by name, email, phone, or payment term...', 'CTADZ-school-management' ); ?>"
-                       style="width: 350px; margin-right: 5px;">
+                <input type="search"
+                       name="s"
+                       value="<?php echo esc_attr( $search ); ?>"
+                       placeholder="<?php esc_attr_e( 'Enter teacher information', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                 <?php if ( ! empty( $search ) ) : ?>
                     <a href="?page=school-management-teachers" class="button" style="margin-left: 5px;">

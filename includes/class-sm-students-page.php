@@ -23,23 +23,78 @@ class SM_Students_Page {
             }
         }
 
+        // Handle manual discount recalculation
+        if ( isset( $_GET['recalculate_discount'] ) && check_admin_referer( 'sm_recalculate_discount_' . intval( $_GET['recalculate_discount'] ) ) ) {
+            $student_id = intval( $_GET['recalculate_discount'] );
+            $student = $wpdb->get_row( $wpdb->prepare( "SELECT parent_phone FROM $table WHERE id = %d", $student_id ) );
+
+            if ( $student && ! empty( $student->parent_phone ) ) {
+                $recalc_count = SM_Family_Discount::recalculate_family_discounts( $student->parent_phone );
+                if ( $recalc_count > 0 ) {
+                    echo '<div class="updated notice"><p>' . sprintf( esc_html__( 'Successfully recalculated %d payment schedules for this family!', 'CTADZ-school-management' ), $recalc_count ) . '</p></div>';
+                } else {
+                    echo '<div class="notice notice-info"><p>' . esc_html__( 'No payment schedules needed recalculation.', 'CTADZ-school-management' ) . '</p></div>';
+                }
+            } else {
+                echo '<div class="notice notice-warning"><p>' . esc_html__( 'This student has no parent phone number set.', 'CTADZ-school-management' ) . '</p></div>';
+            }
+        }
+
         // Handle form submission
         if ( isset( $_POST['sm_save_student'] ) && check_admin_referer( 'sm_save_student_action', 'sm_save_student_nonce' ) ) {
             $validation_result = self::validate_student_data( $_POST );
-            
+
             if ( $validation_result['success'] ) {
                 $data = $validation_result['data'];
-                
+
                 if ( ! empty( $_POST['student_id'] ) ) {
-                    $updated = $wpdb->update( $table, $data, [ 'id' => intval( $_POST['student_id'] ) ] );
+                    $student_id = intval( $_POST['student_id'] );
+
+                    // Get old parent phone before update
+                    $old_student = $wpdb->get_row( $wpdb->prepare( "SELECT parent_phone FROM $table WHERE id = %d", $student_id ) );
+                    $old_parent_phone = $old_student ? $old_student->parent_phone : '';
+
+                    $updated = $wpdb->update( $table, $data, [ 'id' => $student_id ] );
                     if ( $updated !== false ) {
                         echo '<div class="updated notice"><p>' . esc_html__( 'Student updated successfully.', 'CTADZ-school-management' ) . '</p></div>';
+
+                        // Check if parent phone changed
+                        $new_parent_phone = $data['parent_phone'];
+                        if ( $old_parent_phone !== $new_parent_phone ) {
+                            // Recalculate discounts for old family (if any)
+                            if ( ! empty( $old_parent_phone ) ) {
+                                $recalc_count = SM_Family_Discount::recalculate_family_discounts( $old_parent_phone );
+                                if ( $recalc_count > 0 ) {
+                                    echo '<div class="updated notice"><p>' . sprintf( esc_html__( 'Recalculated %d payment schedules for old family.', 'CTADZ-school-management' ), $recalc_count ) . '</p></div>';
+                                }
+                            }
+
+                            // Recalculate discounts for new family (if any)
+                            if ( ! empty( $new_parent_phone ) ) {
+                                $recalc_count = SM_Family_Discount::recalculate_family_discounts( $new_parent_phone );
+                                if ( $recalc_count > 0 ) {
+                                    echo '<div class="updated notice"><p>' . sprintf( esc_html__( 'Recalculated %d payment schedules for new family.', 'CTADZ-school-management' ), $recalc_count ) . '</p></div>';
+                                }
+                            }
+                        }
+
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-students"; }, 2000);</script>';
                     }
                 } else {
                     $inserted = $wpdb->insert( $table, $data );
                     if ( $inserted ) {
+                        $new_student_id = $wpdb->insert_id;
+
                         echo '<div class="updated notice"><p>' . esc_html__( 'Student added successfully.', 'CTADZ-school-management' ) . '</p></div>';
+
+                        // Recalculate discounts for the family if parent phone was provided
+                        if ( ! empty( $data['parent_phone'] ) ) {
+                            $recalc_count = SM_Family_Discount::recalculate_family_discounts( $data['parent_phone'] );
+                            if ( $recalc_count > 0 ) {
+                                echo '<div class="updated notice"><p>' . sprintf( esc_html__( 'Applied family discounts to %d existing payment schedules.', 'CTADZ-school-management' ), $recalc_count ) . '</p></div>';
+                            }
+                        }
+
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-students"; }, 2000);</script>';
                     }
                 }
@@ -77,6 +132,9 @@ class SM_Students_Page {
                     self::render_students_list();
                     break;
             }
+
+            // Output family discount modal (once per page)
+            self::render_family_discount_modal();
             ?>
         </div>
         <?php
@@ -98,6 +156,11 @@ class SM_Students_Page {
         $picture = esc_url_raw( trim( $post_data['picture'] ?? '' ) );
         $blood_type = sanitize_text_field( trim( $post_data['blood_type'] ?? '' ) );
         $student_id = intval( $post_data['student_id'] ?? 0 );
+
+        // Parent/Guardian fields
+        $parent_name = sanitize_text_field( trim( $post_data['parent_name'] ?? '' ) );
+        $parent_phone = sanitize_text_field( trim( $post_data['parent_phone'] ?? '' ) );
+        $parent_email = sanitize_email( trim( $post_data['parent_email'] ?? '' ) );
 
         // Required field validation
         if ( empty( $name ) ) {
@@ -185,17 +248,25 @@ class SM_Students_Page {
             $errors[] = __( 'Please provide a valid picture URL.', 'CTADZ-school-management' );
         }
 
+        // Validate parent email if provided
+        if ( ! empty( $parent_email ) && ! is_email( $parent_email ) ) {
+            $errors[] = __( 'Please enter a valid parent/guardian email address.', 'CTADZ-school-management' );
+        }
+
         if ( empty( $errors ) ) {
             return [
                 'success' => true,
                 'data' => [
-                    'name'       => $name,
-                    'email'      => $email,
-                    'phone'      => $phone,
-                    'dob'        => $dob,
-                    'level_id'   => $level_id,
-                    'picture'    => $picture,
-                    'blood_type' => $blood_type ?: null,
+                    'name'         => $name,
+                    'email'        => $email,
+                    'phone'        => $phone,
+                    'dob'          => $dob,
+                    'level_id'     => $level_id,
+                    'picture'      => $picture,
+                    'blood_type'   => $blood_type ?: null,
+                    'parent_name'  => $parent_name ?: null,
+                    'parent_phone' => $parent_phone ?: null,
+                    'parent_email' => $parent_email ?: null,
                 ]
             ];
         } else {
@@ -273,8 +344,17 @@ class SM_Students_Page {
         $orderby_column = isset( $valid_columns[ $orderby ] ) ? $valid_columns[ $orderby ] : 's.name';
         $order_clause = "$orderby_column $order";
 
-        // Get students with level names, enrollment count, payment info, and portal access
-        $portal_credentials_table = $wpdb->prefix . 'smsp_student_credentials';
+        // Get students with level names, enrollment count, payment info, and portal access (if plugin is active)
+        $has_portal_plugin = class_exists( 'SMSP_Auth' );
+
+        // Build portal access SELECT and JOIN conditionally
+        $portal_select = '';
+        $portal_join = '';
+        if ( $has_portal_plugin ) {
+            $portal_credentials_table = $wpdb->prefix . 'smsp_student_credentials';
+            $portal_select = ', spc.student_id as has_portal_access';
+            $portal_join = "LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id";
+        }
 
         $query = "
             SELECT s.*,
@@ -291,13 +371,13 @@ class SM_Students_Page {
                        WHEN ps.status IN ('pending', 'partial')
                        THEN (ps.expected_amount - ps.paid_amount)
                        ELSE 0
-                   END) as total_outstanding,
-                   spc.student_id as has_portal_access
+                   END) as total_outstanding
+                   $portal_select
             FROM $students_table s
             LEFT JOIN $levels_table l ON s.level_id = l.id
             LEFT JOIN $enrollments_table e ON s.id = e.student_id
             LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
-            LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id
+            $portal_join
             $where_sql
             GROUP BY s.id
             ORDER BY $order_clause
@@ -387,6 +467,45 @@ class SM_Students_Page {
             color: #646970;
             cursor: default;
         }
+
+        /* Discount badge styling */
+        .sm-discount-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: #e7f7ed;
+            border-radius: 3px;
+            color: #2c5f2d;
+            font-size: 13px;
+        }
+        .sm-discount-badge .dashicons {
+            color: #46b450;
+        }
+        .sm-discount-badge-clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .sm-discount-badge-clickable:hover {
+            background: #d4f0dd;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(70, 180, 80, 0.3);
+        }
+
+        /* Dark mode support for discount badge */
+        @media (prefers-color-scheme: dark) {
+            .sm-discount-badge {
+                background: rgba(70, 180, 80, 0.15);
+                color: #a7f3b3;
+            }
+            .sm-discount-badge .dashicons {
+                color: #68de7c;
+            }
+            .sm-discount-badge-clickable:hover {
+                background: rgba(70, 180, 80, 0.25);
+                box-shadow: 0 2px 4px rgba(104, 222, 124, 0.3);
+            }
+        }
         </style>
         
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -419,11 +538,11 @@ class SM_Students_Page {
                     <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
                     <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
                 <?php endif; ?>
-                <input type="search" 
-                       name="s" 
-                       value="<?php echo esc_attr( $search ); ?>" 
-                       placeholder="<?php esc_attr_e( 'Search students by name, email, or phone...', 'CTADZ-school-management' ); ?>"
-                       style="width: 300px; margin-right: 5px;">
+                <input type="search"
+                       name="s"
+                       value="<?php echo esc_attr( $search ); ?>"
+                       placeholder="<?php esc_attr_e( 'Enter student information', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                 <?php if ( ! empty( $search ) ) : ?>
                     <a href="?page=school-management-students" class="button" style="margin-left: 5px;">
@@ -464,6 +583,7 @@ class SM_Students_Page {
                                 <?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'active_enrollments' ); ?>
                             </a>
                         </th>
+                        <th class="non-sortable"><?php esc_html_e( 'Discount', 'CTADZ-school-management' ); ?></th>
                         <th class="non-sortable"><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></th>
                         <th class="non-sortable"><?php esc_html_e( 'Balance', 'CTADZ-school-management' ); ?></th>
                         <?php if ( class_exists( 'SMSP_Auth' ) ) : ?>
@@ -544,6 +664,30 @@ class SM_Students_Page {
                                     <span class="text-muted"><?php esc_html_e( 'None', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
                             </td>
+                            <td data-label="<?php echo esc_attr__( 'Discount', 'CTADZ-school-management' ); ?>">
+                                <span class="mobile-label"><?php esc_html_e( 'Discount', 'CTADZ-school-management' ); ?>:</span>
+                                <?php
+                                // Calculate discount for this student
+                                if ( SM_Family_Discount::is_enabled() && $active_enrollments > 0 ) {
+                                    $discount_info = SM_Family_Discount::calculate_discount_for_student( $student->id );
+                                    if ( $discount_info['percentage'] > 0 ) :
+                                ?>
+                                    <span class="sm-discount-badge sm-discount-badge-clickable"
+                                          data-student-id="<?php echo esc_attr( $student->id ); ?>"
+                                          data-parent-phone="<?php echo esc_attr( $student->parent_phone ); ?>"
+                                          title="<?php echo esc_attr( $discount_info['reason'] . ' - Click to view family' ); ?>">
+                                        <span class="dashicons dashicons-tag" style="font-size: 14px; vertical-align: middle;"></span>
+                                        <strong><?php echo esc_html( number_format( $discount_info['percentage'], 1 ) ); ?>%</strong>
+                                    </span>
+                                <?php
+                                    else :
+                                        echo '<span class="text-muted">—</span>';
+                                    endif;
+                                } else {
+                                    echo '<span class="text-muted">—</span>';
+                                }
+                                ?>
+                            </td>
                             <td data-label="<?php echo esc_attr__( 'Payment Status', 'CTADZ-school-management' ); ?>">
                                 <span class="mobile-label"><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?>:</span>
                                 <span class="sm-status-badge">
@@ -591,9 +735,29 @@ class SM_Students_Page {
                                     <span class="button-text"><?php esc_html_e( 'Edit', 'CTADZ-school-management' ); ?></span>
                                 </a>
                                 <?php
-                                $delete_url = wp_nonce_url( 
-                                    '?page=school-management-students&delete=' . intval( $student->id ), 
-                                    'sm_delete_student_' . intval( $student->id ) 
+                                // Show recalculate discount button only if student is part of a family (2+ students)
+                                if ( SM_Family_Discount::is_enabled() && ! empty( $student->parent_phone ) ) :
+                                    $family_count = SM_Family_Discount::count_family_enrollments( $student->parent_phone );
+                                    if ( $family_count >= 2 ) :
+                                        $recalc_url = wp_nonce_url(
+                                            '?page=school-management-students&recalculate_discount=' . intval( $student->id ),
+                                            'sm_recalculate_discount_' . intval( $student->id )
+                                        );
+                                ?>
+                                    <a href="<?php echo esc_url( $recalc_url ); ?>"
+                                       class="button button-small"
+                                       title="<?php esc_attr_e( 'Recalculate Family Discount', 'CTADZ-school-management' ); ?>">
+                                        <span class="dashicons dashicons-update align-middle"></span>
+                                        <span class="button-text"><?php esc_html_e( 'Recalc Discount', 'CTADZ-school-management' ); ?></span>
+                                    </a>
+                                <?php
+                                    endif;
+                                endif;
+                                ?>
+                                <?php
+                                $delete_url = wp_nonce_url(
+                                    '?page=school-management-students&delete=' . intval( $student->id ),
+                                    'sm_delete_student_' . intval( $student->id )
                                 );
                                 ?>
                                 <a href="<?php echo esc_url( $delete_url ); ?>"
@@ -647,7 +811,216 @@ class SM_Students_Page {
                     <?php esc_html_e( 'Add First Student', 'CTADZ-school-management' ); ?>
                 </a>
             </div>
-        <?php endif;
+        <?php endif; ?>
+
+        <!-- Family Members Modal -->
+        <div id="sm-family-members-modal" class="sm-modal" style="display: none;">
+            <div class="sm-modal-content">
+                <div class="sm-modal-header">
+                    <h2><?php esc_html_e( 'Family Members', 'CTADZ-school-management' ); ?></h2>
+                    <button class="sm-modal-close" id="sm-family-modal-close">&times;</button>
+                </div>
+                <div class="sm-modal-body" id="sm-family-members-list">
+                    <div class="sm-modal-loading">
+                        <span class="dashicons dashicons-update-alt" style="animation: spin 1s linear infinite; font-size: 32px;"></span>
+                        <p><?php esc_html_e( 'Loading family members...', 'CTADZ-school-management' ); ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .sm-modal {
+                position: fixed;
+                z-index: 100000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            .sm-modal-content {
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                margin-left: -300px;
+                background: #fff;
+                padding: 0;
+                width: 600px;
+                border-radius: 4px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                -webkit-font-smoothing: subpixel-antialiased;
+                -moz-osx-font-smoothing: auto;
+                font-smooth: never;
+                text-rendering: geometricPrecision;
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                perspective: 1000px;
+                filter: none;
+                will-change: auto;
+                image-rendering: -webkit-optimize-contrast;
+            }
+            .sm-modal-content * {
+                -webkit-font-smoothing: subpixel-antialiased;
+                -moz-osx-font-smoothing: auto;
+                transform: translateZ(0);
+            }
+            .sm-modal-header {
+                padding: 20px;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .sm-modal-header h2 {
+                margin: 0;
+                font-size: 20px;
+            }
+            .sm-modal-close {
+                background: none;
+                border: none;
+                font-size: 32px;
+                cursor: pointer;
+                color: #666;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                line-height: 1;
+            }
+            .sm-modal-close:hover {
+                color: #d63638;
+            }
+            .sm-modal-body {
+                padding: 20px;
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+            .sm-modal-loading {
+                text-align: center;
+                padding: 40px 20px;
+                color: #666;
+            }
+            .sm-family-member {
+                padding: 15px;
+                margin-bottom: 10px;
+                background: #f9f9f9;
+                border-left: 4px solid #0073aa;
+                border-radius: 3px;
+            }
+            .sm-family-member h3 {
+                margin: 0 0 8px 0;
+                font-size: 16px;
+            }
+            .sm-family-member-info {
+                font-size: 13px;
+                color: #666;
+                margin: 4px 0;
+            }
+            .sm-family-member-actions {
+                margin-top: 10px;
+            }
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            /* Dark mode support */
+            @media (prefers-color-scheme: dark) {
+                .sm-modal-content {
+                    background: #1d2327;
+                    color: #c3c4c7;
+                }
+                .sm-modal-header {
+                    border-bottom-color: #3c434a;
+                }
+                .sm-modal-close {
+                    color: #c3c4c7;
+                }
+                .sm-modal-close:hover {
+                    color: #d63638;
+                }
+                .sm-modal-loading {
+                    color: #c3c4c7;
+                }
+                .sm-family-member {
+                    background: #2c3338;
+                    border-left-color: #72aee6;
+                }
+                .sm-family-member-info {
+                    color: #a7aaad;
+                }
+            }
+        </style>
+
+        <script>
+        jQuery(document).ready(function($) {
+            // Handle discount badge click
+            $(document).on('click', '.sm-discount-badge-clickable', function(e) {
+                e.preventDefault();
+                const studentId = $(this).data('student-id');
+                const parentPhone = $(this).data('parent-phone');
+
+                // Show modal with clean rendering
+                $('#sm-family-members-modal').css('display', 'block');
+
+                // Load family members via AJAX
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'sm_get_family_members',
+                        parent_phone: parentPhone,
+                        current_student_id: studentId,
+                        nonce: '<?php echo wp_create_nonce( 'sm_family_members_nonce' ); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success && response.data.members) {
+                            let html = '';
+                            response.data.members.forEach(function(member) {
+                                html += '<div class="sm-family-member">';
+                                html += '<h3>' + member.name + '</h3>';
+                                html += '<div class="sm-family-member-info">✉️ ' + member.email + '</div>';
+                                html += '<div class="sm-family-member-info">📞 ' + member.phone + '</div>';
+                                html += '<div class="sm-family-member-info">📚 ' + member.level_name + '</div>';
+                                html += '<div class="sm-family-member-actions">';
+                                html += '<a href="?page=school-management-students&action=edit&student_id=' + member.id + '" class="button button-small">Edit Student</a>';
+                                html += '</div>';
+                                html += '</div>';
+                            });
+                            $('#sm-family-members-list').html(html);
+                        } else {
+                            $('#sm-family-members-list').html('<p><?php esc_html_e( 'No family members found.', 'CTADZ-school-management' ); ?></p>');
+                        }
+                    },
+                    error: function() {
+                        $('#sm-family-members-list').html('<p style="color: #d63638;"><?php esc_html_e( 'Error loading family members.', 'CTADZ-school-management' ); ?></p>');
+                    }
+                });
+            });
+
+            // Close modal - click on close button or outside the content
+            $('#sm-family-modal-close').on('click', function() {
+                $('#sm-family-members-modal').css('display', 'none');
+            });
+
+            // Close when clicking outside the modal content
+            $('#sm-family-members-modal').on('click', function(e) {
+                if ($(e.target).is('#sm-family-members-modal')) {
+                    $('#sm-family-members-modal').css('display', 'none');
+                }
+            });
+
+            // Close on ESC key
+            $(document).on('keyup', function(e) {
+                if (e.key === 'Escape') {
+                    $('#sm-family-members-modal').css('display', 'none');
+                }
+            });
+        });
+        </script>
+        <?php
     }
 
     /**
@@ -664,23 +1037,29 @@ class SM_Students_Page {
         $form_data = [];
         if ( isset( $_POST['sm_save_student'] ) ) {
             $form_data = [
-                'name'       => sanitize_text_field( $_POST['name'] ?? '' ),
-                'email'      => sanitize_email( $_POST['email'] ?? '' ),
-                'phone'      => sanitize_text_field( $_POST['phone'] ?? '' ),
-                'dob'        => sanitize_text_field( $_POST['dob'] ?? '' ),
-                'level_id'   => intval( $_POST['level_id'] ?? 0 ),
-                'picture'    => esc_url_raw( $_POST['picture'] ?? '' ),
-                'blood_type' => sanitize_text_field( $_POST['blood_type'] ?? '' ),
+                'name'         => sanitize_text_field( $_POST['name'] ?? '' ),
+                'email'        => sanitize_email( $_POST['email'] ?? '' ),
+                'phone'        => sanitize_text_field( $_POST['phone'] ?? '' ),
+                'dob'          => sanitize_text_field( $_POST['dob'] ?? '' ),
+                'level_id'     => intval( $_POST['level_id'] ?? 0 ),
+                'picture'      => esc_url_raw( $_POST['picture'] ?? '' ),
+                'blood_type'   => sanitize_text_field( $_POST['blood_type'] ?? '' ),
+                'parent_name'  => sanitize_text_field( $_POST['parent_name'] ?? '' ),
+                'parent_phone' => sanitize_text_field( $_POST['parent_phone'] ?? '' ),
+                'parent_email' => sanitize_email( $_POST['parent_email'] ?? '' ),
             ];
         } elseif ( $student ) {
             $form_data = [
-                'name'       => $student->name,
-                'email'      => $student->email,
-                'phone'      => $student->phone,
-                'dob'        => $student->dob,
-                'level_id'   => $student->level_id,
-                'picture'    => $student->picture,
-                'blood_type' => $student->blood_type,
+                'name'         => $student->name,
+                'email'        => $student->email,
+                'phone'        => $student->phone,
+                'dob'          => $student->dob,
+                'level_id'     => $student->level_id,
+                'picture'      => $student->picture,
+                'blood_type'   => $student->blood_type,
+                'parent_name'  => $student->parent_name ?? '',
+                'parent_phone' => $student->parent_phone ?? '',
+                'parent_email' => $student->parent_email ?? '',
             ];
         }
         
@@ -695,9 +1074,10 @@ class SM_Students_Page {
             </h2>
         </div>
 
-        <form method="post" novalidate>
+        <form method="post" novalidate id="sm-student-form">
             <?php wp_nonce_field( 'sm_save_student_action', 'sm_save_student_nonce' ); ?>
             <input type="hidden" name="student_id" value="<?php echo esc_attr( $student->id ?? '' ); ?>" />
+            <input type="hidden" name="family_discount_confirmed" id="family_discount_confirmed" value="" />
 
             <table class="form-table">
                 <tr>
@@ -793,6 +1173,245 @@ class SM_Students_Page {
                         <p class="description"><?php esc_html_e( 'Blood type information for emergency situations.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
+
+                <tr>
+                    <td colspan="2"><hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <h3 style="margin: 0; font-size: 14px; font-weight: 600;"><?php esc_html_e( 'Parent/Guardian Information', 'CTADZ-school-management' ); ?></h3>
+                        <p class="description"><?php esc_html_e( 'Used for emergency contact and family discount calculation.', 'CTADZ-school-management' ); ?></p>
+
+                        <?php
+                        // Show current discount status for existing students
+                        if ( $is_edit && ! empty( $student->parent_phone ) ) {
+                            $discount_info = SM_Family_Discount::calculate_discount_for_student( $student->id );
+                            if ( $discount_info['percentage'] > 0 ) :
+                                // Get family members
+                                $family_members = SM_Family_Discount::get_family_members( $student->parent_phone );
+                                // Filter out current student
+                                $siblings = array_filter( $family_members, function( $member ) use ( $student ) {
+                                    return $member->id != $student->id;
+                                } );
+                        ?>
+                            <div class="sm-discount-info-box">
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                        <span class="dashicons dashicons-yes-alt sm-discount-icon"></span>
+                                        <div style="flex: 1;">
+                                            <strong class="sm-discount-title"><?php esc_html_e( 'Family Discount Active', 'CTADZ-school-management' ); ?></strong>
+                                            <p class="sm-discount-details">
+                                                <?php
+                                                printf(
+                                                    esc_html__( '%s%% discount applied (%d students in family with active enrollments)', 'CTADZ-school-management' ),
+                                                    number_format( $discount_info['percentage'], 1 ),
+                                                    $discount_info['family_count']
+                                                );
+                                                ?>
+                                            </p>
+                                            <?php if ( ! empty( $siblings ) ) : ?>
+                                                <p class="sm-discount-details" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(70, 180, 80, 0.2);">
+                                                    <strong><?php esc_html_e( 'Siblings:', 'CTADZ-school-management' ); ?></strong><br>
+                                                    <?php
+                                                    $sibling_links = array();
+                                                    foreach ( $siblings as $sibling ) {
+                                                        $sibling_links[] = sprintf(
+                                                            '<a href="?page=school-management-students&action=edit&student_id=%d" style="text-decoration: underline;">%s</a>',
+                                                            intval( $sibling->id ),
+                                                            esc_html( $sibling->name )
+                                                        );
+                                                    }
+                                                    echo implode( ', ', $sibling_links );
+                                                    ?>
+                                                </p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <a href="<?php echo wp_nonce_url( '?page=school-management-students&action=edit&student_id=' . intval( $student->id ) . '&recalculate_discount=' . intval( $student->id ), 'sm_recalculate_discount_' . intval( $student->id ) ); ?>"
+                                       class="button button-small"
+                                       style="white-space: nowrap;">
+                                        <span class="dashicons dashicons-update" style="vertical-align: middle; font-size: 14px;"></span>
+                                        <?php esc_html_e( 'Recalculate', 'CTADZ-school-management' ); ?>
+                                    </a>
+                                </div>
+                            </div>
+                            <style>
+                                /* Light mode styles */
+                                .sm-discount-info-box {
+                                    background: #e7f7ed;
+                                    border-left: 4px solid #46b450;
+                                    padding: 12px 15px;
+                                    margin-top: 10px;
+                                }
+                                .sm-discount-icon {
+                                    color: #46b450;
+                                    font-size: 20px;
+                                }
+                                .sm-discount-title {
+                                    color: #2c5f2d;
+                                }
+                                .sm-discount-details {
+                                    margin: 5px 0 0 0;
+                                    color: #555;
+                                    font-size: 13px;
+                                }
+
+                                /* Dark mode styles */
+                                @media (prefers-color-scheme: dark) {
+                                    .sm-discount-info-box {
+                                        background: rgba(70, 180, 80, 0.15);
+                                        border-left: 4px solid #68de7c;
+                                    }
+                                    .sm-discount-icon {
+                                        color: #68de7c;
+                                    }
+                                    .sm-discount-title {
+                                        color: #a7f3b3;
+                                    }
+                                    .sm-discount-details {
+                                        color: #c3c4c7;
+                                    }
+                                }
+                            </style>
+                        <?php
+                            endif;
+                        }
+                        ?>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="parent_name"><?php esc_html_e( 'Parent/Guardian Name', 'CTADZ-school-management' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="text" id="parent_name" name="parent_name" value="<?php echo esc_attr( $form_data['parent_name'] ?? '' ); ?>" class="regular-text" maxlength="100" />
+                        <p class="description"><?php esc_html_e( 'Full name of parent or guardian.', 'CTADZ-school-management' ); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="parent_phone"><?php esc_html_e( 'Parent/Guardian Phone', 'CTADZ-school-management' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="text" id="parent_phone" name="parent_phone" value="<?php echo esc_attr( $form_data['parent_phone'] ?? '' ); ?>" class="regular-text" />
+                        <p class="description"><?php esc_html_e( 'Used to identify family members for family discounts. Students with the same parent phone number will be grouped as siblings.', 'CTADZ-school-management' ); ?></p>
+                        <div id="sm-family-warning" class="sm-family-warning-box" style="display:none;">
+                            <p class="sm-family-warning-title">⚠️ <?php esc_html_e( 'Family Members Detected', 'CTADZ-school-management' ); ?></p>
+                            <div id="sm-family-list" class="sm-family-warning-content"></div>
+                        </div>
+                        <?php
+                        // Show parent name validation warning for existing students
+                        if ( $is_edit && ! empty( $student->parent_phone ) && ! empty( $student->parent_name ) ) {
+                            $family_members = SM_Family_Discount::get_family_members( $student->parent_phone );
+                            $name_mismatches = array();
+
+                            foreach ( $family_members as $member ) {
+                                if ( $member->id != $student->id && ! empty( $member->parent_name ) ) {
+                                    $normalized_current = strtolower( trim( $student->parent_name ) );
+                                    $normalized_other = strtolower( trim( $member->parent_name ) );
+
+                                    if ( $normalized_current !== $normalized_other ) {
+                                        $name_mismatches[] = sprintf(
+                                            '%s (%s)',
+                                            esc_html( $member->name ),
+                                            esc_html( $member->parent_name )
+                                        );
+                                    }
+                                }
+                            }
+
+                            if ( ! empty( $name_mismatches ) ) :
+                        ?>
+                            <div class="sm-parent-name-warning">
+                                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                    <span class="dashicons dashicons-warning sm-warning-icon"></span>
+                                    <div style="flex: 1;">
+                                        <strong class="sm-warning-title"><?php esc_html_e( 'Parent Name Mismatch Detected', 'CTADZ-school-management' ); ?></strong>
+                                        <p class="sm-warning-text">
+                                            <?php
+                                            printf(
+                                                esc_html__( 'This student\'s parent name (%s) differs from siblings with the same phone number:', 'CTADZ-school-management' ),
+                                                '<strong>' . esc_html( $student->parent_name ) . '</strong>'
+                                            );
+                                            ?>
+                                        </p>
+                                        <ul class="sm-warning-list">
+                                            <?php foreach ( $name_mismatches as $mismatch ) : ?>
+                                                <li><?php echo $mismatch; ?></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                        <p class="sm-warning-note">
+                                            <?php esc_html_e( 'Please verify and correct if this is a data entry error.', 'CTADZ-school-management' ); ?>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <style>
+                                /* Parent name warning box - Light mode */
+                                .sm-parent-name-warning {
+                                    background: #fff3cd;
+                                    border-left: 4px solid #ffc107;
+                                    padding: 12px 15px;
+                                    margin-top: 10px;
+                                }
+                                .sm-warning-icon {
+                                    color: #856404;
+                                    font-size: 20px;
+                                    margin-top: 2px;
+                                }
+                                .sm-warning-title {
+                                    color: #856404;
+                                }
+                                .sm-warning-text {
+                                    margin: 5px 0 0 0;
+                                    color: #856404;
+                                    font-size: 13px;
+                                }
+                                .sm-warning-list {
+                                    margin: 5px 0 0 20px;
+                                    color: #856404;
+                                    font-size: 13px;
+                                }
+                                .sm-warning-note {
+                                    margin: 5px 0 0 0;
+                                    color: #856404;
+                                    font-size: 12px;
+                                    font-style: italic;
+                                }
+
+                                /* Dark mode support for parent name warning */
+                                @media (prefers-color-scheme: dark) {
+                                    .sm-parent-name-warning {
+                                        background: rgba(255, 193, 7, 0.15);
+                                        border-left: 4px solid #ffc107;
+                                    }
+                                    .sm-warning-icon,
+                                    .sm-warning-title,
+                                    .sm-warning-text,
+                                    .sm-warning-list,
+                                    .sm-warning-note {
+                                        color: #ffc107;
+                                    }
+                                }
+                            </style>
+                        <?php
+                            endif;
+                        }
+                        ?>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="parent_email"><?php esc_html_e( 'Parent/Guardian Email', 'CTADZ-school-management' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="email" id="parent_email" name="parent_email" value="<?php echo esc_attr( $form_data['parent_email'] ?? '' ); ?>" class="regular-text" />
+                        <p class="description"><?php esc_html_e( 'Email address for parent communications.', 'CTADZ-school-management' ); ?></p>
+                    </td>
+                </tr>
             </table>
 
             <p class="submit">
@@ -811,7 +1430,417 @@ class SM_Students_Page {
         </form>
         <?php
     }
+
+    /**
+     * AJAX handler to check for family members with same parent phone
+     */
+    public static function ajax_check_family_phone() {
+        global $wpdb;
+
+        $phone = sanitize_text_field( $_POST['phone'] ?? '' );
+        $current_student_id = intval( $_POST['student_id'] ?? 0 );
+
+        if ( empty( $phone ) ) {
+            wp_send_json_error( [ 'message' => __( 'Phone number required', 'CTADZ-school-management' ) ] );
+        }
+
+        $students_table = $wpdb->prefix . 'sm_students';
+        $normalized = SM_Family_Discount::normalize_phone( $phone );
+
+        if ( empty( $normalized ) ) {
+            wp_send_json_error( [ 'message' => __( 'Invalid phone number', 'CTADZ-school-management' ) ] );
+        }
+
+        // Find students with the same parent phone (using normalized comparison)
+        $query = "SELECT id, name, student_code FROM $students_table
+                  WHERE REGEXP_REPLACE(parent_phone, '[^0-9]', '') = %s";
+        $params = [ $normalized ];
+
+        // Exclude current student if editing
+        if ( $current_student_id > 0 ) {
+            $query .= " AND id != %d";
+            $params[] = $current_student_id;
+        }
+
+        $family_members = $wpdb->get_results( $wpdb->prepare( $query, $params ) );
+
+        // Calculate what discount would apply
+        $discount_info = null;
+        if ( SM_Family_Discount::is_enabled() && count( $family_members ) > 0 ) {
+            // Total family members will be existing + 1 (current student)
+            $total_family_count = count( $family_members ) + 1;
+            $tiers = SM_Family_Discount::get_discount_tiers();
+
+            // Find applicable tier
+            foreach ( $tiers as $tier ) {
+                if ( $total_family_count >= intval( $tier['students'] ) ) {
+                    $discount_info = sprintf(
+                        __( '%s%% discount for %d students', 'CTADZ-school-management' ),
+                        number_format( floatval( $tier['discount'] ), 1 ),
+                        $total_family_count
+                    );
+                    break;
+                }
+            }
+        }
+
+        wp_send_json_success( [
+            'family_members' => $family_members,
+            'count' => count( $family_members ),
+            'discount_info' => $discount_info
+        ] );
+    }
+
+    /**
+     * Render family discount confirmation modal (output once per page)
+     */
+    private static function render_family_discount_modal() {
+        ?>
+        <!-- Custom Modal for Family Discount Confirmation -->
+        <div id="sm-family-confirm-modal" style="display: none;">
+            <div class="sm-modal-overlay"></div>
+            <div class="sm-modal-container">
+                <div class="sm-modal-header">
+                    <h2>⚠️ <?php esc_html_e( 'Family Discount Confirmation', 'CTADZ-school-management' ); ?></h2>
+                </div>
+                <div class="sm-modal-content" id="sm-modal-message"></div>
+                <div class="sm-modal-footer">
+                    <button type="button" class="button button-primary button-large" id="sm-confirm-yes">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <?php esc_html_e( 'Yes, Apply Discount', 'CTADZ-school-management' ); ?>
+                    </button>
+                    <button type="button" class="button button-large" id="sm-confirm-no">
+                        <span class="dashicons dashicons-dismiss"></span>
+                        <?php esc_html_e( 'No, Change Phone Number', 'CTADZ-school-management' ); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+        .sm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999999;
+            backdrop-filter: blur(2px);
+        }
+
+        .sm-modal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000000;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .sm-modal-header {
+            background: #f0ad4e;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .sm-modal-header h2 {
+            margin: 0;
+            color: #fff !important;
+            font-size: 18px;
+        }
+
+        .sm-modal-content {
+            padding: 25px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .sm-modal-content p {
+            margin: 0 0 15px 0;
+        }
+
+        .sm-modal-footer {
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 0 0 8px 8px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .sm-family-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #8e44ad;
+        }
+
+        .sm-family-list ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            list-style: none;
+        }
+
+        .sm-family-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sm-family-list li:last-child {
+            border-bottom: none;
+        }
+
+        .sm-discount-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            color: #155724;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .sm-modal-container {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+
+            .sm-modal-content {
+                color: #e0e0e0;
+            }
+
+            .sm-modal-footer {
+                background: #2a2a2a;
+            }
+
+            .sm-family-list {
+                background: #2a2a2a;
+                border-left-color: #8e44ad;
+            }
+
+            .sm-family-list li {
+                border-bottom-color: #3a3a3a;
+            }
+
+            .sm-discount-box {
+                background: #1a3d1a;
+                border-left-color: #4caf50;
+                color: #a5d6a7;
+            }
+        }
+        </style>
+
+        <script>
+        jQuery(document).ready(function($) {
+            var familyConfirmed = false;
+            var detectedFamilyInfo = null;
+
+            // AJAX check for family members when phone number changes
+            var ajaxTimer = null;
+            $('#parent_phone').on('input', function() {
+                clearTimeout(ajaxTimer);
+                var phone = $(this).val().trim();
+                var currentStudentId = $('input[name="student_id"]').val() || 0;
+
+                if (phone.length >= 8) {
+                    ajaxTimer = setTimeout(function() {
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'sm_check_family_phone',
+                                phone: phone,
+                                student_id: currentStudentId
+                            },
+                            success: function(response) {
+                                if (response.success && response.data.family_members && response.data.family_members.length > 0) {
+                                    detectedFamilyInfo = response.data;
+                                    let familyList = '<strong><?php esc_html_e( 'This phone number is associated with:', 'CTADZ-school-management' ); ?></strong><br>';
+                                    response.data.family_members.forEach(function(member) {
+                                        familyList += '• ' + member.name + ' (' + member.student_code + ')<br>';
+                                    });
+                                    familyList += '<br><em><?php esc_html_e( 'These students will be considered family members for discount purposes.', 'CTADZ-school-management' ); ?></em>';
+
+                                    // Add discount info if available
+                                    if (response.data.discount_info) {
+                                        familyList += '<br><br><strong style="color: #28a745;"><?php esc_html_e( 'Applicable Discount:', 'CTADZ-school-management' ); ?> ' + response.data.discount_info + '</strong>';
+                                    }
+
+                                    $('#sm-family-list').html(familyList);
+                                    $('#sm-family-warning').slideDown();
+                                } else {
+                                    detectedFamilyInfo = null;
+                                    $('#sm-family-warning').slideUp();
+                                }
+                            }
+                        });
+                    }, 500);
+                } else {
+                    detectedFamilyInfo = null;
+                    $('#sm-family-warning').slideUp();
+                }
+            });
+
+            // Intercept form submission for family discount confirmation
+            var studentFormSubmitted = false;
+            var $studentForm = $('#sm-student-form');
+
+            // Form only exists on add/edit pages, not on list page - silently exit if not found
+            if ($studentForm.length === 0) {
+                return;
+            }
+
+            $studentForm.on('submit', function(e) {
+                // Check if family discount confirmation was already done
+                var confirmValue = $('#family_discount_confirmed').val();
+
+                if (confirmValue === 'yes') {
+                    // Already confirmed, allow submission
+                    return true;
+                }
+
+                if (!studentFormSubmitted && detectedFamilyInfo && detectedFamilyInfo.family_members && detectedFamilyInfo.family_members.length > 0 && !familyConfirmed) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Build modal content
+                    var modalContent = '<p><strong><?php esc_html_e( 'This parent phone number matches existing students:', 'CTADZ-school-management' ); ?></strong></p>';
+
+                    modalContent += '<div class="sm-family-list">';
+                    modalContent += '<ul>';
+                    detectedFamilyInfo.family_members.forEach(function(member) {
+                        modalContent += '<li>👤 <strong>' + member.name + '</strong> (' + member.student_code + ')</li>';
+                    });
+                    modalContent += '</ul>';
+                    modalContent += '<p><strong><?php esc_html_e( 'Parent Phone:', 'CTADZ-school-management' ); ?></strong> ' + $('#parent_phone').val() + '</p>';
+                    modalContent += '</div>';
+
+                    if (detectedFamilyInfo.discount_info) {
+                        modalContent += '<div class="sm-discount-box">';
+                        modalContent += '<strong>✓ <?php esc_html_e( 'Discount to Apply:', 'CTADZ-school-management' ); ?></strong><br>';
+                        modalContent += detectedFamilyInfo.discount_info;
+                        modalContent += '</div>';
+                        modalContent += '<p><?php echo esc_js( __( 'This discount will be automatically applied to all family members current and future enrollments.', 'CTADZ-school-management' ) ); ?></p>';
+                    }
+
+                    modalContent += '<p style="margin-top: 20px;"><strong><?php esc_html_e( 'Are these students from the same family?', 'CTADZ-school-management' ); ?></strong></p>';
+
+                    // Show modal
+                    $('#sm-modal-message').html(modalContent);
+                    $('#sm-family-confirm-modal').fadeIn(200);
+
+                    return false;
+                }
+            });
+
+            // Handle modal button clicks
+            $(document).on('click', '#sm-confirm-yes', function(e) {
+                e.preventDefault();
+                console.log('=== DISCOUNT CONFIRMED ===');
+
+                // Close modal
+                $('#sm-family-confirm-modal').fadeOut(200);
+
+                // Mark as confirmed so submit handler allows it
+                familyConfirmed = true;
+                studentFormSubmitted = true;
+
+                // Submit form after modal closes
+                setTimeout(function() {
+                    // Set the hidden field value
+                    var confirmField = document.getElementById('family_discount_confirmed');
+                    if (confirmField) {
+                        confirmField.value = 'yes';
+                        console.log('Field value set to:', confirmField.value);
+                    }
+
+                    // Find and click the submit button instead of calling form.submit()
+                    var submitButton = document.querySelector('#sm-student-form input[type="submit"][name="sm_save_student"]');
+                    if (submitButton) {
+                        console.log('Clicking submit button...');
+                        // Remove jQuery event handlers to prevent modal from showing again
+                        $('#sm-student-form').off('submit');
+                        // Click the actual submit button
+                        submitButton.click();
+                    } else {
+                        console.error('Submit button not found!');
+                    }
+                }, 300);
+            });
+
+            $('#sm-confirm-no').on('click', function() {
+                $('#sm-family-confirm-modal').fadeOut(200);
+                $('#parent_phone').focus();
+            });
+
+            // Close modal when clicking overlay
+            $('.sm-modal-overlay').on('click', function() {
+                $('#sm-family-confirm-modal').fadeOut(200);
+                $('#parent_phone').focus();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * AJAX handler to get family members
+     */
+    public static function ajax_get_family_members() {
+        // Security check
+        check_ajax_referer( 'sm_family_members_nonce', 'nonce' );
+
+        $parent_phone = sanitize_text_field( $_POST['parent_phone'] ?? '' );
+        $current_student_id = intval( $_POST['current_student_id'] ?? 0 );
+
+        if ( empty( $parent_phone ) ) {
+            wp_send_json_error( [ 'message' => __( 'Invalid parent phone.', 'CTADZ-school-management' ) ] );
+        }
+
+        // Get family members
+        $family_members = SM_Family_Discount::get_family_members( $parent_phone );
+
+        // Format the response
+        $members_data = [];
+        foreach ( $family_members as $member ) {
+            // Skip current student
+            if ( $member->id == $current_student_id ) {
+                continue;
+            }
+
+            global $wpdb;
+            $levels_table = $wpdb->prefix . 'sm_levels';
+            $level = $wpdb->get_row( $wpdb->prepare(
+                "SELECT name FROM $levels_table WHERE id = %d",
+                $member->level_id
+            ) );
+
+            $members_data[] = [
+                'id' => intval( $member->id ),
+                'name' => esc_html( $member->name ),
+                'email' => esc_html( $member->email ),
+                'phone' => esc_html( $member->phone ),
+                'level_name' => $level ? esc_html( $level->name ) : __( 'No Level', 'CTADZ-school-management' )
+            ];
+        }
+
+        wp_send_json_success( [ 'members' => $members_data ] );
+    }
 }
 
 // Instantiate class
 new SM_Students_Page();
+
+// Register AJAX handlers
+add_action( 'wp_ajax_sm_check_family_phone', [ 'SM_Students_Page', 'ajax_check_family_phone' ] );
+add_action( 'wp_ajax_sm_get_family_members', [ 'SM_Students_Page', 'ajax_get_family_members' ] );

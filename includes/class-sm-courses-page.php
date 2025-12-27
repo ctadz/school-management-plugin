@@ -423,6 +423,87 @@ class SM_Courses_Page {
             color: #646970;
             cursor: default;
         }
+
+        /* Payment Model Badge Styles */
+        .sm-payment-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            -webkit-font-smoothing: subpixel-antialiased;
+            -moz-osx-font-smoothing: auto;
+            font-smooth: never;
+            text-rendering: geometricPrecision;
+        }
+
+        .sm-payment-badge .dashicons {
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        /* Full Payment Badge */
+        .sm-payment-badge-full_payment {
+            background: #ecf7ed;
+        }
+
+        .sm-payment-badge-full_payment .dashicons,
+        .sm-payment-badge-full_payment strong {
+            color: #46b450;
+        }
+
+        /* Monthly Installments Badge */
+        .sm-payment-badge-monthly_installments {
+            background: #e5f5fa;
+        }
+
+        .sm-payment-badge-monthly_installments .dashicons,
+        .sm-payment-badge-monthly_installments strong {
+            color: #00a0d2;
+        }
+
+        /* Monthly Subscription Badge */
+        .sm-payment-badge-monthly_subscription {
+            background: #fef8e7;
+        }
+
+        .sm-payment-badge-monthly_subscription .dashicons,
+        .sm-payment-badge-monthly_subscription strong {
+            color: #f0ad4e;
+        }
+
+        /* Dark Mode Support for Payment Badges */
+        @media (prefers-color-scheme: dark) {
+            /* Full Payment Badge */
+            .sm-payment-badge-full_payment {
+                background: rgba(70, 180, 80, 0.2);
+            }
+
+            .sm-payment-badge-full_payment .dashicons,
+            .sm-payment-badge-full_payment strong {
+                color: #7ed487;
+            }
+
+            /* Monthly Installments Badge */
+            .sm-payment-badge-monthly_installments {
+                background: rgba(0, 160, 210, 0.2);
+            }
+
+            .sm-payment-badge-monthly_installments .dashicons,
+            .sm-payment-badge-monthly_installments strong {
+                color: #5bc0de;
+            }
+
+            /* Monthly Subscription Badge */
+            .sm-payment-badge-monthly_subscription {
+                background: rgba(240, 173, 78, 0.2);
+            }
+
+            .sm-payment-badge-monthly_subscription .dashicons,
+            .sm-payment-badge-monthly_subscription strong {
+                color: #f5c26b;
+            }
+        }
         </style>
         
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -498,11 +579,11 @@ class SM_Courses_Page {
                 <?php if ( ! empty( $filter_payment_model ) ) : ?>
                     <input type="hidden" name="filter_payment_model" value="<?php echo esc_attr( $filter_payment_model ); ?>">
                 <?php endif; ?>
-                <input type="search" 
-                       name="s" 
-                       value="<?php echo esc_attr( $search ); ?>" 
-                       placeholder="<?php esc_attr_e( 'Search courses by name, language, or teacher...', 'CTADZ-school-management' ); ?>"
-                       style="width: 300px; margin-right: 5px;">
+                <input type="search"
+                       name="s"
+                       value="<?php echo esc_attr( $search ); ?>"
+                       placeholder="<?php esc_attr_e( 'Enter course information', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                 <?php if ( ! empty( $search ) ) : ?>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'school-management-courses', 'filter_payment_model' => $filter_payment_model ), admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left: 5px;">
@@ -631,9 +712,9 @@ class SM_Courses_Page {
                                 $model = $course->payment_model ?? 'monthly_installments';
                                 $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
                                 ?>
-                                <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: <?php echo esc_attr( $display['bg'] ); ?>; border-radius: 4px; font-size: 12px;">
-                                    <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>" style="font-size: 14px; color: <?php echo esc_attr( $display['color'] ); ?>; margin-right: 5px;"></span>
-                                    <strong style="color: <?php echo esc_attr( $display['color'] ); ?>;"><?php echo esc_html( $display['label'] ); ?></strong>
+                                <span class="sm-payment-badge sm-payment-badge-<?php echo esc_attr( $model ); ?>">
+                                    <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>"></span>
+                                    <strong><?php echo esc_html( $display['label'] ); ?></strong>
                                 </span>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Price/Month', 'CTADZ-school-management' ); ?>">

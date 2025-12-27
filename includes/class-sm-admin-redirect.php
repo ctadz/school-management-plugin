@@ -116,15 +116,16 @@ class SM_Admin_Redirect {
      */
     public static function custom_admin_footer( $text ) {
         if ( current_user_can( 'manage_school' ) ) {
-            $settings = get_option( 'sm_school_settings', [] );
-            $school_name = $settings['school_name'] ?? __( 'School Management System', 'CTADZ-school-management' );
-            
+            $plugin_name = __( 'CTADZ-School Management', 'CTADZ-school-management' );
+            $version = defined( 'SM_VERSION' ) ? SM_VERSION : '0.5.0';
+
             return sprintf(
-                __( 'Thank you for using %s', 'CTADZ-school-management' ),
-                '<strong>' . esc_html( $school_name ) . '</strong>'
+                __( 'Thank you for using %s - Version %s', 'CTADZ-school-management' ),
+                '<strong>' . esc_html( $plugin_name ) . '</strong>',
+                '<strong>' . esc_html( $version ) . '</strong>'
             );
         }
-        
+
         return $text;
     }
 }

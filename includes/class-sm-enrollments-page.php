@@ -67,21 +67,26 @@ class SM_Enrollments_Page {
         $courses_table = $wpdb->prefix . 'sm_courses';
         
         $enrollment = $wpdb->get_row( $wpdb->prepare(
-            "SELECT e.*, c.price_per_month, c.total_months 
+            "SELECT e.*, c.price_per_month, c.total_months
              FROM $enrollments_table e
              LEFT JOIN $courses_table c ON e.course_id = c.id
              WHERE e.id = %d",
             $enrollment_id
         ) );
-        
+
         if ( ! $enrollment ) {
             return;
         }
-        
+
         $payment_plan = sanitize_text_field( $post_data['payment_plan'] ?? 'monthly' );
         $price_per_month = floatval( $enrollment->price_per_month );
         $total_months = intval( $enrollment->total_months );
         $start_date = $enrollment->start_date;
+
+        // Calculate family discount
+        $discount_info = SM_Family_Discount::calculate_discount_for_student( $enrollment->student_id );
+        $discount_percentage = $discount_info['percentage'];
+        $discount_reason = $discount_info['reason'];
         
         $installments = [];
         
@@ -122,13 +127,21 @@ class SM_Enrollments_Page {
         
         // Insert installments into database
         foreach ( $installments as $installment ) {
+            // Apply family discount to amount
+            $discounted_amount = SM_Family_Discount::apply_discount(
+                $installment['amount'],
+                $discount_percentage
+            );
+
             $wpdb->insert( $payment_schedules_table, [
                 'enrollment_id' => $enrollment_id,
                 'installment_number' => $installment['number'],
-                'expected_amount' => $installment['amount'],
+                'expected_amount' => $discounted_amount,
                 'due_date' => $installment['due_date'],
                 'status' => 'pending',
                 'paid_amount' => 0,
+                'discount_percentage' => $discount_percentage,
+                'discount_reason' => $discount_reason,
             ] );
         }
     }
@@ -670,7 +683,7 @@ class SM_Enrollments_Page {
                     <?php if ( ! empty( $order ) ) : ?>
                         <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>" />
                     <?php endif; ?>
-                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search students, courses...', 'CTADZ-school-management' ); ?>" style="width: 250px;" />
+                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Enter enrollment information', 'CTADZ-school-management' ); ?>" />
                     <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
                     <?php if ( ! empty( $search ) ) : ?>
                         <a href="<?php echo esc_url( remove_query_arg( 's' ) ); ?>" class="button"><?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?></a>
@@ -1039,18 +1052,20 @@ class SM_Enrollments_Page {
             
             // Get payment schedule summary
             $schedule_summary = $wpdb->get_row( $wpdb->prepare(
-                "SELECT 
+                "SELECT
                     COUNT(*) as total_installments,
                     SUM(expected_amount) as total_expected,
                     SUM(paid_amount) as total_paid,
                     SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_installments,
                     SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_installments,
-                    SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as overdue_installments
-                 FROM $payment_schedules_table 
+                    SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as overdue_installments,
+                    MAX(discount_percentage) as discount_percentage,
+                    MAX(discount_reason) as discount_reason
+                 FROM $payment_schedules_table
                  WHERE enrollment_id = %d",
                 $enrollment->id
             ) );
-            
+
             $payment_data = [
                 'course_info' => $course_info,
                 'insurance_fee' => $insurance_fee,
@@ -1172,6 +1187,12 @@ class SM_Enrollments_Page {
                             <input type="hidden" name="student_id" value="<?php echo esc_attr( $form_data['student_id'] ?? '' ); ?>" />
                             <p class="description"><?php esc_html_e( 'Student cannot be changed after enrollment.', 'CTADZ-school-management' ); ?></p>
                         <?php else : ?>
+                            <div id="sm-student-discount-info" style="display:none; margin-top: 10px; padding: 10px; background: #d4edda; border-left: 4px solid #28a745; color: #155724;">
+                                <p style="margin: 0; font-weight: 600;">
+                                    <span class="dashicons dashicons-groups" style="margin-right: 5px;"></span>
+                                    <span id="sm-discount-message"></span>
+                                </p>
+                            </div>
                             <p class="description">
                                 <a href="?page=school-management-students&action=add" target="_blank"><?php esc_html_e( 'Add new student', 'CTADZ-school-management' ); ?></a>
                             </p>
@@ -1373,6 +1394,22 @@ class SM_Enrollments_Page {
                                     <span class="sm-payment-label"><?php esc_html_e( 'Overdue:', 'CTADZ-school-management' ); ?></span>
                                     <span class="sm-payment-value" style="color: #dc3232;"><?php echo intval( $payment_data['schedule_summary']->overdue_installments ); ?></span>
                                 </div>
+                                <?php endif; ?>
+                                <?php if ( ! empty( $payment_data['schedule_summary']->discount_percentage ) && $payment_data['schedule_summary']->discount_percentage > 0 ) : ?>
+                                <div class="sm-payment-row" style="background: #d4edda; margin: 5px -15px; padding: 8px 15px; border-radius: 4px;">
+                                    <span class="sm-payment-label" style="color: #155724;">
+                                        <span class="dashicons dashicons-groups" style="margin-right: 5px;"></span>
+                                        <?php esc_html_e( 'Family Discount:', 'CTADZ-school-management' ); ?>
+                                    </span>
+                                    <span class="sm-payment-value" style="color: #155724;">
+                                        <?php echo number_format( $payment_data['schedule_summary']->discount_percentage, 1 ); ?>%
+                                    </span>
+                                </div>
+                                <?php if ( ! empty( $payment_data['schedule_summary']->discount_reason ) ) : ?>
+                                <div style="padding: 8px 0; font-size: 12px; color: #666; font-style: italic;">
+                                    <?php echo esc_html( $payment_data['schedule_summary']->discount_reason ); ?>
+                                </div>
+                                <?php endif; ?>
                                 <?php endif; ?>
                                 <div class="sm-payment-row">
                                     <span class="sm-payment-label"><?php esc_html_e( 'Total Expected:', 'CTADZ-school-management' ); ?></span>
@@ -1634,12 +1671,73 @@ class SM_Enrollments_Page {
                 $paymentPlan.after(descriptionHtml);
             }
         });
+
+        // Check for family discount when student is selected (info only)
+        $('#enrollment_student').on('change', function() {
+            var studentId = $(this).val();
+            if (studentId) {
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'sm_get_student_discount',
+                        student_id: studentId
+                    },
+                    success: function(response) {
+                        if (response.success && response.data.discount_percentage > 0) {
+                            $('#sm-discount-message').html(response.data.message);
+                            $('#sm-student-discount-info').slideDown();
+                        } else {
+                            $('#sm-student-discount-info').slideUp();
+                        }
+                    }
+                });
+            } else {
+                $('#sm-student-discount-info').slideUp();
+            }
+        });
         </script>
         <?php endif; ?>
         </form>
         <?php
     }
+
+    /**
+     * AJAX handler to get student discount info
+     */
+    public static function ajax_get_student_discount() {
+        $student_id = intval( $_POST['student_id'] ?? 0 );
+
+        if ( $student_id <= 0 ) {
+            wp_send_json_error( [ 'message' => __( 'Invalid student ID', 'CTADZ-school-management' ) ] );
+        }
+
+        $discount_info = SM_Family_Discount::calculate_discount_for_student( $student_id );
+
+        if ( $discount_info['percentage'] > 0 ) {
+            $message = sprintf(
+                __( 'Family Discount: %s%% (%d students in family)', 'CTADZ-school-management' ),
+                number_format( $discount_info['percentage'], 1 ),
+                $discount_info['family_count']
+            );
+
+            wp_send_json_success( [
+                'discount_percentage' => $discount_info['percentage'],
+                'family_count' => $discount_info['family_count'],
+                'message' => $message
+            ] );
+        } else {
+            wp_send_json_success( [
+                'discount_percentage' => 0,
+                'message' => ''
+            ] );
+        }
+    }
+
 }
 
 // Instantiate class
 new SM_Enrollments_Page();
+
+// Register AJAX handlers
+add_action( 'wp_ajax_sm_get_student_discount', [ 'SM_Enrollments_Page', 'ajax_get_student_discount' ] );

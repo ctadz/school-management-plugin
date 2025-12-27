@@ -41,6 +41,29 @@ require_once SM_PLUGIN_DIR . 'includes/sm-loader.php';
 // Include roles management
 require_once SM_PLUGIN_DIR . 'includes/class-sm-roles.php';
 
+// Include GitHub updater for automatic plugin updates
+require_once SM_PLUGIN_DIR . 'includes/class-sm-github-updater.php';
+
+// Include family discount calculator
+require_once SM_PLUGIN_DIR . 'includes/class-sm-family-discount.php';
+
+// Include family discount tools page (admin only)
+require_once SM_PLUGIN_DIR . 'includes/class-sm-family-discount-tools-page.php';
+
+/**
+ * Initialize automatic updates from GitHub
+ */
+function sm_init_github_updater() {
+	if ( is_admin() ) {
+		new SM_GitHub_Updater(
+			__FILE__,
+			'ahmedsebaa/school-management-plugin', // GitHub repository
+			null // GitHub token (optional, set in wp-config.php: define('SM_GITHUB_TOKEN', 'your_token'))
+		);
+	}
+}
+add_action( 'admin_init', 'sm_init_github_updater' );
+
 /**
  * Plugin activation hook
  */
@@ -432,6 +455,18 @@ dbDelta( $sql_enrollments );
         error_log('✅ SM Database updated to version 1.4.0 - Attendance table created');
     }
 
+    if ( version_compare( $current_db_version, '1.5.0', '<' ) ) {
+        sm_update_to_1_5_0( $wpdb, $students_table );
+        update_option( 'sm_db_version', '1.5.0' );
+        error_log('✅ SM Database updated to version 1.5.0 - Parent contact fields added');
+    }
+
+    if ( version_compare( $current_db_version, '1.6.0', '<' ) ) {
+        sm_update_to_1_6_0( $wpdb, $payment_schedules_table );
+        update_option( 'sm_db_version', '1.6.0' );
+        error_log('✅ SM Database updated to version 1.6.0 - Family discount fields added');
+    }
+
     error_log('✅ School Management plugin activated. All tables created or updated successfully.');
 
     // Clear output buffer to prevent "headers already sent" errors
@@ -501,6 +536,56 @@ function sm_update_to_1_3_0( $wpdb, $students_table ) {
         }
 
         error_log('✅ Generated student codes for ' . count($students) . ' existing students');
+    }
+}
+
+/**
+ * Database migration to version 1.5.0
+ * Adds parent contact fields to students table for family discount feature
+ */
+function sm_update_to_1_5_0( $wpdb, $students_table ) {
+    $students_columns = $wpdb->get_results( "SHOW COLUMNS FROM $students_table", ARRAY_A );
+    $existing_students_columns = array_column( $students_columns, 'Field' );
+
+    // Add parent_name field
+    if ( ! in_array( 'parent_name', $existing_students_columns ) ) {
+        $wpdb->query( "ALTER TABLE $students_table ADD parent_name varchar(100) DEFAULT NULL AFTER blood_type" );
+        error_log('✅ Added parent_name field to students table');
+    }
+
+    // Add parent_phone field (NO UNIQUE constraint - allows siblings)
+    if ( ! in_array( 'parent_phone', $existing_students_columns ) ) {
+        $wpdb->query( "ALTER TABLE $students_table ADD parent_phone varchar(50) DEFAULT NULL AFTER parent_name" );
+        // Add index for faster family lookups
+        $wpdb->query( "ALTER TABLE $students_table ADD INDEX idx_parent_phone (parent_phone)" );
+        error_log('✅ Added parent_phone field with index to students table');
+    }
+
+    // Add parent_email field
+    if ( ! in_array( 'parent_email', $existing_students_columns ) ) {
+        $wpdb->query( "ALTER TABLE $students_table ADD parent_email varchar(100) DEFAULT NULL AFTER parent_phone" );
+        error_log('✅ Added parent_email field to students table');
+    }
+}
+
+/**
+ * Database migration to version 1.6.0
+ * Adds discount fields to payment_schedules table for family discount tracking
+ */
+function sm_update_to_1_6_0( $wpdb, $payment_schedules_table ) {
+    $schedule_columns = $wpdb->get_results( "SHOW COLUMNS FROM $payment_schedules_table", ARRAY_A );
+    $existing_schedule_columns = array_column( $schedule_columns, 'Field' );
+
+    // Add discount_percentage field
+    if ( ! in_array( 'discount_percentage', $existing_schedule_columns ) ) {
+        $wpdb->query( "ALTER TABLE $payment_schedules_table ADD discount_percentage decimal(5,2) DEFAULT 0.00 AFTER expected_amount" );
+        error_log('✅ Added discount_percentage field to payment_schedules table');
+    }
+
+    // Add discount_reason field
+    if ( ! in_array( 'discount_reason', $existing_schedule_columns ) ) {
+        $wpdb->query( "ALTER TABLE $payment_schedules_table ADD discount_reason varchar(255) DEFAULT NULL AFTER discount_percentage" );
+        error_log('✅ Added discount_reason field to payment_schedules table');
     }
 }
 
