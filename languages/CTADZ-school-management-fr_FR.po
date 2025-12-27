@@ -859,3 +859,127 @@ msgstr "Réinitialiser le Mot de Passe"
 msgid "Create Portal Access"
 msgstr "Créer un Accès au Portail"
 
+# NEW: Family Discount strings (added 2025-12-27)
+msgid "Discount"
+msgstr "Remise"
+
+msgid "Family Discount Settings"
+msgstr "Paramètres de Remise Familiale"
+
+msgid "Enable Family Discounts"
+msgstr "Activer les Remises Familiales"
+
+msgid "Enable automatic family discounts"
+msgstr "Activer les remises familiales automatiques"
+
+msgid "When enabled, students with the same parent phone number will automatically receive family discounts based on the tiers below."
+msgstr "Lorsqu'activé, les étudiants ayant le même numéro de téléphone parental recevront automatiquement des remises familiales selon les paliers ci-dessous."
+
+msgid "Configure automatic family discounts based on the number of enrolled siblings (identified by parent phone number)."
+msgstr "Configurer les remises familiales automatiques selon le nombre de frères et sœurs inscrits (identifiés par le numéro de téléphone parental)."
+
+msgid "Discount Tiers"
+msgstr "Paliers de Remise"
+
+msgid "Discount %"
+msgstr "Remise %"
+
+msgid "Define discount percentages based on the number of family members enrolled. Tiers are applied automatically based on the highest matching tier."
+msgstr "Définir les pourcentages de remise selon le nombre de membres de la famille inscrits. Les paliers s'appliquent automatiquement selon le palier le plus élevé correspondant."
+
+msgid "At least one discount tier is required."
+msgstr "Au moins un palier de remise est requis."
+
+msgid "Maximum Discount Cap"
+msgstr "Plafond de Remise Maximum"
+
+msgid "Maximum discount percentage that can be applied to any family, regardless of tier configuration. The highest configured tier will apply to families exceeding the highest tier threshold."
+msgstr "Pourcentage de remise maximum applicable à toute famille, indépendamment de la configuration des paliers. Le palier le plus élevé configuré s'appliquera aux familles dépassant le seuil du palier le plus élevé."
+
+msgid "Family discount: %d students enrolled (%s%% discount)"
+msgstr "Remise familiale : %d étudiants inscrits (%s%% de remise)"
+
+msgid "Family discount: %d students enrolled (%s%% capped at %s%%)"
+msgstr "Remise familiale : %d étudiants inscrits (%s%% plafonnée à %s%%)"
+
+msgid "Successfully recalculated %d payment schedules for this family!"
+msgstr "%d échéanciers de paiement recalculés avec succès pour cette famille !"
+
+msgid "This student has no parent phone number set."
+msgstr "Cet étudiant n'a pas de numéro de téléphone parental défini."
+
+msgid "Recalculated %d payment schedules for old family."
+msgstr "%d échéanciers de paiement recalculés pour l'ancienne famille."
+
+msgid "Recalculated %d payment schedules for new family."
+msgstr "%d échéanciers de paiement recalculés pour la nouvelle famille."
+
+msgid "Applied family discounts to %d existing payment schedules."
+msgstr "Remises familiales appliquées à %d échéanciers de paiement existants."
+
+msgid "Please enter a valid parent/guardian email address."
+msgstr "Veuillez saisir une adresse e-mail valide pour le parent/tuteur."
+
+msgid "Recalc Discount"
+msgstr "Recalculer la Remise"
+
+msgid "Family Members"
+msgstr "Membres de la Famille"
+
+msgid "Loading family members..."
+msgstr "Chargement des membres de la famille..."
+
+msgid "No family members found."
+msgstr "Aucun membre de la famille trouvé."
+
+msgid "Error loading family members."
+msgstr "Erreur lors du chargement des membres de la famille."
+
+msgid "Parent/Guardian Information"
+msgstr "Informations sur le Parent/Tuteur"
+
+msgid "Used for emergency contact and family discount calculation."
+msgstr "Utilisé pour le contact d'urgence et le calcul de la remise familiale."
+
+msgid "Family Discount Active"
+msgstr "Remise Familiale Active"
+
+msgid "%s%% discount applied (%d students in family with active enrollments)"
+msgstr "%s%% de remise appliquée (%d étudiants dans la famille avec inscriptions actives)"
+
+msgid "Siblings:"
+msgstr "Frères et Sœurs :"
+
+msgid "Parent/Guardian Name"
+msgstr "Nom du Parent/Tuteur"
+
+msgid "Full name of parent or guardian."
+msgstr "Nom complet du parent ou tuteur."
+
+msgid "Parent/Guardian Phone"
+msgstr "Téléphone du Parent/Tuteur"
+
+msgid "Used to identify family members for family discounts. Students with the same parent phone number will be grouped as siblings."
+msgstr "Utilisé pour identifier les membres de la famille pour les remises familiales. Les étudiants ayant le même numéro de téléphone parental seront regroupés comme frères et sœurs."
+
+msgid "Family Members Detected"
+msgstr "Membres de la Famille Détectés"
+
+msgid "Parent Name Mismatch Detected"
+msgstr "Incohérence de Nom de Parent Détectée"
+
+msgid "This student's parent name (%s) differs from siblings with the same phone number:"
+msgstr "Le nom du parent de cet étudiant (%s) diffère de celui des frères et sœurs ayant le même numéro de téléphone :"
+
+msgid "Parent/Guardian Email"
+msgstr "E-mail du Parent/Tuteur"
+
+msgid "Email address for parent communications."
+msgstr "Adresse e-mail pour les communications avec les parents."
+
+msgid "%s%% discount for %d students"
+msgstr "%s%% de remise pour %d étudiants"
+
+msgid "Family Discount Confirmation"
+msgstr "Confirmation de la Remise Familiale"
+
