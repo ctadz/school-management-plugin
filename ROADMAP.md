@@ -1,9 +1,27 @@
 # School Management System - Development Roadmap
 
-**Last Updated**: December 6, 2025
-**Current Version**: 0.4.3
+**Last Updated**: December 27, 2025
+**Current Version**: 0.5.5
 
 ## ✅ Recently Completed
+
+### GitHub Auto-Update System & Translations (Dec 27, 2025)
+- [x] Fixed GitHub auto-update system
+  - Corrected repository URL from `ahmedsebaa` to `ctadz` account
+  - Updated Plugin URI and Author URI to point to ctadz
+  - Verified updater class properly fetches `school-management.zip` from releases
+  - Tested auto-update mechanism (v0.5.4)
+- [x] Expanded French translations
+  - Added 63 new French translations for Payment Alerts page (28 strings)
+  - Added French translations for Family Discount Tools page (35 strings)
+  - Translated all payment alert filters, status indicators, and reminder emails
+  - Translated family discount bulk recalculation interface
+  - Recompiled MO files successfully
+- [x] Created GitHub releases with proper assets
+  - v0.5.4: Auto-Update Fix (December 27, 2025)
+  - v0.5.5: French Translations Update (December 27, 2025)
+  - All releases include properly-named `school-management.zip` assets
+  - Auto-update system now fully functional for live site deployment
 
 ### Mobile Responsive Design (Dec 6, 2025)
 - [x] Created comprehensive responsive CSS for calendar plugin
@@ -85,18 +103,19 @@ Tasks:
 
 ### 3. Create GitHub Releases
 **Priority**: MEDIUM
-**Estimated Effort**: 1 hour
+**Status**: PARTIALLY COMPLETE ✅
 
 Tasks:
-- [ ] Tag v0.4.3 for main plugin
-- [ ] Tag v1.0.1 for calendar plugin
-- [ ] Tag v1.0.0 for student portal plugin
-- [ ] Write release notes documenting security fixes
-- [ ] Create release packages
-- [ ] Update changelog files
+- [x] Main plugin releases created (v0.5.4, v0.5.5)
+- [x] Release packages with proper ZIP files
+- [x] Auto-update system configured and tested
+- [ ] Tag releases for calendar plugin (pending)
+- [ ] Tag releases for student portal plugin (pending)
+- [ ] Create comprehensive changelog file
 
 **Dependencies**: None
 **Blocker**: None
+**Note**: Main plugin auto-updates are now functional. Calendar and portal plugin releases can be created when needed.
 
 ---
 
