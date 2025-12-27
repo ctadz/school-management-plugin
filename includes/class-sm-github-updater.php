@@ -160,13 +160,16 @@ class SM_GitHub_Updater {
 			return false;
 		}
 
+		// Get download URL - prefer attached asset over auto-generated zipball
+		$download_url = $this->get_download_url( $release );
+
 		// Build update object
 		$update_data = (object) array(
 			'slug'          => $this->plugin_slug,
 			'plugin'        => $this->plugin_basename,
 			'new_version'   => $release->tag_name,
 			'url'           => $release->html_url,
-			'package'       => $release->zipball_url,
+			'package'       => $download_url,
 			'tested'        => $this->get_tested_wp_version( $release ),
 			'requires_php'  => $this->plugin_data['RequiresPHP'],
 			'compatibility' => new stdClass(),
@@ -222,6 +225,28 @@ class SM_GitHub_Updater {
 		}
 
 		return $release;
+	}
+
+	/**
+	 * Get download URL from release
+	 * Prefers attached school-management.zip asset over auto-generated zipball
+	 *
+	 * @param object $release GitHub release object.
+	 * @return string Download URL.
+	 */
+	private function get_download_url( $release ) {
+		// Check if release has assets
+		if ( ! empty( $release->assets ) && is_array( $release->assets ) ) {
+			// Look for school-management.zip in assets
+			foreach ( $release->assets as $asset ) {
+				if ( 'school-management.zip' === $asset->name ) {
+					return $asset->browser_download_url;
+				}
+			}
+		}
+
+		// Fallback to auto-generated zipball (though it has wrong folder name)
+		return $release->zipball_url;
 	}
 
 	/**
