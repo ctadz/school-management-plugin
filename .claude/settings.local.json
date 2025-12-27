@@ -44,7 +44,10 @@
       "Bash(awk:*)",
       "Bash(wp db query:*)",
       "Bash(wp:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(\"C:/Program Files/GitHub CLI/gh.exe\" release list --repo ctadz/school-management-plugin --limit 5)",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"\nif (Test-Path ''school-management.zip'') { Remove-Item ''school-management.zip'' -Force }\nCompress-Archive -Path ''school-management'' -DestinationPath ''school-management.zip'' -CompressionLevel Optimal -Force\nWrite-Host ''ZIP created successfully''\n\")",
+      "Bash(\"C:/Program Files/GitHub CLI/gh.exe\" release upload v0.5.1 \"C:\\Users\\ahmed\\Local Sites\\ctadz-school\\app\\public\\wp-content\\plugins\\school-management.zip\" --repo ctadz/school-management-plugin --clobber)"
     ],
     "deny": [],
     "ask": []
