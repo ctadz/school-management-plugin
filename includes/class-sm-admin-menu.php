@@ -112,7 +112,12 @@ class SM_Admin_Menu {
             #adminmenu li.toplevel_page_school-management .wp-submenu li a[href*="settings"] .dashicons {
                 color: #82878c !important;
             }
-            
+
+            /* Family Discount Tools icon */
+            #adminmenu li.toplevel_page_school-management .wp-submenu li a[href*="family-discount-tools"] .dashicons {
+                color: #8e44ad !important;
+            }
+
             /* Keep colors on hover and active states */
             #adminmenu .toplevel_page_school-management .wp-submenu li a:hover .dashicons,
             #adminmenu .toplevel_page_school-management .wp-submenu li.current a .dashicons,
@@ -179,6 +184,11 @@ class SM_Admin_Menu {
             #adminmenu .toplevel_page_school-management .wp-submenu li.current a[href*="settings"] .dashicons,
             #adminmenu .toplevel_page_school-management .wp-submenu li a.current[href*="settings"] .dashicons {
                 color: #82878c !important;
+            }
+
+            #adminmenu .toplevel_page_school-management .wp-submenu li.current a[href*="family-discount-tools"] .dashicons,
+            #adminmenu .toplevel_page_school-management .wp-submenu li a.current[href*="family-discount-tools"] .dashicons {
+                color: #8e44ad !important;
             }
         </style>
         <?php
@@ -307,6 +317,18 @@ class SM_Admin_Menu {
             'school-management-payment-alerts',
             [ 'SM_Payment_Alerts_Page', 'render_page' ]
         );
+
+        // Family Discount Tools submenu (Super Admin only)
+        if ( current_user_can( 'manage_options' ) ) {
+            add_submenu_page(
+                'school-management',
+                __( 'Family Discount Tools', 'CTADZ-school-management' ),
+                '<span class="dashicons dashicons-groups sm-menu-icon" style="color: #8e44ad;"></span> ' . __( 'Family Discount Tools', 'CTADZ-school-management' ),
+                'manage_options',
+                'school-management-family-discount-tools',
+                [ 'SM_Family_Discount_Tools_Page', 'render_page' ]
+            );
+        }
     }
 
     /**

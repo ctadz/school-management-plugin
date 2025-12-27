@@ -948,6 +948,35 @@ textarea:focus {
 }
 
 /* =================================================
+   FAMILY DISCOUNT UI ELEMENTS
+   ================================================= */
+
+/* Family warning box in student form */
+.sm-family-warning-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+    border-radius: 4px;
+}
+
+.sm-family-warning-title {
+    margin: 0;
+    font-weight: 600;
+    color: #856404;
+}
+
+.sm-family-warning-content {
+    margin: 5px 0 0 0;
+}
+
+.sm-family-warning-content strong,
+.sm-family-warning-content em {
+    color: #856404;
+}
+
+/* =================================================
    DARK MODE SUPPORT (Prefers-color-scheme)
    ================================================= */
 @media (prefers-color-scheme: dark) {
@@ -1508,6 +1537,152 @@ textarea:focus {
     .sm-history-header {
         background: #0a0a0a;
         border-bottom-color: #333333;
+    }
+
+    /* ===== Family Discount UI Elements ===== */
+
+    /* Family warning box in student form */
+    .sm-family-warning-box {
+        background: #2d2400 !important;
+        border-left-color: #ffc107 !important;
+        color: #ffd54f !important;
+    }
+
+    .sm-family-warning-title {
+        color: #ffd54f !important;
+    }
+
+    .sm-family-warning-content,
+    .sm-family-warning-content strong,
+    .sm-family-warning-content em {
+        color: #ffd54f !important;
+    }
+
+    /* Discount info box in enrollment form */
+    #sm-student-discount-info {
+        background: #1a3d1a !important;
+        border-left-color: #4caf50 !important;
+        color: #a5d6a7 !important;
+    }
+
+    #sm-student-discount-info p,
+    #sm-student-discount-info span {
+        color: #a5d6a7 !important;
+    }
+
+    /* Discount indicator in payment schedule */
+    .sm-payment-row[style*="background: #d4edda"] {
+        background: #1a3d1a !important;
+    }
+
+    .sm-payment-row[style*="background: #d4edda"] .sm-payment-label,
+    .sm-payment-row[style*="background: #d4edda"] .sm-payment-value {
+        color: #a5d6a7 !important;
+    }
+
+    /* Payment summary boxes */
+    .sm-payment-summary-box {
+        background: #1a1a1a !important;
+        border-color: #333333 !important;
+    }
+
+    .sm-payment-summary-box h4 {
+        color: #ffffff !important;
+    }
+
+    .sm-payment-row {
+        border-bottom-color: #333333 !important;
+    }
+
+    .sm-payment-label {
+        color: #b0b0b0 !important;
+    }
+
+    .sm-payment-value {
+        color: #e0e0e0 !important;
+    }
+
+    /* Course payment info boxes */
+    .sm-course-payment-info {
+        background: #1a2633 !important;
+        border-color: #0073aa !important;
+    }
+
+    .sm-course-payment-info h4 {
+        color: #5eb3f6 !important;
+    }
+
+    .sm-course-payment-info.subscription {
+        background: #332a1a !important;
+        border-color: #f0ad4e !important;
+    }
+
+    .sm-course-payment-info.subscription h4 {
+        color: #f0ad4e !important;
+    }
+
+    .sm-payment-model-badge {
+        background: #0073aa !important;
+        color: #ffffff !important;
+    }
+
+    .sm-course-payment-info.subscription .sm-payment-model-badge {
+        background: #f0ad4e !important;
+    }
+
+    /* Info icons */
+    .sm-info-icon {
+        background: #1a2633 !important;
+        border-color: #0073aa !important;
+        color: #5eb3f6 !important;
+    }
+
+    /* Description text */
+    .description,
+    p.description {
+        color: #b0b0b0 !important;
+    }
+
+    /* Dashicons in dark mode */
+    .dashicons {
+        color: inherit !important;
+    }
+}
+
+/* =================================================
+   RECALCULATE DISCOUNT BUTTON
+   ================================================= */
+.button.button-small[href*="recalculate_discount"] {
+    background: #2271b1 !important;
+    color: white !important;
+    border-color: #2271b1 !important;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.button.button-small[href*="recalculate_discount"]:hover {
+    background: #135e96 !important;
+    border-color: #135e96 !important;
+    transform: translateY(-1px);
+}
+
+.button.button-small[href*="recalculate_discount"]:active {
+    transform: translateY(0);
+}
+
+.button.button-small[href*="recalculate_discount"] .dashicons {
+    color: white !important;
+}
+
+/* Dark mode support for recalculate button */
+@media (prefers-color-scheme: dark) {
+    .button.button-small[href*="recalculate_discount"] {
+        background: #3582c4 !important;
+        border-color: #3582c4 !important;
+    }
+
+    .button.button-small[href*="recalculate_discount"]:hover {
+        background: #4796db !important;
+        border-color: #4796db !important;
     }
 }
 

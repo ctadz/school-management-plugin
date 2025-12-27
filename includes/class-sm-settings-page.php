@@ -85,7 +85,39 @@ class SM_Settings_Page {
             [ __CLASS__, 'field_first_day_of_week' ],
             'sm-settings',
             'sm_general_section'
-);
+        );
+
+        // Family Discount section
+        add_settings_section(
+            'sm_family_discount_section',
+            __( 'Family Discount Settings', 'CTADZ-school-management' ),
+            [ __CLASS__, 'family_discount_section_callback' ],
+            'sm-settings'
+        );
+
+        add_settings_field(
+            'family_discount_enabled',
+            __( 'Enable Family Discounts', 'CTADZ-school-management' ),
+            [ __CLASS__, 'field_family_discount_enabled' ],
+            'sm-settings',
+            'sm_family_discount_section'
+        );
+
+        add_settings_field(
+            'family_discount_tiers',
+            __( 'Discount Tiers', 'CTADZ-school-management' ),
+            [ __CLASS__, 'field_family_discount_tiers' ],
+            'sm-settings',
+            'sm_family_discount_section'
+        );
+
+        add_settings_field(
+            'family_discount_max_cap',
+            __( 'Maximum Discount Cap', 'CTADZ-school-management' ),
+            [ __CLASS__, 'field_family_discount_max_cap' ],
+            'sm-settings',
+            'sm_family_discount_section'
+        );
     }
 
     // Field callbacks
@@ -149,6 +181,139 @@ class SM_Settings_Page {
         <option value="Monday" <?php selected( $value, 'Monday' ); ?>><?php esc_html_e( 'Monday', 'CTADZ-school-management' ); ?></option>
         </select>
         <p class="description"><?php esc_html_e( 'Choose the first day of the week for calendars.', 'CTADZ-school-management' ); ?></p>
+        <?php
+    }
+
+    // Family Discount section callback
+    public static function family_discount_section_callback() {
+        echo '<p>' . esc_html__( 'Configure automatic family discounts based on the number of enrolled siblings (identified by parent phone number).', 'CTADZ-school-management' ) . '</p>';
+    }
+
+    public static function field_family_discount_enabled() {
+        $settings = get_option( 'sm_school_settings', [] );
+        $enabled = isset( $settings['family_discount_enabled'] ) && $settings['family_discount_enabled'] === 'yes';
+        ?>
+        <label>
+            <input type="checkbox" name="sm_school_settings[family_discount_enabled]" value="yes" <?php checked( $enabled ); ?> />
+            <?php esc_html_e( 'Enable automatic family discounts', 'CTADZ-school-management' ); ?>
+        </label>
+        <p class="description"><?php esc_html_e( 'When enabled, students with the same parent phone number will automatically receive family discounts based on the tiers below.', 'CTADZ-school-management' ); ?></p>
+        <?php
+    }
+
+    public static function field_family_discount_tiers() {
+        $settings = get_option( 'sm_school_settings', [] );
+        $tiers = $settings['family_discount_tiers'] ?? [
+            [ 'students' => 2, 'discount' => 5 ],
+            [ 'students' => 3, 'discount' => 10 ]
+        ];
+        ?>
+        <table class="wp-list-table widefat fixed striped" id="sm-discount-tiers-table">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e( 'Number of Students', 'CTADZ-school-management' ); ?></th>
+                    <th><?php esc_html_e( 'Discount %', 'CTADZ-school-management' ); ?></th>
+                    <th style="width: 100px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
+                </tr>
+            </thead>
+            <tbody id="sm-discount-tiers-body">
+                <?php foreach ( $tiers as $index => $tier ) : ?>
+                    <tr data-index="<?php echo esc_attr( $index ); ?>">
+                        <td>
+                            <input type="number"
+                                   name="sm_school_settings[family_discount_tiers][<?php echo esc_attr( $index ); ?>][students]"
+                                   value="<?php echo esc_attr( $tier['students'] ); ?>"
+                                   min="2"
+                                   class="small-text"
+                                   required />
+                            <?php esc_html_e( 'or more students', 'CTADZ-school-management' ); ?>
+                        </td>
+                        <td>
+                            <input type="number"
+                                   name="sm_school_settings[family_discount_tiers][<?php echo esc_attr( $index ); ?>][discount]"
+                                   value="<?php echo esc_attr( $tier['discount'] ); ?>"
+                                   min="0"
+                                   max="100"
+                                   step="0.01"
+                                   class="small-text"
+                                   required /> %
+                        </td>
+                        <td>
+                            <button type="button" class="button sm-remove-tier"><?php esc_html_e( 'Remove', 'CTADZ-school-management' ); ?></button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <p>
+            <button type="button" class="button" id="sm-add-tier"><?php esc_html_e( 'Add Tier', 'CTADZ-school-management' ); ?></button>
+        </p>
+        <p class="description"><?php esc_html_e( 'Define discount percentages based on the number of family members enrolled. Tiers are applied automatically based on the highest matching tier.', 'CTADZ-school-management' ); ?></p>
+
+        <script>
+        jQuery(document).ready(function($) {
+            let tierIndex = <?php echo count( $tiers ); ?>;
+
+            // Add new tier
+            $('#sm-add-tier').on('click', function() {
+                const newRow = `
+                    <tr data-index="${tierIndex}">
+                        <td>
+                            <input type="number"
+                                   name="sm_school_settings[family_discount_tiers][${tierIndex}][students]"
+                                   value="2"
+                                   min="2"
+                                   class="small-text"
+                                   required />
+                            <?php esc_html_e( 'or more students', 'CTADZ-school-management' ); ?>
+                        </td>
+                        <td>
+                            <input type="number"
+                                   name="sm_school_settings[family_discount_tiers][${tierIndex}][discount]"
+                                   value="5"
+                                   min="0"
+                                   max="100"
+                                   step="0.01"
+                                   class="small-text"
+                                   required /> %
+                        </td>
+                        <td>
+                            <button type="button" class="button sm-remove-tier"><?php esc_html_e( 'Remove', 'CTADZ-school-management' ); ?></button>
+                        </td>
+                    </tr>
+                `;
+                $('#sm-discount-tiers-body').append(newRow);
+                tierIndex++;
+            });
+
+            // Remove tier
+            $(document).on('click', '.sm-remove-tier', function() {
+                if ($('#sm-discount-tiers-body tr').length > 1) {
+                    $(this).closest('tr').remove();
+                } else {
+                    alert('<?php esc_html_e( 'At least one discount tier is required.', 'CTADZ-school-management' ); ?>');
+                }
+            });
+        });
+        </script>
+        <?php
+    }
+
+    public static function field_family_discount_max_cap() {
+        $settings = get_option( 'sm_school_settings', [] );
+        $max_cap = $settings['family_discount_max_cap'] ?? 10;
+        ?>
+        <input type="number"
+               name="sm_school_settings[family_discount_max_cap]"
+               value="<?php echo esc_attr( $max_cap ); ?>"
+               min="0"
+               max="100"
+               step="0.01"
+               class="small-text"
+               required /> %
+        <p class="description">
+            <?php esc_html_e( 'Maximum discount percentage that can be applied to any family, regardless of tier configuration. The highest configured tier will apply to families exceeding the highest tier threshold.', 'CTADZ-school-management' ); ?>
+        </p>
         <?php
     }
 
