@@ -983,3 +983,200 @@ msgstr "%s%% de remise pour %d étudiants"
 msgid "Family Discount Confirmation"
 msgstr "Confirmation de la Remise Familiale"
 
+# NEW: Payment Alerts & Follow-up page (added 2025-12-27)
+msgid "Payment Alerts & Follow-up"
+msgstr "Alertes de Paiement & Suivi"
+
+msgid "This Week"
+msgstr "Cette Semaine"
+
+msgid "Next Week"
+msgstr "Semaine Prochaine"
+
+msgid "All Pending"
+msgstr "Tous en Attente"
+
+msgid "All Levels"
+msgstr "Tous les Niveaux"
+
+msgid "All Courses"
+msgstr "Tous les Cours"
+
+msgid "Clear Filters"
+msgstr "Effacer les Filtres"
+
+msgid "Showing %d payment alerts"
+msgstr "Affichage de %d alertes de paiement"
+
+msgid "Amount Due"
+msgstr "Montant Dû"
+
+msgid "%d days overdue"
+msgstr "%d jours de retard"
+
+msgid "In %d days"
+msgstr "Dans %d jours"
+
+msgid "Due Soon"
+msgstr "Échéance Proche"
+
+msgid "Send payment reminder to this student?"
+msgstr "Envoyer un rappel de paiement à cet étudiant ?"
+
+msgid "Remind"
+msgstr "Rappeler"
+
+msgid "No email"
+msgstr "Pas d'e-mail"
+
+msgid "No Payment Alerts"
+msgstr "Aucune Alerte de Paiement"
+
+msgid "All payments are up to date for this category."
+msgstr "Tous les paiements sont à jour pour cette catégorie."
+
+msgid "Cannot send reminder: Student email not found."
+msgstr "Impossible d'envoyer le rappel : E-mail de l'étudiant introuvable."
+
+msgid "Payment Reminder - %s"
+msgstr "Rappel de Paiement - %s"
+
+msgid "Dear %s,"
+msgstr "Cher(ère) %s,"
+
+msgid "This is a friendly reminder about your upcoming payment."
+msgstr "Ceci est un rappel amical concernant votre paiement à venir."
+
+msgid "Payment Details:"
+msgstr "Détails du Paiement :"
+
+msgid "Course: %s"
+msgstr "Cours : %s"
+
+msgid "Amount Due: %s DA"
+msgstr "Montant Dû : %s DA"
+
+msgid "Note: This payment is %d days overdue. Please make payment as soon as possible."
+msgstr "Note : Ce paiement a %d jours de retard. Veuillez effectuer le paiement dès que possible."
+
+msgid "Please contact the school office if you have any questions."
+msgstr "Veuillez contacter le bureau de l'école si vous avez des questions."
+
+msgid "Best regards,%s%s"
+msgstr "Cordialement,%s%s"
+
+msgid "Payment reminder sent successfully to %s"
+msgstr "Rappel de paiement envoyé avec succès à %s"
+
+msgid "Failed to send reminder email. Please check your email settings."
+msgstr "Échec de l'envoi du rappel par e-mail. Veuillez vérifier vos paramètres e-mail."
+
+# NEW: Family Discount Tools page (added 2025-12-27)
+msgid "Family Discount Tools"
+msgstr "Outils de Remise Familiale"
+
+msgid "This page allows super administrators to bulk recalculate family discounts for all families. Use with caution."
+msgstr "Cette page permet aux super administrateurs de recalculer en masse les remises familiales pour toutes les familles. À utiliser avec précaution."
+
+msgid "Families Detected"
+msgstr "Familles Détectées"
+
+msgid "(2+ students with same parent phone)"
+msgstr "(2+ étudiants avec le même tél. parental)"
+
+msgid "Students with Parent Phone"
+msgstr "Étudiants avec Tél. Parental"
+
+msgid "(eligible for family discounts)"
+msgstr "(éligibles aux remises familiales)"
+
+msgid "Pending Payment Schedules"
+msgstr "Échéanciers de Paiement en Attente"
+
+msgid "(future payments that will be updated)"
+msgstr "(paiements futurs qui seront mis à jour)"
+
+msgid "Feature Status"
+msgstr "État de la Fonctionnalité"
+
+msgid "Family Discounts Enabled"
+msgstr "Remises Familiales Activées"
+
+msgid "Discount tiers:"
+msgstr "Paliers de remise :"
+
+msgid "%d students = %s%% discount"
+msgstr "%d étudiants = %s%% de remise"
+
+msgid "Family Discounts Disabled"
+msgstr "Remises Familiales Désactivées"
+
+msgid "Enable family discounts in %s to use this tool."
+msgstr "Activez les remises familiales dans %s pour utiliser cet outil."
+
+msgid "Detected Families"
+msgstr "Familles Détectées"
+
+msgid "Parent Name"
+msgstr "Nom du Parent"
+
+msgid "Parent Phone"
+msgstr "Tél. Parental"
+
+msgid "Number of Students"
+msgstr "Nombre d'Étudiants"
+
+msgid "Applicable Discount"
+msgstr "Remise Applicable"
+
+msgid "(No name)"
+msgstr "(Pas de nom)"
+
+msgid "No discount"
+msgstr "Pas de remise"
+
+msgid "No families detected. A family is defined as 2 or more students with the same parent phone number."
+msgstr "Aucune famille détectée. Une famille est définie comme 2 étudiants ou plus avec le même numéro de téléphone parental."
+
+msgid "Bulk Recalculation"
+msgstr "Recalcul en Masse"
+
+msgid "Warning: Use with Caution"
+msgstr "Attention : Utiliser avec Précaution"
+
+msgid "This action will recalculate family discounts for ALL families and update their pending payment schedules. This operation:"
+msgstr "Cette action recalculera les remises familiales pour TOUTES les familles et mettra à jour leurs échéanciers de paiement en attente. Cette opération :"
+
+msgid "Will update ALL pending and unpaid payment schedules with future due dates"
+msgstr "Mettra à jour TOUS les échéanciers de paiement en attente et impayés avec des dates d'échéance futures"
+
+msgid "Will NOT affect already paid or past payments"
+msgstr "N'affectera PAS les paiements déjà effectués ou passés"
+
+msgid "Will recalculate discounts based on current family composition"
+msgstr "Recalculera les remises en fonction de la composition actuelle de la famille"
+
+msgid "Cannot be undone (except by running it again)"
+msgstr "Ne peut pas être annulé (sauf en le relançant)"
+
+msgid "In most cases, you should use the automatic recalculation (when parent phone changes) or the manual per-student recalculation button. Use this bulk tool only when necessary."
+msgstr "Dans la plupart des cas, vous devriez utiliser le recalcul automatique (lors du changement de téléphone parental) ou le bouton de recalcul manuel par étudiant. N'utilisez cet outil en masse que lorsque nécessaire."
+
+msgid "I understand that this will update all pending payment schedules for all families"
+msgstr "Je comprends que cela mettra à jour tous les échéanciers de paiement en attente pour toutes les familles"
+
+msgid "Recalculate All Family Discounts"
+msgstr "Recalculer Toutes les Remises Familiales"
+
+msgid "Are you absolutely sure you want to recalculate family discounts for ALL families? This will affect %d payment schedules."
+msgstr "Êtes-vous absolument sûr de vouloir recalculer les remises familiales pour TOUTES les familles ? Cela affectera %d échéanciers de paiement."
+
+msgid "No students with parent phone numbers found."
+msgstr "Aucun étudiant avec numéro de téléphone parental trouvé."
+
+msgid "Successfully recalculated family discounts! %1$d payment schedules updated across %2$d families."
+msgstr "Remises familiales recalculées avec succès ! %1$d échéanciers de paiement mis à jour pour %2$d familles."
+
+msgid "No payment schedules needed recalculation. All discounts are already up to date."
+msgstr "Aucun échéancier de paiement n'a besoin de recalcul. Toutes les remises sont déjà à jour."
+
