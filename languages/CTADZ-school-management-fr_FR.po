@@ -1180,3 +1180,22 @@ msgstr "Remises familiales recalculées avec succès ! %1$d échéanciers de pai
 msgid "No payment schedules needed recalculation. All discounts are already up to date."
 msgstr "Aucun échéancier de paiement n'a besoin de recalcul. Toutes les remises sont déjà à jour."
 
+# Plugin Deactivation Dependency Messages
+msgid "Plugin Deactivation Prevented"
+msgstr "Désactivation du Plugin Empêchée"
+
+msgid "The School Management plugin cannot be deactivated because the following dependent plugins are currently active:"
+msgstr "Le plugin Gestion Scolaire ne peut pas être désactivé car les plugins dépendants suivants sont actuellement actifs :"
+
+msgid "Active Dependent Plugins"
+msgstr "Plugins Dépendants Actifs"
+
+msgid "Return to Plugins"
+msgstr "Retour aux Plugins"
+
+msgid "School Management - Calendar & Schedule"
+msgstr "Gestion Scolaire - Calendrier & Emploi du Temps"
+
+msgid "School Management - Student Portal"
+msgstr "Gestion Scolaire - Portail Étudiant"
+

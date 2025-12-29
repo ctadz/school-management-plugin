@@ -591,6 +591,54 @@ function sm_update_to_1_6_0( $wpdb, $payment_schedules_table ) {
 
 
 /**
+ * Prevent deactivation if dependent plugins are active
+ */
+add_action( 'admin_init', 'sm_check_deactivation_dependencies' );
+function sm_check_deactivation_dependencies() {
+    // Only run this check on the plugins page
+    $current_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+    if ( ! $current_screen || $current_screen->id !== 'plugins' ) {
+        return;
+    }
+
+    // Check if School Management is being deactivated
+    if ( isset( $_GET['action'] ) && $_GET['action'] === 'deactivate'
+         && isset( $_GET['plugin'] ) && $_GET['plugin'] === plugin_basename( __FILE__ ) ) {
+
+        // Check if dependent plugins are active
+        $dependent_plugins = array();
+
+        // Check for Calendar plugin
+        if ( is_plugin_active( 'school-management-calendar/school-management-calendar.php' ) ) {
+            $dependent_plugins[] = __( 'School Management - Calendar & Schedule', 'CTADZ-school-management' );
+        }
+
+        // Check for Student Portal plugin
+        if ( is_plugin_active( 'school-management-student-portal/school-management-student-portal.php' ) ) {
+            $dependent_plugins[] = __( 'School Management - Student Portal', 'CTADZ-school-management' );
+        }
+
+        // If dependent plugins are active, prevent deactivation
+        if ( ! empty( $dependent_plugins ) ) {
+            // Prevent deactivation
+            wp_die(
+                sprintf(
+                    '<h1>%s</h1><p>%s</p><p><strong>%s:</strong></p><ul><li>%s</li></ul><p><a href="%s" class="button">%s</a></p>',
+                    esc_html__( 'Plugin Deactivation Prevented', 'CTADZ-school-management' ),
+                    esc_html__( 'The School Management plugin cannot be deactivated because the following dependent plugins are currently active:', 'CTADZ-school-management' ),
+                    esc_html__( 'Active Dependent Plugins', 'CTADZ-school-management' ),
+                    implode( '</li><li>', array_map( 'esc_html', $dependent_plugins ) ),
+                    esc_url( admin_url( 'plugins.php' ) ),
+                    esc_html__( 'Return to Plugins', 'CTADZ-school-management' )
+                ),
+                esc_html__( 'Plugin Deactivation Prevented', 'CTADZ-school-management' ),
+                array( 'back_link' => true )
+            );
+        }
+    }
+}
+
+/**
  * Plugin deactivation hook
  */
 register_deactivation_hook( __FILE__, 'sm_deactivate_plugin' );
