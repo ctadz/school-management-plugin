@@ -304,7 +304,11 @@ class SM_Students_Page {
 
         // Get search parameter
         $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
-        
+
+        // Get level filter parameter
+        $level_id = isset( $_GET['level_id'] ) ? intval( $_GET['level_id'] ) : 0;
+        $level_name = isset( $_GET['level_name'] ) ? sanitize_text_field( $_GET['level_name'] ) : '';
+
         // Get sorting parameters
         $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'name';
         $order = isset( $_GET['order'] ) && in_array( strtoupper( $_GET['order'] ), [ 'ASC', 'DESC' ] ) ? strtoupper( $_GET['order'] ) : 'ASC';
@@ -314,13 +318,24 @@ class SM_Students_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for search - SQL and params separately
+        // Build WHERE clause for search and level filter - SQL and params separately
         $where_sql = '';
         $where_params = array();
+        $where_conditions = array();
+
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_sql = "WHERE (s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s)";
-            $where_params = array( $search_term, $search_term, $search_term );
+            $where_conditions[] = "(s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s)";
+            $where_params = array_merge( $where_params, array( $search_term, $search_term, $search_term ) );
+        }
+
+        if ( $level_id > 0 ) {
+            $where_conditions[] = "s.level_id = %d";
+            $where_params[] = $level_id;
+        }
+
+        if ( ! empty( $where_conditions ) ) {
+            $where_sql = "WHERE " . implode( " AND ", $where_conditions );
         }
 
         // Count total for pagination
@@ -394,18 +409,25 @@ class SM_Students_Page {
         }
 
         // Helper function to generate sortable column URL
-        $get_sort_url = function( $column ) use ( $orderby, $order, $search ) {
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search, $level_id, $level_name ) {
             $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
             $url = add_query_arg( [
                 'page' => 'school-management-students',
                 'orderby' => $column,
                 'order' => $new_order,
             ] );
-            
+
             if ( ! empty( $search ) ) {
                 $url = add_query_arg( 's', urlencode( $search ), $url );
             }
-            
+
+            if ( $level_id > 0 ) {
+                $url = add_query_arg( 'level_id', $level_id, $url );
+                if ( ! empty( $level_name ) ) {
+                    $url = add_query_arg( 'level_name', urlencode( $level_name ), $url );
+                }
+            }
+
             return esc_url( $url );
         };
 
@@ -507,15 +529,40 @@ class SM_Students_Page {
             }
         }
         </style>
-        
+
+        <?php if ( $level_id > 0 && ! empty( $level_name ) ) : ?>
+        <!-- Breadcrumb Navigation -->
+        <div class="sm-breadcrumb" style="margin-bottom: 15px; padding: 10px 0; border-bottom: 1px solid #ddd;">
+            <a href="?page=school-management-levels" style="text-decoration: none; color: #2271b1;">
+                <span class="dashicons dashicons-arrow-left-alt2" style="font-size: 16px; vertical-align: middle;"></span>
+                <?php esc_html_e( 'Levels', 'CTADZ-school-management' ); ?>
+            </a>
+            <span style="margin: 0 8px; color: #999;">›</span>
+            <span style="font-weight: 500;"><?php echo esc_html( $level_name ); ?></span>
+            <span style="margin: 0 8px; color: #999;">›</span>
+            <span style="color: #666;"><?php esc_html_e( 'Students', 'CTADZ-school-management' ); ?></span>
+        </div>
+        <?php endif; ?>
+
         <div class="sm-header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
-                <h2 style="margin: 0;"><?php esc_html_e( 'Students List', 'CTADZ-school-management' ); ?></h2>
+                <h2 style="margin: 0;">
+                    <?php
+                    if ( $level_id > 0 && ! empty( $level_name ) ) {
+                        printf( esc_html__( 'Students in %s', 'CTADZ-school-management' ), esc_html( $level_name ) );
+                    } else {
+                        esc_html_e( 'Students List', 'CTADZ-school-management' );
+                    }
+                    ?>
+                </h2>
                 <p class="description">
-                    <?php 
+                    <?php
                     if ( ! empty( $search ) ) {
                         printf( esc_html__( 'Showing %d students matching "%s"', 'CTADZ-school-management' ), $total_students, esc_html( $search ) );
-                        echo ' <a href="?page=school-management-students" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
+                        $clear_url = $level_id > 0 ? add_query_arg( [ 'page' => 'school-management-students', 'level_id' => $level_id, 'level_name' => urlencode( $level_name ) ] ) : '?page=school-management-students';
+                        echo ' <a href="' . esc_url( $clear_url ) . '" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
+                    } elseif ( $level_id > 0 ) {
+                        printf( esc_html__( 'Total: %d students in this level', 'CTADZ-school-management' ), $total_students );
                     } else {
                         printf( esc_html__( 'Total: %d students', 'CTADZ-school-management' ), $total_students );
                     }
@@ -537,6 +584,12 @@ class SM_Students_Page {
                 <?php if ( ! empty( $orderby ) ) : ?>
                     <input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
                     <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                <?php endif; ?>
+                <?php if ( $level_id > 0 ) : ?>
+                    <input type="hidden" name="level_id" value="<?php echo esc_attr( $level_id ); ?>">
+                    <?php if ( ! empty( $level_name ) ) : ?>
+                        <input type="hidden" name="level_name" value="<?php echo esc_attr( $level_name ); ?>">
+                    <?php endif; ?>
                 <?php endif; ?>
                 <input type="search"
                        name="s"

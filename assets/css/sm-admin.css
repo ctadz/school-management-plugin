@@ -1687,6 +1687,41 @@ textarea:focus {
 }
 
 /* =================================================
+   LEVEL DASHBOARD - CLICKABLE STUDENT COUNTS
+   ================================================= */
+.sm-students-link {
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.sm-students-link:hover {
+    transform: translateX(3px);
+}
+
+.sm-students-link .text-primary {
+    cursor: pointer;
+    position: relative;
+}
+
+.sm-students-link:hover .text-primary {
+    text-decoration: underline;
+}
+
+/* Breadcrumb styles */
+.sm-breadcrumb {
+    font-size: 14px;
+}
+
+.sm-breadcrumb a {
+    transition: color 0.2s ease;
+}
+
+.sm-breadcrumb a:hover {
+    color: #135e96 !important;
+}
+
+/* =================================================
    REDUCED MOTION SUPPORT (Accessibility)
    ================================================= */
 @media (prefers-reduced-motion: reduce) {

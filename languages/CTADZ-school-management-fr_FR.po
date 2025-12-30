@@ -1199,3 +1199,10 @@ msgstr "Gestion Scolaire - Calendrier & Emploi du Temps"
 msgid "School Management - Student Portal"
 msgstr "Gestion Scolaire - Portail Étudiant"
 
+# Level Dashboard Navigation - Filtered Views
+msgid "Students in %s"
+msgstr "Étudiants en %s"
+
+msgid "Total: %d students in this level"
+msgstr "Total : %d étudiants dans ce niveau"
+
