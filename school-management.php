@@ -3,7 +3,7 @@
 Plugin Name: School Management
 Plugin URI:  https://github.com/ctadz/school-management-plugin
 Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
-Version:     0.5.5
+Version:     0.5.6
 Author:      Ahmed Sebaa
 Author URI:  https://github.com/ctadz
 License:     GPL-2.0+
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants.
 define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SM_VERSION', '0.5.5' );
+define( 'SM_VERSION', '0.5.6' );
 define( 'SM_DB_VERSION', '1.4.0' );
 
 /**
