@@ -20,10 +20,13 @@ class SM_Enqueue {
             'school-management-teachers',
             'school-management-levels',
             'school-management-classrooms',
+            'school-finances',             // Financial dashboard
             'school-management-enrollments',
             'school-management-payment-terms',
             'school-management-payments',
-            'school-management-settings',
+            'school-management-payment-alerts',
+            'school-management-family-discount-tools',
+            'school-settings',             // Settings page
         ];
         
         // Check if current hook contains any of our page slugs
@@ -43,6 +46,10 @@ class SM_Enqueue {
         // WordPress Media Uploader (required for image and file uploads)
         wp_enqueue_media();
 
+        // jQuery UI Datepicker for date fields
+        wp_enqueue_script( 'jquery-ui-datepicker' );
+        wp_enqueue_style( 'jquery-ui-datepicker-style', 'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css', [], '1.13.2' );
+
         // Chart.js for data visualizations
         wp_enqueue_script(
             'chartjs',
@@ -57,7 +64,7 @@ class SM_Enqueue {
             'sm-admin-js',
             SM_PLUGIN_URL . 'assets/js/sm-admin.js',
             [ 'jquery', 'chartjs' ],
-            '1.0.4', // Incremented version for dashboard improvements
+            '1.0.6', // Full column header clickable for filter-only columns
             true
         );
 
@@ -73,28 +80,111 @@ class SM_Enqueue {
                 'selectFile'    => __( 'Select a file', 'CTADZ-school-management' ),
                 'usePicture'    => __( 'Use this picture', 'CTADZ-school-management' ),
                 'useFile'       => __( 'Use this file', 'CTADZ-school-management' ),
+                // PDF upload related
+                'pdfDocument'   => __( 'PDF Document', 'CTADZ-school-management' ),
+                'view'          => __( 'View', 'CTADZ-school-management' ),
+                'download'      => __( 'Download', 'CTADZ-school-management' ),
+                'remove'        => __( 'Remove', 'CTADZ-school-management' ),
+                'replacePdf'    => __( 'Replace PDF', 'CTADZ-school-management' ),
+                'uploadPdf'     => __( 'Upload PDF', 'CTADZ-school-management' ),
+                'confirmRemoveFile' => __( 'Are you sure you want to remove this file?', 'CTADZ-school-management' ),
+                // Student picture upload
+                'selectStudentPicture' => __( 'Select or Upload Student Picture', 'CTADZ-school-management' ),
+                // Datepicker localization
+                'datepicker' => [
+                    'dateFormat'   => 'dd-mm-yy', // jQuery UI format (yy = 4-digit year)
+                    'placeholder'  => __( 'dd-mm-yyyy', 'CTADZ-school-management' ),
+                    'dayNames'     => [
+                        __( 'Sunday', 'CTADZ-school-management' ),
+                        __( 'Monday', 'CTADZ-school-management' ),
+                        __( 'Tuesday', 'CTADZ-school-management' ),
+                        __( 'Wednesday', 'CTADZ-school-management' ),
+                        __( 'Thursday', 'CTADZ-school-management' ),
+                        __( 'Friday', 'CTADZ-school-management' ),
+                        __( 'Saturday', 'CTADZ-school-management' ),
+                    ],
+                    'dayNamesShort' => [
+                        __( 'Sun', 'CTADZ-school-management' ),
+                        __( 'Mon', 'CTADZ-school-management' ),
+                        __( 'Tue', 'CTADZ-school-management' ),
+                        __( 'Wed', 'CTADZ-school-management' ),
+                        __( 'Thu', 'CTADZ-school-management' ),
+                        __( 'Fri', 'CTADZ-school-management' ),
+                        __( 'Sat', 'CTADZ-school-management' ),
+                    ],
+                    'dayNamesMin' => [
+                        __( 'Su', 'CTADZ-school-management' ),
+                        __( 'Mo', 'CTADZ-school-management' ),
+                        __( 'Tu', 'CTADZ-school-management' ),
+                        __( 'We', 'CTADZ-school-management' ),
+                        __( 'Th', 'CTADZ-school-management' ),
+                        __( 'Fr', 'CTADZ-school-management' ),
+                        __( 'Sa', 'CTADZ-school-management' ),
+                    ],
+                    'monthNames' => [
+                        __( 'January', 'CTADZ-school-management' ),
+                        __( 'February', 'CTADZ-school-management' ),
+                        __( 'March', 'CTADZ-school-management' ),
+                        __( 'April', 'CTADZ-school-management' ),
+                        __( 'May', 'CTADZ-school-management' ),
+                        __( 'June', 'CTADZ-school-management' ),
+                        __( 'July', 'CTADZ-school-management' ),
+                        __( 'August', 'CTADZ-school-management' ),
+                        __( 'September', 'CTADZ-school-management' ),
+                        __( 'October', 'CTADZ-school-management' ),
+                        __( 'November', 'CTADZ-school-management' ),
+                        __( 'December', 'CTADZ-school-management' ),
+                    ],
+                    'monthNamesShort' => [
+                        __( 'Jan', 'CTADZ-school-management' ),
+                        __( 'Feb', 'CTADZ-school-management' ),
+                        __( 'Mar', 'CTADZ-school-management' ),
+                        __( 'Apr', 'CTADZ-school-management' ),
+                        __( 'May', 'CTADZ-school-management' ),
+                        __( 'Jun', 'CTADZ-school-management' ),
+                        __( 'Jul', 'CTADZ-school-management' ),
+                        __( 'Aug', 'CTADZ-school-management' ),
+                        __( 'Sep', 'CTADZ-school-management' ),
+                        __( 'Oct', 'CTADZ-school-management' ),
+                        __( 'Nov', 'CTADZ-school-management' ),
+                        __( 'Dec', 'CTADZ-school-management' ),
+                    ],
+                    'prevText' => __( 'Prev', 'CTADZ-school-management' ),
+                    'nextText' => __( 'Next', 'CTADZ-school-management' ),
+                ],
             ]
         );
 
-        // ===== NEW: AJAX Localization for Enrollment Payment Model Connection =====
-        // Localize script for AJAX calls (enrollments page)
+        // ===== AJAX Localization for Enrollment Payment Model Connection =====
+        // Localize script for AJAX calls (enrollments page and dropdown refresh)
         wp_localize_script( 'jquery', 'smAjax', [
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'sm_enrollment_nonce' ),
+            'refreshNonce' => wp_create_nonce( 'sm_dropdown_refresh' ),
             'strings' => [
                 'loading' => __( 'Loading...', 'CTADZ-school-management' ),
                 'error' => __( 'An error occurred. Please try again.', 'CTADZ-school-management' ),
                 'selectCourse' => __( 'Please select a course first', 'CTADZ-school-management' ),
+                'refreshList' => __( 'Refresh list', 'CTADZ-school-management' ),
             ]
         ] );
-        // ===== END NEW =====
+
+        // Dropdown Refresh JavaScript
+        wp_enqueue_script(
+            'sm-dropdown-refresh-js',
+            SM_PLUGIN_URL . 'assets/js/sm-dropdown-refresh.js',
+            [ 'jquery' ],
+            '1.0.0',
+            true
+        );
+        // ===== END AJAX =====
 
         // Custom CSS
         wp_enqueue_style(
             'sm-admin-css',
             SM_PLUGIN_URL . 'assets/css/sm-admin.css',
             [],
-            '2.0.0' // Major update: Mobile-responsive redesign
+            '2.0.4' // Dropdown refresh button styles
         );
     }
 

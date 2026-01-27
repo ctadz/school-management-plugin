@@ -3,7 +3,7 @@
 Plugin Name: School Management
 Plugin URI:  https://github.com/ctadz/school-management-plugin
 Description: A WordPress plugin to manage students, courses, schedules, attendance, and payments for a private school.
-Version:     0.5.6
+Version:     0.6.0
 Author:      Ahmed Sebaa
 Author URI:  https://github.com/ctadz
 License:     GPL-2.0+
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants.
 define( 'SM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SM_VERSION', '0.5.6' );
+define( 'SM_VERSION', '0.6.0' );
 define( 'SM_DB_VERSION', '1.4.0' );
 
 /**
@@ -467,6 +467,9 @@ dbDelta( $sql_enrollments );
         error_log('✅ SM Database updated to version 1.6.0 - Family discount fields added');
     }
 
+    // Always check and fix students without codes (runs on every activation)
+    sm_fix_missing_student_codes( $wpdb, $students_table );
+
     error_log('✅ School Management plugin activated. All tables created or updated successfully.');
 
     // Clear output buffer to prevent "headers already sent" errors
@@ -511,13 +514,32 @@ function sm_update_to_1_3_0( $wpdb, $students_table ) {
     if ( ! in_array( 'student_code', $existing_students_columns ) ) {
         $wpdb->query( "ALTER TABLE $students_table ADD student_code varchar(20) UNIQUE DEFAULT NULL AFTER id" );
         error_log('✅ Added student_code field to students table');
+    }
 
-        // Generate student codes for existing students
-        $students = $wpdb->get_results( "SELECT id FROM $students_table ORDER BY id ASC" );
+    // Generate student codes for students that don't have one (NULL or empty)
+    $students_without_code = $wpdb->get_results(
+        "SELECT id FROM $students_table WHERE student_code IS NULL OR student_code = '' ORDER BY id ASC"
+    );
+
+    if ( ! empty( $students_without_code ) ) {
         $year = date('Y');
-        $counter = 1;
 
-        foreach ( $students as $student ) {
+        // Find the highest existing code number for this year
+        $last_code = $wpdb->get_var( $wpdb->prepare(
+            "SELECT student_code FROM $students_table
+             WHERE student_code LIKE %s
+             ORDER BY student_code DESC
+             LIMIT 1",
+            'STU' . $year . '%'
+        ) );
+
+        if ( $last_code ) {
+            $counter = intval( substr( $last_code, 7 ) ) + 1;
+        } else {
+            $counter = 1;
+        }
+
+        foreach ( $students_without_code as $student ) {
             $student_code = sprintf( 'STU%s%04d', $year, $counter );
 
             // Ensure uniqueness
@@ -535,7 +557,7 @@ function sm_update_to_1_3_0( $wpdb, $students_table ) {
             $counter++;
         }
 
-        error_log('✅ Generated student codes for ' . count($students) . ' existing students');
+        error_log('✅ Generated student codes for ' . count($students_without_code) . ' students');
     }
 }
 
@@ -589,6 +611,60 @@ function sm_update_to_1_6_0( $wpdb, $payment_schedules_table ) {
     }
 }
 
+/**
+ * Fix missing student codes
+ * Generates STUYYYYxxxx codes for students that don't have one
+ * Runs on every plugin activation to catch any students added without codes
+ */
+function sm_fix_missing_student_codes( $wpdb, $students_table ) {
+    // Find students without a code
+    $students_without_code = $wpdb->get_results(
+        "SELECT id FROM $students_table WHERE student_code IS NULL OR student_code = '' ORDER BY id ASC"
+    );
+
+    if ( empty( $students_without_code ) ) {
+        return; // All students have codes
+    }
+
+    $year = date('Y');
+
+    // Find the highest existing code number for this year
+    $last_code = $wpdb->get_var( $wpdb->prepare(
+        "SELECT student_code FROM $students_table
+         WHERE student_code LIKE %s
+         ORDER BY student_code DESC
+         LIMIT 1",
+        'STU' . $year . '%'
+    ) );
+
+    if ( $last_code ) {
+        $counter = intval( substr( $last_code, 7 ) ) + 1;
+    } else {
+        $counter = 1;
+    }
+
+    foreach ( $students_without_code as $student ) {
+        $student_code = sprintf( 'STU%s%04d', $year, $counter );
+
+        // Ensure uniqueness
+        $attempts = 0;
+        while ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $students_table WHERE student_code = %s", $student_code ) ) && $attempts < 100 ) {
+            $counter++;
+            $student_code = sprintf( 'STU%s%04d', $year, $counter );
+            $attempts++;
+        }
+
+        $wpdb->update(
+            $students_table,
+            array( 'student_code' => $student_code ),
+            array( 'id' => $student->id )
+        );
+
+        $counter++;
+    }
+
+    error_log('✅ Generated student codes for ' . count($students_without_code) . ' students missing codes');
+}
 
 /**
  * Prevent deactivation if dependent plugins are active

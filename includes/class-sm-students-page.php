@@ -81,21 +81,48 @@ class SM_Students_Page {
                         echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-students"; }, 2000);</script>';
                     }
                 } else {
+                    // New student - insert into database
+                    // Note: If family discount modal was shown, form was prevented on first submit,
+                    // so this is still the first actual insert regardless of family_discount_confirmed flag
                     $inserted = $wpdb->insert( $table, $data );
                     if ( $inserted ) {
                         $new_student_id = $wpdb->insert_id;
 
-                        echo '<div class="updated notice"><p>' . esc_html__( 'Student added successfully.', 'CTADZ-school-management' ) . '</p></div>';
+                        // Generate student code in format STUYYYYxxxx
+                        $student_code = self::generate_student_code( $new_student_id );
+                        if ( $student_code ) {
+                            $wpdb->update( $table, [ 'student_code' => $student_code ], [ 'id' => $new_student_id ] );
+                        }
 
                         // Recalculate discounts for the family if parent phone was provided
                         if ( ! empty( $data['parent_phone'] ) ) {
                             $recalc_count = SM_Family_Discount::recalculate_family_discounts( $data['parent_phone'] );
-                            if ( $recalc_count > 0 ) {
-                                echo '<div class="updated notice"><p>' . sprintf( esc_html__( 'Applied family discounts to %d existing payment schedules.', 'CTADZ-school-management' ), $recalc_count ) . '</p></div>';
-                            }
+                        }
+                    }
+
+                    // Show success messages and enrollment prompt
+                    if ( $inserted ) {
+                        // Show success message
+                        echo '<div class="updated notice"><p>' . esc_html__( 'Student added successfully.', 'CTADZ-school-management' ) . '</p></div>';
+
+                        // Show family discount message if applicable
+                        if ( ! empty( $data['parent_phone'] ) && isset( $recalc_count ) && $recalc_count > 0 ) {
+                            echo '<div class="updated notice"><p>' . sprintf( esc_html__( 'Applied family discounts to %d existing payment schedules.', 'CTADZ-school-management' ), $recalc_count ) . '</p></div>';
                         }
 
-                        echo '<script>setTimeout(function(){ window.location.href = "?page=school-management-students"; }, 2000);</script>';
+                        // Get student name for enrollment prompt
+                        $student_name = sanitize_text_field( $data['name'] );
+
+                        // Show enrollment prompt modal
+                        ?>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            setTimeout(function() {
+                                showEnrollmentPrompt('<?php echo esc_js( $student_name ); ?>', <?php echo intval( $new_student_id ); ?>);
+                            }, 500);
+                        });
+                        </script>
+                        <?php
                     }
                 }
             } else {
@@ -135,6 +162,9 @@ class SM_Students_Page {
 
             // Output family discount modal (once per page)
             self::render_family_discount_modal();
+
+            // Output enrollment prompt modal (once per page)
+            self::render_enrollment_prompt_modal();
             ?>
         </div>
         <?php
@@ -147,11 +177,27 @@ class SM_Students_Page {
         global $wpdb;
         $table = $wpdb->prefix . 'sm_students';
         $errors = [];
-        
-        $name = sanitize_text_field( trim( $post_data['name'] ?? '' ) );
+
+        // Get first name and last name, then combine into full name (Last Name First Name format)
+        $first_name = sanitize_text_field( trim( $post_data['first_name'] ?? '' ) );
+        $last_name = sanitize_text_field( trim( $post_data['last_name'] ?? '' ) );
+        $name = trim( $last_name . ' ' . $first_name );
+
         $email = sanitize_email( trim( $post_data['email'] ?? '' ) );
         $phone = sanitize_text_field( trim( $post_data['phone'] ?? '' ) );
-        $dob = sanitize_text_field( trim( $post_data['dob'] ?? '' ) );
+
+        // Convert date from dd-mm-yyyy display format to Y-m-d database format
+        $dob_input = sanitize_text_field( trim( $post_data['dob'] ?? '' ) );
+        $dob = '';
+        if ( ! empty( $dob_input ) ) {
+            // Check if it's in dd-mm-yyyy format
+            if ( preg_match( '/^(\d{2})-(\d{2})-(\d{4})$/', $dob_input, $matches ) ) {
+                $dob = $matches[3] . '-' . $matches[2] . '-' . $matches[1]; // Convert to Y-m-d
+            } else {
+                $dob = $dob_input; // Keep as-is if already in Y-m-d format
+            }
+        }
+
         $level_id = intval( $post_data['level_id'] ?? 0 );
         $picture = esc_url_raw( trim( $post_data['picture'] ?? '' ) );
         $blood_type = sanitize_text_field( trim( $post_data['blood_type'] ?? '' ) );
@@ -162,13 +208,26 @@ class SM_Students_Page {
         $parent_phone = sanitize_text_field( trim( $post_data['parent_phone'] ?? '' ) );
         $parent_email = sanitize_email( trim( $post_data['parent_email'] ?? '' ) );
 
-        // Required field validation
-        if ( empty( $name ) ) {
-            $errors[] = __( 'Student name is required.', 'CTADZ-school-management' );
-        } elseif ( strlen( $name ) < 2 ) {
-            $errors[] = __( 'Student name must be at least 2 characters long.', 'CTADZ-school-management' );
-        } elseif ( strlen( $name ) > 100 ) {
-            $errors[] = __( 'Student name cannot exceed 100 characters.', 'CTADZ-school-management' );
+        // Required field validation for first name and last name
+        if ( empty( $first_name ) ) {
+            $errors[] = __( 'First name is required.', 'CTADZ-school-management' );
+        } elseif ( strlen( $first_name ) < 2 ) {
+            $errors[] = __( 'First name must be at least 2 characters long.', 'CTADZ-school-management' );
+        } elseif ( strlen( $first_name ) > 50 ) {
+            $errors[] = __( 'First name cannot exceed 50 characters.', 'CTADZ-school-management' );
+        }
+
+        if ( empty( $last_name ) ) {
+            $errors[] = __( 'Last name is required.', 'CTADZ-school-management' );
+        } elseif ( strlen( $last_name ) < 2 ) {
+            $errors[] = __( 'Last name must be at least 2 characters long.', 'CTADZ-school-management' );
+        } elseif ( strlen( $last_name ) > 50 ) {
+            $errors[] = __( 'Last name cannot exceed 50 characters.', 'CTADZ-school-management' );
+        }
+
+        // Validate combined full name
+        if ( strlen( $name ) > 100 ) {
+            $errors[] = __( 'Full name cannot exceed 100 characters.', 'CTADZ-school-management' );
         }
 
         if ( empty( $email ) ) {
@@ -305,9 +364,13 @@ class SM_Students_Page {
         // Get search parameter
         $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
 
-        // Get level filter parameter
+        // Get filter parameters
         $level_id = isset( $_GET['level_id'] ) ? intval( $_GET['level_id'] ) : 0;
         $level_name = isset( $_GET['level_name'] ) ? sanitize_text_field( $_GET['level_name'] ) : '';
+        $filter_payment_status = isset( $_GET['filter_payment_status'] ) ? sanitize_text_field( $_GET['filter_payment_status'] ) : '';
+        $filter_enrollment = isset( $_GET['filter_enrollment'] ) ? sanitize_text_field( $_GET['filter_enrollment'] ) : '';
+        $filter_discount = isset( $_GET['filter_discount'] ) ? sanitize_text_field( $_GET['filter_discount'] ) : '';
+        $filter_portal_access = isset( $_GET['filter_portal_access'] ) ? sanitize_text_field( $_GET['filter_portal_access'] ) : '';
 
         // Get sorting parameters
         $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'name';
@@ -318,17 +381,22 @@ class SM_Students_Page {
         $current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         $offset = ( $current_page - 1 ) * $per_page;
 
-        // Build WHERE clause for search and level filter - SQL and params separately
+        // Get all levels for filter dropdown
+        $all_levels = $wpdb->get_results( "SELECT id, name FROM $levels_table WHERE is_active = 1 ORDER BY sort_order ASC, name ASC" );
+
+        // Build WHERE clause for search and filters
         $where_sql = '';
         $where_params = array();
         $where_conditions = array();
 
+        // Enhanced search - includes name, email, phone, student_code, and level name
         if ( ! empty( $search ) ) {
             $search_term = '%' . $wpdb->esc_like( $search ) . '%';
-            $where_conditions[] = "(s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s)";
-            $where_params = array_merge( $where_params, array( $search_term, $search_term, $search_term ) );
+            $where_conditions[] = "(s.name LIKE %s OR s.email LIKE %s OR s.phone LIKE %s OR s.student_code LIKE %s OR l.name LIKE %s)";
+            $where_params = array_merge( $where_params, array( $search_term, $search_term, $search_term, $search_term, $search_term ) );
         }
 
+        // Level filter
         if ( $level_id > 0 ) {
             $where_conditions[] = "s.level_id = %d";
             $where_params[] = $level_id;
@@ -338,14 +406,42 @@ class SM_Students_Page {
             $where_sql = "WHERE " . implode( " AND ", $where_conditions );
         }
 
-        // Count total for pagination
-        if ( ! empty( $where_params ) ) {
-            $count_query = "SELECT COUNT(*) FROM $students_table s $where_sql";
-            $total_students = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
-        } else {
-            $total_students = $wpdb->get_var( "SELECT COUNT(*) FROM $students_table s" );
+        // Build HAVING clause for aggregate-based filters (payment status, enrollment)
+        $having_conditions = array();
+        $having_params = array();
+
+        // Payment status filter (based on aggregated overdue_amount)
+        if ( ! empty( $filter_payment_status ) ) {
+            if ( $filter_payment_status === 'overdue' ) {
+                $having_conditions[] = "SUM(CASE WHEN ps.status IN ('pending', 'partial') AND ps.due_date < CURDATE() THEN (ps.expected_amount - ps.paid_amount) ELSE 0 END) > 0";
+            } elseif ( $filter_payment_status === 'pending' ) {
+                $having_conditions[] = "SUM(CASE WHEN ps.status IN ('pending', 'partial') THEN (ps.expected_amount - ps.paid_amount) ELSE 0 END) > 0";
+                $having_conditions[] = "SUM(CASE WHEN ps.status IN ('pending', 'partial') AND ps.due_date < CURDATE() THEN (ps.expected_amount - ps.paid_amount) ELSE 0 END) = 0";
+            } elseif ( $filter_payment_status === 'clear' ) {
+                $having_conditions[] = "SUM(CASE WHEN ps.status IN ('pending', 'partial') THEN (ps.expected_amount - ps.paid_amount) ELSE 0 END) = 0";
+            }
         }
-        $total_pages = ceil( $total_students / $per_page );
+
+        // Enrollment filter
+        if ( ! empty( $filter_enrollment ) ) {
+            if ( $filter_enrollment === 'enrolled' ) {
+                $having_conditions[] = "COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) > 0";
+            } elseif ( $filter_enrollment === 'not_enrolled' ) {
+                $having_conditions[] = "COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) = 0";
+            }
+        }
+
+        // Discount filter (based on family enrollment count - 2+ family members with active enrollments = has discount)
+        if ( ! empty( $filter_discount ) ) {
+            if ( $filter_discount === 'has_discount' ) {
+                // Student has active enrollments AND family has 2+ members with active enrollments
+                $having_conditions[] = "COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) > 0";
+                $having_conditions[] = "family_enrollment_count >= 2";
+            } elseif ( $filter_discount === 'no_discount' ) {
+                // No active enrollments OR family has less than 2 members
+                $having_conditions[] = "(COUNT(DISTINCT CASE WHEN e.status = 'active' THEN e.id END) = 0 OR family_enrollment_count < 2)";
+            }
+        }
 
         // Validate and set ORDER BY clause - simple columns only
         $valid_columns = array(
@@ -369,7 +465,19 @@ class SM_Students_Page {
             $portal_credentials_table = $wpdb->prefix . 'smsp_student_credentials';
             $portal_select = ', spc.student_id as has_portal_access';
             $portal_join = "LEFT JOIN $portal_credentials_table spc ON s.id = spc.student_id";
+
+            // Portal access filter (only when portal plugin is active)
+            if ( ! empty( $filter_portal_access ) ) {
+                if ( $filter_portal_access === 'has_access' ) {
+                    $having_conditions[] = "MAX(CASE WHEN spc.student_id IS NOT NULL THEN 1 ELSE 0 END) = 1";
+                } elseif ( $filter_portal_access === 'no_access' ) {
+                    $having_conditions[] = "MAX(CASE WHEN spc.student_id IS NOT NULL THEN 1 ELSE 0 END) = 0";
+                }
+            }
         }
+
+        // Build HAVING SQL after all conditions are added
+        $having_sql = ! empty( $having_conditions ) ? "HAVING " . implode( " AND ", $having_conditions ) : '';
 
         $query = "
             SELECT s.*,
@@ -386,7 +494,13 @@ class SM_Students_Page {
                        WHEN ps.status IN ('pending', 'partial')
                        THEN (ps.expected_amount - ps.paid_amount)
                        ELSE 0
-                   END) as total_outstanding
+                   END) as total_outstanding,
+                   (SELECT COUNT(DISTINCT s2.id)
+                    FROM $students_table s2
+                    INNER JOIN $enrollments_table e2 ON s2.id = e2.student_id AND e2.status = 'active'
+                    WHERE s2.parent_phone = s.parent_phone
+                    AND s2.parent_phone != ''
+                    AND s2.parent_phone IS NOT NULL) as family_enrollment_count
                    $portal_select
             FROM $students_table s
             LEFT JOIN $levels_table l ON s.level_id = l.id
@@ -395,6 +509,7 @@ class SM_Students_Page {
             $portal_join
             $where_sql
             GROUP BY s.id
+            $having_sql
             ORDER BY $order_clause
             LIMIT %d OFFSET %d
         ";
@@ -408,8 +523,35 @@ class SM_Students_Page {
             $students = $wpdb->get_results( $wpdb->prepare( $query, $per_page, $offset ) );
         }
 
+        // Count total with filters (need to use subquery for HAVING)
+        $count_query = "
+            SELECT COUNT(*) FROM (
+                SELECT s.id,
+                       (SELECT COUNT(DISTINCT s2.id)
+                        FROM $students_table s2
+                        INNER JOIN $enrollments_table e2 ON s2.id = e2.student_id AND e2.status = 'active'
+                        WHERE s2.parent_phone = s.parent_phone
+                        AND s2.parent_phone != ''
+                        AND s2.parent_phone IS NOT NULL) as family_enrollment_count
+                FROM $students_table s
+                LEFT JOIN $levels_table l ON s.level_id = l.id
+                LEFT JOIN $enrollments_table e ON s.id = e.student_id
+                LEFT JOIN $payment_schedules_table ps ON e.id = ps.enrollment_id
+                $portal_join
+                $where_sql
+                GROUP BY s.id
+                $having_sql
+            ) as filtered_students
+        ";
+        if ( ! empty( $where_params ) ) {
+            $total_students = $wpdb->get_var( $wpdb->prepare( $count_query, $where_params ) );
+        } else {
+            $total_students = $wpdb->get_var( $count_query );
+        }
+        $total_pages = ceil( $total_students / $per_page );
+
         // Helper function to generate sortable column URL
-        $get_sort_url = function( $column ) use ( $orderby, $order, $search, $level_id, $level_name ) {
+        $get_sort_url = function( $column ) use ( $orderby, $order, $search, $level_id, $level_name, $filter_payment_status, $filter_enrollment, $filter_discount, $filter_portal_access ) {
             $new_order = ( $orderby === $column && $order === 'ASC' ) ? 'DESC' : 'ASC';
             $url = add_query_arg( [
                 'page' => 'school-management-students',
@@ -428,8 +570,83 @@ class SM_Students_Page {
                 }
             }
 
+            if ( ! empty( $filter_payment_status ) ) {
+                $url = add_query_arg( 'filter_payment_status', $filter_payment_status, $url );
+            }
+
+            if ( ! empty( $filter_enrollment ) ) {
+                $url = add_query_arg( 'filter_enrollment', $filter_enrollment, $url );
+            }
+
+            if ( ! empty( $filter_discount ) ) {
+                $url = add_query_arg( 'filter_discount', $filter_discount, $url );
+            }
+
+            if ( ! empty( $filter_portal_access ) ) {
+                $url = add_query_arg( 'filter_portal_access', $filter_portal_access, $url );
+            }
+
             return esc_url( $url );
         };
+
+        // Helper function to generate filter URL
+        $get_filter_url = function( $filter_name, $filter_value ) use ( $search, $level_id, $level_name, $filter_payment_status, $filter_enrollment, $filter_discount, $filter_portal_access, $orderby, $order ) {
+            // Start with a clean base URL (not using current URL parameters)
+            $base_url = admin_url( 'admin.php' );
+            $url = add_query_arg( 'page', 'school-management-students', $base_url );
+
+            if ( ! empty( $search ) && $filter_name !== 's' ) {
+                $url = add_query_arg( 's', $search, $url );
+            }
+
+            if ( ! empty( $orderby ) ) {
+                $url = add_query_arg( 'orderby', $orderby, $url );
+                $url = add_query_arg( 'order', $order, $url );
+            }
+
+            // Keep existing filters except the one being changed
+            if ( $filter_name !== 'level_id' && $level_id > 0 ) {
+                $url = add_query_arg( 'level_id', $level_id, $url );
+                if ( ! empty( $level_name ) ) {
+                    $url = add_query_arg( 'level_name', $level_name, $url );
+                }
+            }
+
+            if ( $filter_name !== 'filter_payment_status' && ! empty( $filter_payment_status ) ) {
+                $url = add_query_arg( 'filter_payment_status', $filter_payment_status, $url );
+            }
+
+            if ( $filter_name !== 'filter_enrollment' && ! empty( $filter_enrollment ) ) {
+                $url = add_query_arg( 'filter_enrollment', $filter_enrollment, $url );
+            }
+
+            if ( $filter_name !== 'filter_discount' && ! empty( $filter_discount ) ) {
+                $url = add_query_arg( 'filter_discount', $filter_discount, $url );
+            }
+
+            if ( $filter_name !== 'filter_portal_access' && ! empty( $filter_portal_access ) ) {
+                $url = add_query_arg( 'filter_portal_access', $filter_portal_access, $url );
+            }
+
+            // Add the new filter value if not empty
+            if ( ! empty( $filter_value ) ) {
+                $url = add_query_arg( $filter_name, $filter_value, $url );
+                if ( $filter_name === 'level_id' ) {
+                    // Get level name for the URL
+                    foreach ( $GLOBALS['sm_all_levels'] ?? [] as $lvl ) {
+                        if ( $lvl->id == $filter_value ) {
+                            $url = add_query_arg( 'level_name', $lvl->name, $url );
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return esc_url( $url );
+        };
+
+        // Store levels globally for the filter URL helper
+        $GLOBALS['sm_all_levels'] = $all_levels;
 
         // Helper function to get sort indicator
         $get_sort_indicator = function( $column ) use ( $orderby, $order ) {
@@ -557,12 +774,10 @@ class SM_Students_Page {
                 </h2>
                 <p class="description">
                     <?php
-                    if ( ! empty( $search ) ) {
-                        printf( esc_html__( 'Showing %d students matching "%s"', 'CTADZ-school-management' ), $total_students, esc_html( $search ) );
-                        $clear_url = $level_id > 0 ? add_query_arg( [ 'page' => 'school-management-students', 'level_id' => $level_id, 'level_name' => urlencode( $level_name ) ] ) : '?page=school-management-students';
-                        echo ' <a href="' . esc_url( $clear_url ) . '" style="margin-left: 10px;">' . esc_html__( '[Clear search]', 'CTADZ-school-management' ) . '</a>';
-                    } elseif ( $level_id > 0 ) {
-                        printf( esc_html__( 'Total: %d students in this level', 'CTADZ-school-management' ), $total_students );
+                    $has_filters = ! empty( $search ) || $level_id > 0 || ! empty( $filter_payment_status ) || ! empty( $filter_enrollment ) || ! empty( $filter_discount ) || ! empty( $filter_portal_access );
+                    if ( $has_filters ) {
+                        printf( esc_html__( 'Showing %d filtered students', 'CTADZ-school-management' ), $total_students );
+                        echo ' <a href="?page=school-management-students" style="margin-left: 10px;">' . esc_html__( '[Clear all filters]', 'CTADZ-school-management' ) . '</a>';
                     } else {
                         printf( esc_html__( 'Total: %d students', 'CTADZ-school-management' ), $total_students );
                     }
@@ -591,22 +806,91 @@ class SM_Students_Page {
                         <input type="hidden" name="level_name" value="<?php echo esc_attr( $level_name ); ?>">
                     <?php endif; ?>
                 <?php endif; ?>
+                <?php if ( ! empty( $filter_payment_status ) ) : ?>
+                    <input type="hidden" name="filter_payment_status" value="<?php echo esc_attr( $filter_payment_status ); ?>">
+                <?php endif; ?>
+                <?php if ( ! empty( $filter_enrollment ) ) : ?>
+                    <input type="hidden" name="filter_enrollment" value="<?php echo esc_attr( $filter_enrollment ); ?>">
+                <?php endif; ?>
                 <input type="search"
                        name="s"
                        value="<?php echo esc_attr( $search ); ?>"
-                       placeholder="<?php esc_attr_e( 'Enter student information', 'CTADZ-school-management' ); ?>"
-                       style="margin-right: 5px;">
+                       placeholder="<?php esc_attr_e( 'Search name, email, phone, code, or level...', 'CTADZ-school-management' ); ?>"
+                       style="margin-right: 5px; width: 280px;">
                 <button type="submit" class="button"><?php esc_html_e( 'Search', 'CTADZ-school-management' ); ?></button>
-                <?php if ( ! empty( $search ) ) : ?>
-                    <a href="?page=school-management-students" class="button" style="margin-left: 5px;">
-                        <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?>
-                    </a>
-                <?php endif; ?>
             </form>
         </div>
 
+        <!-- Active Filters Display -->
+        <?php if ( $has_filters ) : ?>
+        <div class="sm-active-filters" style="margin-bottom: 15px; padding: 10px 15px; background: #f0f6fc; border-left: 4px solid #2271b1; border-radius: 4px;">
+            <strong style="margin-right: 10px;"><?php esc_html_e( 'Active Filters:', 'CTADZ-school-management' ); ?></strong>
+            <?php if ( ! empty( $search ) ) : ?>
+                <span class="sm-filter-tag" style="display: inline-block; background: #2271b1; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">
+                    <?php printf( esc_html__( 'Search: %s', 'CTADZ-school-management' ), esc_html( $search ) ); ?>
+                    <a href="<?php echo esc_url( $get_filter_url( 's', '' ) ); ?>" style="color: white; margin-left: 5px; text-decoration: none;">&times;</a>
+                </span>
+            <?php endif; ?>
+            <?php if ( $level_id > 0 ) : ?>
+                <span class="sm-filter-tag" style="display: inline-block; background: #2271b1; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">
+                    <?php printf( esc_html__( 'Level: %s', 'CTADZ-school-management' ), esc_html( $level_name ) ); ?>
+                    <a href="<?php echo esc_url( $get_filter_url( 'level_id', '' ) ); ?>" style="color: white; margin-left: 5px; text-decoration: none;">&times;</a>
+                </span>
+            <?php endif; ?>
+            <?php if ( ! empty( $filter_payment_status ) ) : ?>
+                <span class="sm-filter-tag" style="display: inline-block; background: #2271b1; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">
+                    <?php
+                    $status_labels = [
+                        'overdue' => __( 'Overdue', 'CTADZ-school-management' ),
+                        'pending' => __( 'Pending', 'CTADZ-school-management' ),
+                        'clear' => __( 'Clear', 'CTADZ-school-management' ),
+                    ];
+                    printf( esc_html__( 'Payment: %s', 'CTADZ-school-management' ), esc_html( $status_labels[ $filter_payment_status ] ?? $filter_payment_status ) );
+                    ?>
+                    <a href="<?php echo esc_url( $get_filter_url( 'filter_payment_status', '' ) ); ?>" style="color: white; margin-left: 5px; text-decoration: none;">&times;</a>
+                </span>
+            <?php endif; ?>
+            <?php if ( ! empty( $filter_enrollment ) ) : ?>
+                <span class="sm-filter-tag" style="display: inline-block; background: #2271b1; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">
+                    <?php
+                    $enroll_labels = [
+                        'enrolled' => __( 'Enrolled', 'CTADZ-school-management' ),
+                        'not_enrolled' => __( 'Not Enrolled', 'CTADZ-school-management' ),
+                    ];
+                    printf( esc_html__( 'Enrollment: %s', 'CTADZ-school-management' ), esc_html( $enroll_labels[ $filter_enrollment ] ?? $filter_enrollment ) );
+                    ?>
+                    <a href="<?php echo esc_url( $get_filter_url( 'filter_enrollment', '' ) ); ?>" style="color: white; margin-left: 5px; text-decoration: none;">&times;</a>
+                </span>
+            <?php endif; ?>
+            <?php if ( ! empty( $filter_discount ) ) : ?>
+                <span class="sm-filter-tag" style="display: inline-block; background: #2271b1; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">
+                    <?php
+                    $discount_labels = [
+                        'has_discount' => __( 'Has Discount', 'CTADZ-school-management' ),
+                        'no_discount' => __( 'No Discount', 'CTADZ-school-management' ),
+                    ];
+                    printf( esc_html__( 'Discount: %s', 'CTADZ-school-management' ), esc_html( $discount_labels[ $filter_discount ] ?? $filter_discount ) );
+                    ?>
+                    <a href="<?php echo esc_url( $get_filter_url( 'filter_discount', '' ) ); ?>" style="color: white; margin-left: 5px; text-decoration: none;">&times;</a>
+                </span>
+            <?php endif; ?>
+            <?php if ( ! empty( $filter_portal_access ) ) : ?>
+                <span class="sm-filter-tag" style="display: inline-block; background: #2271b1; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">
+                    <?php
+                    $portal_labels = [
+                        'has_access' => __( 'Has Access', 'CTADZ-school-management' ),
+                        'no_access' => __( 'No Access', 'CTADZ-school-management' ),
+                    ];
+                    printf( esc_html__( 'Portal: %s', 'CTADZ-school-management' ), esc_html( $portal_labels[ $filter_portal_access ] ?? $filter_portal_access ) );
+                    ?>
+                    <a href="<?php echo esc_url( $get_filter_url( 'filter_portal_access', '' ) ); ?>" style="color: white; margin-left: 5px; text-decoration: none;">&times;</a>
+                </span>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
         <?php if ( $students ) : ?>
-            <table class="wp-list-table widefat fixed striped mobile-card-layout">
+            <table class="wp-list-table widefat fixed striped mobile-card-layout sm-filterable-table">
                 <thead>
                     <tr>
                         <th class="non-sortable" style="width: 60px;"><?php esc_html_e( 'Picture', 'CTADZ-school-management' ); ?></th>
@@ -626,21 +910,97 @@ class SM_Students_Page {
                                 <?php esc_html_e( 'Phone', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'phone' ); ?>
                             </a>
                         </th>
-                        <th class="<?php echo $orderby === 'level' ? 'sorted' : 'sortable'; ?>">
-                            <a href="<?php echo $get_sort_url( 'level' ); ?>">
-                                <?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'level' ); ?>
-                            </a>
+                        <!-- Level Column with Filter -->
+                        <th class="<?php echo $orderby === 'level' ? 'sorted' : 'sortable'; ?> sm-filterable-column">
+                            <div class="sm-column-header">
+                                <a href="<?php echo $get_sort_url( 'level' ); ?>">
+                                    <?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'level' ); ?>
+                                </a>
+                                <button type="button" class="sm-filter-trigger <?php echo $level_id > 0 ? 'active' : ''; ?>" data-filter="level">
+                                    <span class="dashicons dashicons-filter"></span>
+                                </button>
+                            </div>
+                            <div class="sm-filter-dropdown" id="filter-dropdown-level" style="display: none;">
+                                <div class="sm-filter-search">
+                                    <input type="text" placeholder="<?php esc_attr_e( 'Search levels...', 'CTADZ-school-management' ); ?>" class="sm-filter-search-input" data-filter="level">
+                                </div>
+                                <ul class="sm-filter-options">
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'level_id', '' ) ); ?>" class="<?php echo $level_id === 0 ? 'active' : ''; ?>"><?php esc_html_e( '(All Levels)', 'CTADZ-school-management' ); ?></a></li>
+                                    <?php foreach ( $all_levels as $lvl ) : ?>
+                                        <li><a href="<?php echo esc_url( $get_filter_url( 'level_id', $lvl->id ) ); ?>" class="<?php echo $level_id == $lvl->id ? 'active' : ''; ?>" data-search="<?php echo esc_attr( strtolower( $lvl->name ) ); ?>"><?php echo esc_html( $lvl->name ); ?></a></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
                         </th>
-                        <th class="<?php echo $orderby === 'active_enrollments' ? 'sorted' : 'sortable'; ?>">
-                            <a href="<?php echo $get_sort_url( 'active_enrollments' ); ?>">
-                                <?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'active_enrollments' ); ?>
-                            </a>
+                        <!-- Enrollments Column with Filter -->
+                        <th class="<?php echo $orderby === 'active_enrollments' ? 'sorted' : 'sortable'; ?> sm-filterable-column">
+                            <div class="sm-column-header">
+                                <a href="<?php echo $get_sort_url( 'active_enrollments' ); ?>">
+                                    <?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?><?php echo $get_sort_indicator( 'active_enrollments' ); ?>
+                                </a>
+                                <button type="button" class="sm-filter-trigger <?php echo ! empty( $filter_enrollment ) ? 'active' : ''; ?>" data-filter="enrollment">
+                                    <span class="dashicons dashicons-filter"></span>
+                                </button>
+                            </div>
+                            <div class="sm-filter-dropdown" id="filter-dropdown-enrollment" style="display: none;">
+                                <ul class="sm-filter-options">
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_enrollment', '' ) ); ?>" class="<?php echo empty( $filter_enrollment ) ? 'active' : ''; ?>"><?php esc_html_e( '(All)', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_enrollment', 'enrolled' ) ); ?>" class="<?php echo $filter_enrollment === 'enrolled' ? 'active' : ''; ?>"><?php esc_html_e( 'Has Enrollments', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_enrollment', 'not_enrolled' ) ); ?>" class="<?php echo $filter_enrollment === 'not_enrolled' ? 'active' : ''; ?>"><?php esc_html_e( 'No Enrollments', 'CTADZ-school-management' ); ?></a></li>
+                                </ul>
+                            </div>
                         </th>
-                        <th class="non-sortable"><?php esc_html_e( 'Discount', 'CTADZ-school-management' ); ?></th>
-                        <th class="non-sortable"><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></th>
+                        <!-- Discount Column with Filter -->
+                        <th class="non-sortable sm-filterable-column">
+                            <div class="sm-column-header">
+                                <span><?php esc_html_e( 'Discount', 'CTADZ-school-management' ); ?></span>
+                                <button type="button" class="sm-filter-trigger <?php echo ! empty( $filter_discount ) ? 'active' : ''; ?>" data-filter="discount">
+                                    <span class="dashicons dashicons-filter"></span>
+                                </button>
+                            </div>
+                            <div class="sm-filter-dropdown" id="filter-dropdown-discount" style="display: none;">
+                                <ul class="sm-filter-options">
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_discount', '' ) ); ?>" class="<?php echo empty( $filter_discount ) ? 'active' : ''; ?>"><?php esc_html_e( '(All)', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_discount', 'has_discount' ) ); ?>" class="<?php echo $filter_discount === 'has_discount' ? 'active' : ''; ?>"><span style="color: #46b450;">●</span> <?php esc_html_e( 'Has Discount', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_discount', 'no_discount' ) ); ?>" class="<?php echo $filter_discount === 'no_discount' ? 'active' : ''; ?>"><span style="color: #999;">●</span> <?php esc_html_e( 'No Discount', 'CTADZ-school-management' ); ?></a></li>
+                                </ul>
+                            </div>
+                        </th>
+                        <!-- Payment Status Column with Filter -->
+                        <th class="non-sortable sm-filterable-column">
+                            <div class="sm-column-header">
+                                <span><?php esc_html_e( 'Payment Status', 'CTADZ-school-management' ); ?></span>
+                                <button type="button" class="sm-filter-trigger <?php echo ! empty( $filter_payment_status ) ? 'active' : ''; ?>" data-filter="payment">
+                                    <span class="dashicons dashicons-filter"></span>
+                                </button>
+                            </div>
+                            <div class="sm-filter-dropdown" id="filter-dropdown-payment" style="display: none;">
+                                <ul class="sm-filter-options">
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_payment_status', '' ) ); ?>" class="<?php echo empty( $filter_payment_status ) ? 'active' : ''; ?>"><?php esc_html_e( '(All)', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_payment_status', 'overdue' ) ); ?>" class="<?php echo $filter_payment_status === 'overdue' ? 'active' : ''; ?>"><span style="color: #d63638;">●</span> <?php esc_html_e( 'Overdue', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_payment_status', 'pending' ) ); ?>" class="<?php echo $filter_payment_status === 'pending' ? 'active' : ''; ?>"><span style="color: #f0ad4e;">●</span> <?php esc_html_e( 'Pending', 'CTADZ-school-management' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( $get_filter_url( 'filter_payment_status', 'clear' ) ); ?>" class="<?php echo $filter_payment_status === 'clear' ? 'active' : ''; ?>"><span style="color: #46b450;">●</span> <?php esc_html_e( 'Clear', 'CTADZ-school-management' ); ?></a></li>
+                                </ul>
+                            </div>
+                        </th>
                         <th class="non-sortable"><?php esc_html_e( 'Balance', 'CTADZ-school-management' ); ?></th>
                         <?php if ( class_exists( 'SMSP_Auth' ) ) : ?>
-                            <th class="non-sortable"><?php esc_html_e( 'Portal Access', 'CTADZ-school-management' ); ?></th>
+                            <!-- Portal Access Column with Filter -->
+                            <th class="non-sortable sm-filterable-column">
+                                <div class="sm-column-header">
+                                    <span><?php esc_html_e( 'Portal Access', 'CTADZ-school-management' ); ?></span>
+                                    <button type="button" class="sm-filter-trigger <?php echo ! empty( $filter_portal_access ) ? 'active' : ''; ?>" data-filter="portal">
+                                        <span class="dashicons dashicons-filter"></span>
+                                    </button>
+                                </div>
+                                <div class="sm-filter-dropdown" id="filter-dropdown-portal" style="display: none;">
+                                    <ul class="sm-filter-options">
+                                        <li><a href="<?php echo esc_url( $get_filter_url( 'filter_portal_access', '' ) ); ?>" class="<?php echo empty( $filter_portal_access ) ? 'active' : ''; ?>"><?php esc_html_e( '(All)', 'CTADZ-school-management' ); ?></a></li>
+                                        <li><a href="<?php echo esc_url( $get_filter_url( 'filter_portal_access', 'has_access' ) ); ?>" class="<?php echo $filter_portal_access === 'has_access' ? 'active' : ''; ?>"><span style="color: #46b450;">●</span> <?php esc_html_e( 'Has Access', 'CTADZ-school-management' ); ?></a></li>
+                                        <li><a href="<?php echo esc_url( $get_filter_url( 'filter_portal_access', 'no_access' ) ); ?>" class="<?php echo $filter_portal_access === 'no_access' ? 'active' : ''; ?>"><span style="color: #999;">●</span> <?php esc_html_e( 'No Access', 'CTADZ-school-management' ); ?></a></li>
+                                    </ul>
+                                </div>
+                            </th>
                         <?php endif; ?>
                         <th class="non-sortable" style="width: 150px;"><?php esc_html_e( 'Actions', 'CTADZ-school-management' ); ?></th>
                     </tr>
@@ -681,7 +1041,7 @@ class SM_Students_Page {
                                 <?php if ( $student->picture ) : ?>
                                     <img src="<?php echo esc_url( $student->picture ); ?>" class="student-avatar" alt="<?php echo esc_attr( $student->name ); ?>" />
                                 <?php else : ?>
-                                    <div class="student-avatar-placeholder">No Photo</div>
+                                    <div class="student-avatar-placeholder"><?php esc_html_e( 'No Photo', 'CTADZ-school-management' ); ?></div>
                                 <?php endif; ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Student Code', 'CTADZ-school-management' ); ?>">
@@ -1009,6 +1369,11 @@ class SM_Students_Page {
 
         <script>
         jQuery(document).ready(function($) {
+            // Localized strings
+            var smFamilyStrings = {
+                editStudent: '<?php echo esc_js( __( 'Edit Student', 'CTADZ-school-management' ) ); ?>'
+            };
+
             // Handle discount badge click
             $(document).on('click', '.sm-discount-badge-clickable', function(e) {
                 e.preventDefault();
@@ -1038,7 +1403,7 @@ class SM_Students_Page {
                                 html += '<div class="sm-family-member-info">📞 ' + member.phone + '</div>';
                                 html += '<div class="sm-family-member-info">📚 ' + member.level_name + '</div>';
                                 html += '<div class="sm-family-member-actions">';
-                                html += '<a href="?page=school-management-students&action=edit&student_id=' + member.id + '" class="button button-small">Edit Student</a>';
+                                html += '<a href="?page=school-management-students&action=edit&student_id=' + member.id + '" class="button button-small">' + smFamilyStrings.editStudent + '</a>';
                                 html += '</div>';
                                 html += '</div>';
                             });
@@ -1086,11 +1451,12 @@ class SM_Students_Page {
         // Get active levels
         $levels = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}sm_levels WHERE is_active = 1 ORDER BY sort_order ASC, name ASC" );
         
-        // Pre-fill form with POST data if validation failed
+        // Pre-fill form with POST data if validation failed or after family confirmation
         $form_data = [];
         if ( isset( $_POST['sm_save_student'] ) ) {
             $form_data = [
-                'name'         => sanitize_text_field( $_POST['name'] ?? '' ),
+                'first_name'   => sanitize_text_field( $_POST['first_name'] ?? '' ),
+                'last_name'    => sanitize_text_field( $_POST['last_name'] ?? '' ),
                 'email'        => sanitize_email( $_POST['email'] ?? '' ),
                 'phone'        => sanitize_text_field( $_POST['phone'] ?? '' ),
                 'dob'          => sanitize_text_field( $_POST['dob'] ?? '' ),
@@ -1102,8 +1468,14 @@ class SM_Students_Page {
                 'parent_email' => sanitize_email( $_POST['parent_email'] ?? '' ),
             ];
         } elseif ( $student ) {
+            // Split existing name into last_name and first_name (stored as "LastName FirstName")
+            $name_parts = explode( ' ', $student->name, 2 );
+            $last_name = $name_parts[0] ?? '';
+            $first_name = $name_parts[1] ?? '';
+
             $form_data = [
-                'name'         => $student->name,
+                'first_name'   => $first_name,
+                'last_name'    => $last_name,
                 'email'        => $student->email,
                 'phone'        => $student->phone,
                 'dob'          => $student->dob,
@@ -1150,11 +1522,21 @@ class SM_Students_Page {
 
                 <tr>
                     <th scope="row">
-                        <label for="student_name"><?php esc_html_e( 'Full Name', 'CTADZ-school-management' ); ?> <span class="description" style="color: #d63638;">*</span></label>
+                        <label for="student_last_name"><?php esc_html_e( 'Last Name', 'CTADZ-school-management' ); ?> <span class="description" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <input type="text" id="student_name" name="name" value="<?php echo esc_attr( $form_data['name'] ?? '' ); ?>" class="regular-text" required maxlength="100" />
-                        <p class="description"><?php esc_html_e( 'Each student must have a unique name.', 'CTADZ-school-management' ); ?></p>
+                        <input type="text" id="student_last_name" name="last_name" value="<?php echo esc_attr( $form_data['last_name'] ?? '' ); ?>" class="regular-text" required maxlength="50" />
+                        <p class="description"><?php esc_html_e( 'Student\'s last name (family name).', 'CTADZ-school-management' ); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="student_first_name"><?php esc_html_e( 'First Name', 'CTADZ-school-management' ); ?> <span class="description" style="color: #d63638;">*</span></label>
+                    </th>
+                    <td>
+                        <input type="text" id="student_first_name" name="first_name" value="<?php echo esc_attr( $form_data['first_name'] ?? '' ); ?>" class="regular-text" required maxlength="50" />
+                        <p class="description"><?php esc_html_e( 'Student\'s first name (given name). Each student must have a unique full name.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
 
@@ -1183,7 +1565,15 @@ class SM_Students_Page {
                         <label for="student_dob"><?php esc_html_e( 'Date of Birth', 'CTADZ-school-management' ); ?> <span class="description" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <input type="date" id="student_dob" name="dob" value="<?php echo esc_attr( $form_data['dob'] ?? '' ); ?>" required max="<?php echo date( 'Y-m-d' ); ?>" />
+                        <?php
+                        // Convert stored Y-m-d format to display format dd-mm-yyyy
+                        $dob_value = $form_data['dob'] ?? '';
+                        if ( ! empty( $dob_value ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $dob_value ) ) {
+                            $dob_parts = explode( '-', $dob_value );
+                            $dob_value = $dob_parts[2] . '-' . $dob_parts[1] . '-' . $dob_parts[0]; // dd-mm-yyyy
+                        }
+                        ?>
+                        <input type="text" id="student_dob" name="dob" value="<?php echo esc_attr( $dob_value ); ?>" class="sm-datepicker" required placeholder="<?php esc_attr_e( 'dd-mm-yyyy', 'CTADZ-school-management' ); ?>" autocomplete="off" />
                         <p class="description"><?php esc_html_e( 'Required for age verification and records.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
@@ -1193,14 +1583,22 @@ class SM_Students_Page {
                         <label for="student_level"><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?> <span class="description" style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <select id="student_level" name="level_id" required>
-                            <option value=""><?php esc_html_e( 'Select Level', 'CTADZ-school-management' ); ?></option>
-                            <?php foreach ( $levels as $level ) : ?>
-                                <option value="<?php echo intval( $level->id ); ?>" <?php selected( $form_data['level_id'] ?? 0, $level->id ); ?>>
-                                    <?php echo esc_html( $level->name ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="sm-dropdown-with-refresh">
+                            <select id="student_level" name="level_id" required>
+                                <option value=""><?php esc_html_e( 'Select Level', 'CTADZ-school-management' ); ?></option>
+                                <?php foreach ( $levels as $level ) : ?>
+                                    <option value="<?php echo intval( $level->id ); ?>" <?php selected( $form_data['level_id'] ?? 0, $level->id ); ?>>
+                                        <?php echo esc_html( $level->name ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="levels"
+                                    data-target="student_level"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
                         <p class="description">
                             <?php esc_html_e( 'Choose the appropriate skill level for course assignment.', 'CTADZ-school-management' ); ?>
                             <a href="?page=school-management-levels" target="_blank"><?php esc_html_e( 'Manage levels', 'CTADZ-school-management' ); ?></a>
@@ -1210,7 +1608,7 @@ class SM_Students_Page {
 
                 <tr>
                     <th scope="row">
-                        <label for="student_blood_type"><?php esc_html_e( 'Blood Type', 'CTADZ-school-management' ); ?> <span class="description">(optional)</span></label>
+                        <label for="student_blood_type"><?php esc_html_e( 'Blood Type', 'CTADZ-school-management' ); ?> <span class="description">(<?php esc_html_e( 'optional', 'CTADZ-school-management' ); ?>)</span></label>
                     </th>
                     <td>
                         <select name="blood_type" id="student_blood_type">
@@ -1465,6 +1863,12 @@ class SM_Students_Page {
                         <p class="description"><?php esc_html_e( 'Email address for parent communications.', 'CTADZ-school-management' ); ?></p>
                     </td>
                 </tr>
+
+                <?php if ( ! $is_edit ) : // Only show enrollment option for new students ?>
+                <tr>
+                    <td colspan="2"><hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;"></td>
+                </tr>
+                <?php endif; ?>
             </table>
 
             <p class="submit">
@@ -1847,6 +2251,64 @@ class SM_Students_Page {
     }
 
     /**
+     * Render enrollment prompt modal
+     */
+    private static function render_enrollment_prompt_modal() {
+        ?>
+        <!-- Enrollment Prompt Modal -->
+        <div id="sm-enrollment-prompt-modal" style="display: none;">
+            <div class="sm-modal-overlay"></div>
+            <div class="sm-modal-container">
+                <div class="sm-modal-header" style="background: #2563eb;">
+                    <h2>📚 <?php esc_html_e( 'Enroll Student in Course?', 'CTADZ-school-management' ); ?></h2>
+                </div>
+                <div class="sm-modal-content">
+                    <p id="sm-enrollment-message"></p>
+                    <p><?php esc_html_e( 'You can enroll the student in a course now, or do it later from the Financial Management menu.', 'CTADZ-school-management' ); ?></p>
+                </div>
+                <div class="sm-modal-footer">
+                    <button type="button" class="button button-primary button-large" id="sm-enroll-yes">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <?php esc_html_e( 'Yes, Enroll Now', 'CTADZ-school-management' ); ?>
+                    </button>
+                    <button type="button" class="button button-large" id="sm-enroll-no">
+                        <span class="dashicons dashicons-no-alt"></span>
+                        <?php esc_html_e( 'No, Maybe Later', 'CTADZ-school-management' ); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function showEnrollmentPrompt(studentName, studentId) {
+            var message = '<?php echo esc_js( __( 'Do you want to enroll', 'CTADZ-school-management' ) ); ?> <strong>' + studentName + '</strong> <?php echo esc_js( __( 'in a course now?', 'CTADZ-school-management' ) ); ?>';
+            document.getElementById('sm-enrollment-message').innerHTML = message;
+            document.getElementById('sm-enrollment-prompt-modal').style.display = 'block';
+
+            // Store student ID for later use
+            window.enrollmentStudentId = studentId;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Yes button - redirect to enrollment form
+            document.getElementById('sm-enroll-yes').addEventListener('click', function() {
+                var studentId = window.enrollmentStudentId;
+                var url = 'admin.php?page=school-management-enrollments';
+                url += '&action=add';
+                url += '&student_id=' + studentId;
+                window.location.href = url;
+            });
+
+            // No button - redirect to students list
+            document.getElementById('sm-enroll-no').addEventListener('click', function() {
+                window.location.href = '?page=school-management-students';
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
      * AJAX handler to get family members
      */
     public static function ajax_get_family_members() {
@@ -1888,6 +2350,49 @@ class SM_Students_Page {
         }
 
         wp_send_json_success( [ 'members' => $members_data ] );
+    }
+
+    /**
+     * Generate a unique student code in format STUYYYYxxxx
+     *
+     * @param int $student_id The student's database ID (used as fallback for uniqueness)
+     * @return string The generated student code
+     */
+    private static function generate_student_code( $student_id ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'sm_students';
+        $year = date( 'Y' );
+
+        // Find the highest existing code number for this year
+        $last_code = $wpdb->get_var( $wpdb->prepare(
+            "SELECT student_code FROM $table
+             WHERE student_code LIKE %s
+             ORDER BY student_code DESC
+             LIMIT 1",
+            'STU' . $year . '%'
+        ) );
+
+        if ( $last_code ) {
+            // Extract the number part and increment
+            $last_number = intval( substr( $last_code, 7 ) ); // After "STU" + 4-digit year
+            $new_number = $last_number + 1;
+        } else {
+            // First student of this year
+            $new_number = 1;
+        }
+
+        // Generate the code
+        $student_code = sprintf( 'STU%s%04d', $year, $new_number );
+
+        // Ensure uniqueness (in case of race condition)
+        $attempts = 0;
+        while ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table WHERE student_code = %s", $student_code ) ) && $attempts < 100 ) {
+            $new_number++;
+            $student_code = sprintf( 'STU%s%04d', $year, $new_number );
+            $attempts++;
+        }
+
+        return $student_code;
     }
 }
 

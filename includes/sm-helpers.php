@@ -173,3 +173,140 @@ function sm_validate_enrollment_payment_plan( $course_id, $payment_plan ) {
     
     return true;
 }
+
+/**
+ * AJAX Handler: Refresh Dropdown Options
+ * Returns updated options for dependent dropdowns without page reload
+ *
+ * @since 0.6.0
+ */
+function sm_ajax_refresh_dropdown() {
+    // Verify nonce for security
+    check_ajax_referer( 'sm_dropdown_refresh', 'nonce' );
+
+    // Check user permissions (any school management capability)
+    if ( ! current_user_can( 'manage_students' ) &&
+         ! current_user_can( 'manage_courses' ) &&
+         ! current_user_can( 'manage_teachers' ) &&
+         ! current_user_can( 'manage_enrollments' ) ) {
+        wp_send_json_error( [ 'message' => __( 'Permission denied.', 'CTADZ-school-management' ) ] );
+    }
+
+    $entity = isset( $_POST['entity'] ) ? sanitize_text_field( $_POST['entity'] ) : '';
+
+    if ( empty( $entity ) ) {
+        wp_send_json_error( [ 'message' => __( 'No entity specified.', 'CTADZ-school-management' ) ] );
+    }
+
+    global $wpdb;
+    $options = [];
+
+    switch ( $entity ) {
+        case 'levels':
+            // Get all active levels
+            $levels = $wpdb->get_results(
+                "SELECT id, name FROM {$wpdb->prefix}sm_levels WHERE is_active = 1 ORDER BY sort_order ASC, name ASC"
+            );
+            foreach ( $levels as $level ) {
+                $options[] = [
+                    'id'    => $level->id,
+                    'label' => $level->name,
+                ];
+            }
+            break;
+
+        case 'teachers':
+            // Get all active teachers
+            $teachers = $wpdb->get_results(
+                "SELECT id, first_name, last_name FROM {$wpdb->prefix}sm_teachers WHERE is_active = 1 ORDER BY last_name ASC, first_name ASC"
+            );
+            foreach ( $teachers as $teacher ) {
+                $options[] = [
+                    'id'    => $teacher->id,
+                    'label' => $teacher->first_name . ' ' . $teacher->last_name,
+                ];
+            }
+            break;
+
+        case 'classrooms':
+            // Get all active classrooms
+            $classrooms = $wpdb->get_results(
+                "SELECT id, name, location FROM {$wpdb->prefix}sm_classrooms WHERE is_active = 1 ORDER BY name ASC"
+            );
+            foreach ( $classrooms as $classroom ) {
+                $label = $classroom->name;
+                if ( $classroom->location ) {
+                    $label .= ' - ' . $classroom->location;
+                }
+                $options[] = [
+                    'id'    => $classroom->id,
+                    'label' => $label,
+                ];
+            }
+            break;
+
+        case 'payment_terms':
+            // Get all active payment terms
+            $terms = $wpdb->get_results(
+                "SELECT id, name FROM {$wpdb->prefix}sm_payment_terms WHERE is_active = 1 ORDER BY sort_order ASC, name ASC"
+            );
+            foreach ( $terms as $term ) {
+                $options[] = [
+                    'id'    => $term->id,
+                    'label' => $term->name,
+                ];
+            }
+            break;
+
+        case 'students':
+            // Get all students
+            $students = $wpdb->get_results(
+                "SELECT id, name FROM {$wpdb->prefix}sm_students ORDER BY name ASC"
+            );
+            foreach ( $students as $student ) {
+                $options[] = [
+                    'id'    => $student->id,
+                    'label' => $student->name,
+                ];
+            }
+            break;
+
+        case 'courses':
+            // Get all active courses with level info
+            $courses = $wpdb->get_results(
+                "SELECT c.id, c.name, c.max_students, l.name as level_name
+                 FROM {$wpdb->prefix}sm_courses c
+                 LEFT JOIN {$wpdb->prefix}sm_levels l ON c.level_id = l.id
+                 WHERE c.is_active = 1
+                 ORDER BY c.name ASC"
+            );
+            foreach ( $courses as $course ) {
+                // Get current enrollment count for capacity display
+                $current_count = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}sm_enrollments WHERE course_id = %d AND status IN ('active', 'completed')",
+                    $course->id
+                ) );
+
+                $label = $course->name;
+                if ( $course->level_name ) {
+                    $label .= ' - ' . $course->level_name;
+                }
+                if ( $course->max_students > 0 ) {
+                    $spots_left = $course->max_students - $current_count;
+                    $label .= sprintf( ' (%d spots left)', $spots_left );
+                }
+
+                $options[] = [
+                    'id'    => $course->id,
+                    'label' => $label,
+                ];
+            }
+            break;
+
+        default:
+            wp_send_json_error( [ 'message' => __( 'Unknown entity type.', 'CTADZ-school-management' ) ] );
+    }
+
+    wp_send_json_success( [ 'options' => $options ] );
+}
+add_action( 'wp_ajax_sm_refresh_dropdown', 'sm_ajax_refresh_dropdown' );

@@ -786,9 +786,9 @@ class SM_Payments_Page {
                         "SELECT installment_number FROM $payment_schedules_table WHERE id = %d",
                         $reference_id
                     ) );
-                    $fee_type_label = 'Installment #' . $installment_num;
+                    $fee_type_label = __( 'Installment #', 'CTADZ-school-management' ) . $installment_num;
                 } else {
-                    $fee_type_label = 'Other Payment';
+                    $fee_type_label = __( 'Other Payment', 'CTADZ-school-management' );
                 }
                 
                 // Generate reference: YYYYMMDD_StudentName_FeeType
@@ -998,6 +998,12 @@ class SM_Payments_Page {
         </form>
 
         <script>
+        // Localized strings for payments page
+        var smPaymentStrings = {
+            installment: '<?php echo esc_js( __( 'Installment #', 'CTADZ-school-management' ) ); ?>',
+            remaining: '<?php echo esc_js( __( 'Remaining:', 'CTADZ-school-management' ) ); ?>'
+        };
+
         jQuery(document).ready(function($) {
             var unpaidFees = <?php echo json_encode( $unpaid_fees ); ?>;
             var pendingSchedules = <?php echo json_encode( $pending_schedules ); ?>;
@@ -1023,7 +1029,7 @@ class SM_Payments_Page {
                     $referenceSelect.attr('required', true);
                     pendingSchedules.forEach(function(schedule) {
                         var remaining = parseFloat(schedule.expected_amount) - parseFloat(schedule.paid_amount);
-                        $referenceSelect.append('<option value="' + schedule.id + '" data-amount="' + remaining + '">Installment #' + schedule.installment_number + ' - Remaining: ' + remaining.toFixed(2) + '</option>');
+                        $referenceSelect.append('<option value="' + schedule.id + '" data-amount="' + remaining + '">' + smPaymentStrings.installment + schedule.installment_number + ' - ' + smPaymentStrings.remaining + ' ' + remaining.toFixed(2) + '</option>');
                     });
                 } else {
                     $referenceRow.hide();

@@ -977,6 +977,51 @@ textarea:focus {
 }
 
 /* =================================================
+   PAYMENT MODEL BADGES (Enrollments List)
+   ================================================= */
+.sm-payment-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    gap: 5px;
+}
+
+.sm-payment-badge .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Full Payment - Green */
+.sm-payment-badge--full_payment {
+    background: #ecf7ed;
+}
+.sm-payment-badge--full_payment .dashicons,
+.sm-payment-badge--full_payment strong {
+    color: #46b450;
+}
+
+/* Monthly Installments - Blue */
+.sm-payment-badge--monthly_installments {
+    background: #e7f3ff;
+}
+.sm-payment-badge--monthly_installments .dashicons,
+.sm-payment-badge--monthly_installments strong {
+    color: #0073aa;
+}
+
+/* Monthly Subscription - Orange */
+.sm-payment-badge--monthly_subscription {
+    background: #fff8e5;
+}
+.sm-payment-badge--monthly_subscription .dashicons,
+.sm-payment-badge--monthly_subscription strong {
+    color: #f0ad4e;
+}
+
+/* =================================================
    DARK MODE SUPPORT (Prefers-color-scheme)
    ================================================= */
 @media (prefers-color-scheme: dark) {
@@ -1647,6 +1692,43 @@ textarea:focus {
     .dashicons {
         color: inherit !important;
     }
+
+    /* ===== Payment Model Badges - Dark Mode ===== */
+    /* These need !important to override aggressive dark mode rules */
+    .sm-payment-badge {
+        background: #1a1a1a !important;
+        border: 1px solid #333 !important;
+    }
+
+    /* Full Payment - Green in dark mode */
+    .sm-payment-badge--full_payment {
+        background: #1a2d1a !important;
+        border-color: #46b450 !important;
+    }
+    .sm-payment-badge--full_payment .dashicons,
+    .sm-payment-badge--full_payment strong {
+        color: #6fcf7a !important;
+    }
+
+    /* Monthly Installments - Blue in dark mode */
+    .sm-payment-badge--monthly_installments {
+        background: #1a2633 !important;
+        border-color: #0073aa !important;
+    }
+    .sm-payment-badge--monthly_installments .dashicons,
+    .sm-payment-badge--monthly_installments strong {
+        color: #5eb3f6 !important;
+    }
+
+    /* Monthly Subscription - Orange in dark mode */
+    .sm-payment-badge--monthly_subscription {
+        background: #2d2a1a !important;
+        border-color: #f0ad4e !important;
+    }
+    .sm-payment-badge--monthly_subscription .dashicons,
+    .sm-payment-badge--monthly_subscription strong {
+        color: #ffc966 !important;
+    }
 }
 
 /* =================================================
@@ -1737,4 +1819,294 @@ textarea:focus {
     #sm_student_picture_box {
         transition: none;
     }
+}
+
+/* =================================================
+   EXCEL-STYLE COLUMN FILTERS
+   ================================================= */
+
+/* Column header with filter */
+.sm-filterable-column {
+    position: relative;
+}
+
+.sm-column-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sm-column-header a {
+    flex: 1;
+}
+
+/* Make non-sortable filterable column headers fully clickable */
+.non-sortable.sm-filterable-column .sm-column-header {
+    cursor: pointer;
+}
+
+.non-sortable.sm-filterable-column .sm-column-header > span {
+    flex: 1;
+    padding: 2px 0;
+}
+
+.non-sortable.sm-filterable-column .sm-column-header:hover {
+    color: #2271b1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .non-sortable.sm-filterable-column .sm-column-header:hover {
+        color: #5eb3f6;
+    }
+}
+
+/* Filter trigger button */
+.sm-filter-trigger {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    opacity: 0.5;
+    transition: opacity 0.2s, background 0.2s;
+    min-width: 20px;
+    min-height: 20px;
+    flex-shrink: 0;
+    visibility: visible !important;
+}
+
+.sm-filter-trigger:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.sm-filter-trigger.active {
+    opacity: 1;
+    color: #2271b1;
+}
+
+.sm-filter-trigger .dashicons {
+    display: inline-block !important;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Filter dropdown */
+.sm-filter-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 280px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 5px;
+}
+
+/* Filter search input */
+.sm-filter-search {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.sm-filter-search-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.sm-filter-search-input:focus {
+    border-color: #2271b1;
+    outline: none;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+/* Filter options list */
+.sm-filter-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.sm-filter-options li {
+    margin: 0;
+    padding: 0;
+}
+
+.sm-filter-options li a {
+    display: block;
+    padding: 8px 12px;
+    color: #1d2327;
+    text-decoration: none;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.sm-filter-options li a:hover {
+    background: #f0f6fc;
+}
+
+.sm-filter-options li a.active {
+    background: #2271b1;
+    color: #fff;
+}
+
+.sm-filter-options li a.active:hover {
+    background: #135e96;
+}
+
+/* Hidden items during search */
+.sm-filter-options li.sm-hidden {
+    display: none;
+}
+
+/* Active filters bar */
+.sm-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Dark mode support for filters */
+@media (prefers-color-scheme: dark) {
+    .sm-filter-dropdown {
+        background: #1a1a1a;
+        border-color: #333;
+    }
+
+    .sm-filter-search {
+        border-bottom-color: #333;
+    }
+
+    .sm-filter-search-input {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+
+    .sm-filter-options li a {
+        color: #e0e0e0;
+    }
+
+    .sm-filter-options li a:hover {
+        background: #2a2a2a;
+    }
+
+    .sm-filter-options li a.active {
+        background: #2271b1;
+        color: #fff;
+    }
+
+    .sm-filter-trigger {
+        color: #e0e0e0 !important;
+        opacity: 0.7;
+    }
+
+    .sm-filter-trigger:hover {
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 1;
+    }
+
+    .sm-filter-trigger.active {
+        color: #5eb3f6 !important;
+        opacity: 1;
+    }
+
+    .sm-filter-trigger .dashicons {
+        color: inherit;
+    }
+
+    .sm-active-filters {
+        background: #1a2633 !important;
+        border-color: #2271b1 !important;
+    }
+
+    .sm-filter-tag {
+        background: #2271b1 !important;
+    }
+}
+
+/* =================================================
+   Dropdown Refresh Button Styles
+   ================================================= */
+
+/* Refresh button styling */
+.sm-refresh-dropdown {
+    padding: 0 6px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    vertical-align: middle;
+    margin-left: 6px;
+    cursor: pointer;
+}
+
+.sm-refresh-dropdown .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Spinning animation */
+.sm-refresh-dropdown.spinning .dashicons {
+    animation: sm-spin 1s linear infinite;
+}
+
+@keyframes sm-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success state - brief green flash */
+.sm-refresh-dropdown.success {
+    background: #46b450 !important;
+    border-color: #46b450 !important;
+    color: #fff !important;
+}
+
+.sm-refresh-dropdown.success .dashicons {
+    color: #fff !important;
+}
+
+/* Error state - brief red flash */
+.sm-refresh-dropdown.error {
+    background: #dc3232 !important;
+    border-color: #dc3232 !important;
+    color: #fff !important;
+}
+
+.sm-refresh-dropdown.error .dashicons {
+    color: #fff !important;
+}
+
+/* Disabled state while loading */
+.sm-refresh-dropdown:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Inline container for dropdown + refresh button */
+.sm-dropdown-with-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sm-dropdown-with-refresh select {
+    flex: 1;
 }

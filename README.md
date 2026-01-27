@@ -1,11 +1,11 @@
 # 📘 School Management Plugin
 
-[![Version](https://img.shields.io/badge/version-0.5.5-blue.svg)](https://github.com/ctadz/school-management-plugin/releases)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](https://github.com/ctadz/school-management-plugin/releases)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)](LICENSE)
 [![WordPress](https://img.shields.io/badge/wordpress-5.8%2B-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/php-7.4%2B-purple.svg)](https://php.net/)
 
-> **Status:** 🚧 Active Development
+> **Status:** 🚧 Active Development | **Latest:** v0.6.0 - Simplified Architecture
 
 **This plugin is under active development for [Cyber Tech Academy](https://ctadz.org).**
 While the code is open source (GPL-2.0+), this is currently a **work in progress**.
@@ -16,6 +16,19 @@ While the code is open source (GPL-2.0+), this is currently a **work in progress
 - 🌍 Available in **English**, **French** (Français), and soon **Arabic** (العربية)
 
 **Interested in using this for your school?** Contact us: **[info@ctadz.org](mailto:info@ctadz.org)**
+
+---
+
+## 🎉 What's New in v0.6.0
+
+Based on user feedback, we've completely restructured the plugin for simplicity:
+
+- **3-Category Menu Architecture**: Separated Academic, Financial, and Settings into distinct menus
+- **Simplified Workflows**: Optional enrollment during student registration
+- **School Accountant Role**: New role with financial-only access
+- **Industry Standard Design**: Follows patterns from OpenSIS, PowerSchool, and Skyward
+
+See [CHANGELOG.md](CHANGELOG.md) for complete details.
 
 ---
 
@@ -61,7 +74,9 @@ Développé pour **Cyber Tech Academy**, ce plugin offre une solution tout-en-un
 - **Événements scolaires** : Gestion du calendrier académique
 
 #### 🔐 Rôles & Permissions
-- **Administrateur École** : Rôle WordPress personnalisé avec permissions granulaires
+- **Administrateur** : Accès complet au système
+- **Administrateur École** : Gestion académique et financière complète
+- **Comptable École** (NOUVEAU v0.6.0) : Accès financier uniquement
 - **Enseignants** : Accès limité aux informations pertinentes
 - **Étudiants** : Portail dédié (via extension Student Portal)
 
@@ -149,7 +164,9 @@ Built for **Cyber Tech Academy**, this plugin provides an all-in-one solution fo
 - **School Events**: Academic calendar management
 
 #### 🔐 Roles & Permissions
-- **School Administrator**: Custom WordPress role with granular permissions
+- **Administrator**: Complete system access
+- **School Admin**: Full academic and financial management
+- **School Accountant** (NEW in v0.6.0): Financial access only
 - **Teachers**: Limited access to relevant information
 - **Students**: Dedicated portal (via Student Portal add-on)
 
@@ -216,17 +233,51 @@ We use [Semantic Versioning](https://semver.org/) for release management:
 - **1.x.x** = Feature releases
 - **x.x.1** = Bug fixes and patches
 
-### Current Version: 0.5.5
+### Current Version: 0.6.0
 
-**Recent Updates:**
+**Latest Updates (v0.6.0 - Jan 13, 2026):**
+- ✅ 3-category menu architecture (Academic, Financial, Settings)
+- ✅ Simplified student registration workflow
+- ✅ New School Accountant role with financial-only access
+- ✅ Dedicated Financial Dashboard with charts
+- ✅ Industry-standard architecture (OpenSIS/PowerSchool pattern)
+- ✅ Complete documentation (User Guide, Roles, Workflows)
+
+**Previous Updates:**
 - ✅ French translations for payment alerts and family discounts
 - ✅ Automatic update system via GitHub
 - ✅ Family discount calculator with bulk recalculation tools
 - ✅ Deactivation dependency protection for add-ons
-- 🚧 Responsive design improvements (in progress)
+- ✅ Responsive design improvements
 - 🔜 Arabic translation (coming soon)
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+---
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the `/docs` folder:
+
+- **[User Guide](docs/USER-GUIDE.md)** - Complete guide to using the plugin
+  - Menu structure overview
+  - Academic management
+  - Financial management
+  - Common workflows
+  - FAQ
+
+- **[Roles Guide](docs/ROLES.md)** - Role-based access control
+  - Role comparison chart
+  - Detailed capabilities
+  - User management
+  - Security best practices
+
+- **[Workflows Guide](docs/WORKFLOWS.md)** - Step-by-step workflows
+  - Student registration
+  - Enrollment processes
+  - Payment collection
+  - Attendance marking
+  - Administrative tasks
 
 ---
 

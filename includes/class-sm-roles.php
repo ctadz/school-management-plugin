@@ -22,11 +22,12 @@ class SM_Roles {
     }
 
     /**
-     * Customize admin menu for teachers
+     * Customize admin menu for teachers and accountants
      */
     public static function customize_teacher_menu() {
         $current_user = wp_get_current_user();
 
+        // Customize menu for teachers
         if ( in_array( 'school_teacher', $current_user->roles ) ) {
             // Remove unnecessary menu items for teachers
             remove_menu_page( 'index.php' );                  // Dashboard
@@ -42,19 +43,42 @@ class SM_Roles {
 
             // Keep only: Profile, Calendar, and potentially School Management items
         }
+
+        // Customize menu for accountants
+        if ( in_array( 'school_accountant', $current_user->roles ) ) {
+            // Remove WordPress default menus
+            remove_menu_page( 'index.php' );                  // Dashboard
+            remove_menu_page( 'edit.php' );                   // Posts
+            remove_menu_page( 'upload.php' );                 // Media
+            remove_menu_page( 'edit.php?post_type=page' );    // Pages
+            remove_menu_page( 'edit-comments.php' );          // Comments
+            remove_menu_page( 'themes.php' );                 // Appearance
+            remove_menu_page( 'plugins.php' );                // Plugins
+            remove_menu_page( 'users.php' );                  // Users
+            remove_menu_page( 'tools.php' );                  // Tools
+            remove_menu_page( 'options-general.php' );        // Settings
+
+            // Remove Academic Management menu (they should only see Financial Management)
+            remove_menu_page( 'school-management' );          // Academic Management
+
+            // Remove Settings menu (they don't have access)
+            remove_menu_page( 'school-settings' );            // School Settings
+
+            // Keep only: Profile, School Finances menu
+        }
     }
 
     /**
-     * Redirect teachers away from dashboard to calendar
+     * Redirect teachers and accountants away from dashboard
      */
     public static function redirect_teachers_from_dashboard() {
         $current_user = wp_get_current_user();
 
-        // Only redirect school_teacher role
-        if ( in_array( 'school_teacher', $current_user->roles ) ) {
-            // Get current page
-            global $pagenow;
+        // Get current page
+        global $pagenow;
 
+        // Redirect school_teacher role
+        if ( in_array( 'school_teacher', $current_user->roles ) ) {
             // If on dashboard (index.php) or trying to access dashboard
             if ( $pagenow === 'index.php' || ( empty( $_GET['page'] ) && $pagenow === 'admin.php' ) ) {
                 // Check if calendar plugin is active
@@ -69,15 +93,25 @@ class SM_Roles {
                 }
             }
         }
+
+        // Redirect school_accountant role
+        if ( in_array( 'school_accountant', $current_user->roles ) ) {
+            // If on dashboard (index.php) or trying to access dashboard
+            if ( $pagenow === 'index.php' || ( empty( $_GET['page'] ) && $pagenow === 'admin.php' ) ) {
+                // Redirect to Financial Dashboard
+                wp_redirect( admin_url( 'admin.php?page=school-finances' ) );
+                exit;
+            }
+        }
     }
 
     /**
-     * Hide admin bar for teachers on frontend
+     * Hide admin bar for teachers and accountants on frontend
      */
     public static function hide_admin_bar_for_teachers() {
         $current_user = wp_get_current_user();
 
-        if ( in_array( 'school_teacher', $current_user->roles ) ) {
+        if ( in_array( 'school_teacher', $current_user->roles ) || in_array( 'school_accountant', $current_user->roles ) ) {
             // Hide admin bar on frontend
             show_admin_bar( false );
         }
@@ -153,6 +187,41 @@ class SM_Roles {
                 )
             );
         }
+
+        // Create School Accountant role (Financial Management only)
+        if ( ! get_role( 'school_accountant' ) ) {
+            add_role(
+                'school_accountant',
+                __( 'School Accountant', 'CTADZ-school-management' ),
+                array(
+                    // WordPress core capabilities
+                    'read'                   => true,
+                    'edit_posts'             => false,
+                    'delete_posts'           => false,
+
+                    // Financial Management capabilities (FULL ACCESS)
+                    'manage_payments'        => true,
+                    'manage_enrollments'     => true,
+                    'view_reports'           => true,
+
+                    // Academic Management capabilities (READ-ONLY)
+                    'view_calendar'          => true,
+
+                    // Explicitly DENIED capabilities
+                    'manage_school'          => false,
+                    'manage_students'        => false,
+                    'manage_teachers'        => false,
+                    'manage_courses'         => false,
+                    'manage_levels'          => false,
+                    'manage_classrooms'      => false,
+                    'manage_attendance'      => false,
+                    'view_attendance'        => false,
+                    'manage_schedules'       => false,
+                    'manage_events'          => false,
+                    'manage_school_settings' => false,
+                )
+            );
+        }
     }
 
     /**
@@ -187,6 +256,7 @@ class SM_Roles {
         remove_role( 'school_admin' );
         remove_role( 'school_teacher' );
         remove_role( 'school_student' );
+        remove_role( 'school_accountant' );
     }
 
     /**

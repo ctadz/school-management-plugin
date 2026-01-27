@@ -1,6 +1,11 @@
 jQuery(document).ready(function($) {
     let frame;
 
+    // Get localized strings with fallbacks
+    var getStr = function(key, fallback) {
+        return (typeof sm_i18n !== 'undefined' && sm_i18n[key]) ? sm_i18n[key] : fallback;
+    };
+
     $('#sm_student_picture_box').on('click', function(e) {
         e.preventDefault();
 
@@ -10,8 +15,8 @@ jQuery(document).ready(function($) {
         }
 
         frame = wp.media({
-            title: 'Select or Upload Student Picture',
-            button: { text: 'Use this picture' },
+            title: getStr('selectStudentPicture', 'Select or Upload Student Picture'),
+            button: { text: getStr('usePicture', 'Use this picture') },
             multiple: false
         });
 
