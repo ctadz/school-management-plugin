@@ -65,9 +65,9 @@ class SM_Enrollments_Page {
         $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
         $enrollments_table = $wpdb->prefix . 'sm_enrollments';
         $courses_table = $wpdb->prefix . 'sm_courses';
-        
+
         $enrollment = $wpdb->get_row( $wpdb->prepare(
-            "SELECT e.*, c.price_per_month, c.total_months
+            "SELECT e.*, c.price_per_month, c.total_months, c.payment_model
              FROM $enrollments_table e
              LEFT JOIN $courses_table c ON e.course_id = c.id
              WHERE e.id = %d",
@@ -82,28 +82,43 @@ class SM_Enrollments_Page {
         $price_per_month = floatval( $enrollment->price_per_month );
         $total_months = intval( $enrollment->total_months );
         $start_date = $enrollment->start_date;
+        $payment_model = $enrollment->payment_model ?? 'monthly_installments';
+        $is_subscription = ( $payment_model === 'monthly_subscription' );
 
         // Calculate family discount
         $discount_info = SM_Family_Discount::calculate_discount_for_student( $enrollment->student_id );
         $discount_percentage = $discount_info['percentage'];
         $discount_reason = $discount_info['reason'];
-        
+
         $installments = [];
-        
+
         switch ( $payment_plan ) {
             case 'monthly':
-                // One payment per month
-                for ( $i = 0; $i < $total_months; $i++ ) {
+                // For subscriptions, create only the first payment
+                // Additional payments will be generated automatically when paid
+                // Subscriptions are session-based, so vacation periods will be considered when generating each payment
+                if ( $is_subscription ) {
                     $installments[] = [
-                        'number' => $i + 1,
+                        'number' => 1,
                         'amount' => $price_per_month,
-                        'due_date' => date( 'Y-m-d', strtotime( "+$i months", strtotime( $start_date ) ) ),
+                        'due_date' => $start_date,
                     ];
+                } else {
+                    // For regular monthly installments, create all payments upfront
+                    // These are financial payment plans (not session-based), so vacations are NOT considered
+                    for ( $i = 0; $i < $total_months; $i++ ) {
+                        $installments[] = [
+                            'number' => $i + 1,
+                            'amount' => $price_per_month,
+                            'due_date' => date( 'Y-m-d', strtotime( "+$i months", strtotime( $start_date ) ) ),
+                        ];
+                    }
                 }
                 break;
-                
+
             case 'quarterly':
                 // Payment every 3 months
+                // These are financial payment plans (not session-based), so vacations are NOT considered
                 $num_quarters = ceil( $total_months / 3 );
                 for ( $i = 0; $i < $num_quarters; $i++ ) {
                     $months_in_quarter = min( 3, $total_months - ( $i * 3 ) );
@@ -114,7 +129,7 @@ class SM_Enrollments_Page {
                     ];
                 }
                 break;
-                
+
             case 'full':
                 // Single payment for entire course
                 $installments[] = [
@@ -124,7 +139,7 @@ class SM_Enrollments_Page {
                 ];
                 break;
         }
-        
+
         // Insert installments into database
         foreach ( $installments as $installment ) {
             // Apply family discount to amount

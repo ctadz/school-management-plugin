@@ -118,6 +118,7 @@ class SM_Payments_Page {
                         c.name as course_name,
                         c.price_per_month,
                         c.total_months,
+                        c.payment_model,
                         (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_payments,
                         (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id AND ps.status = 'paid') as paid_payments,
                         (SELECT SUM(expected_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_expected,
@@ -384,8 +385,11 @@ class SM_Payments_Page {
                         $progress_percent = $total_expected > 0 ? ( $total_paid / $total_expected ) * 100 : 0;
 
                         // Determine if this payment plan should show next payment date
+                        // Show for monthly installments and subscriptions
                         $payment_plan = $enrollment->payment_plan ?? 'monthly';
-                        $show_next_payment = in_array( $payment_plan, [ 'monthly', 'subscription' ] );
+                        $payment_model = $enrollment->payment_model ?? 'monthly_installments';
+                        $is_subscription = ( $payment_model === 'monthly_subscription' );
+                        $show_next_payment = ( $payment_plan === 'monthly' || $is_subscription );
                     ?>
                         <tr>
                             <td data-label="<?php echo esc_attr__( 'Student', 'CTADZ-school-management' ); ?>">
@@ -823,19 +827,24 @@ class SM_Payments_Page {
                             "SELECT * FROM $payment_schedules_table WHERE id = %d",
                             $reference_id
                         ) );
-                        
+
                         if ( $schedule ) {
                             $new_paid_amount = floatval( $schedule->paid_amount ) + $amount;
                             $new_status = 'paid';
                             if ( $new_paid_amount < $schedule->expected_amount ) {
                                 $new_status = 'partial';
                             }
-                            
+
                             $wpdb->update( $payment_schedules_table, [
                                 'paid_amount' => $new_paid_amount,
                                 'paid_date' => $payment_date,
                                 'status' => $new_status,
                             ], [ 'id' => $reference_id ] );
+
+                            // For subscription enrollments, create the next month's payment schedule
+                            if ( $new_status === 'paid' ) {
+                                self::create_next_subscription_payment( $enrollment_id, $schedule );
+                            }
                         }
                     }
 
@@ -1047,6 +1056,92 @@ class SM_Payments_Page {
         });
         </script>
         <?php
+    }
+
+    /**
+     * Create next month's payment schedule for subscription enrollments
+     *
+     * @param int $enrollment_id The enrollment ID
+     * @param object $completed_schedule The just-completed payment schedule
+     */
+    private static function create_next_subscription_payment( $enrollment_id, $completed_schedule ) {
+        global $wpdb;
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+
+        // Get enrollment and course info
+        $enrollment = $wpdb->get_row( $wpdb->prepare(
+            "SELECT e.*, c.payment_model, c.price_per_month
+             FROM $enrollments_table e
+             LEFT JOIN $courses_table c ON e.course_id = c.id
+             WHERE e.id = %d",
+            $enrollment_id
+        ) );
+
+        if ( ! $enrollment ) {
+            return;
+        }
+
+        // Only create next payment for subscription enrollments
+        $payment_model = $enrollment->payment_model ?? 'monthly_installments';
+        if ( $payment_model !== 'monthly_subscription' ) {
+            return;
+        }
+
+        // Check if next payment already exists
+        $next_installment_number = intval( $completed_schedule->installment_number ) + 1;
+        $existing_next = $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM $payment_schedules_table
+             WHERE enrollment_id = %d AND installment_number = %d",
+            $enrollment_id,
+            $next_installment_number
+        ) );
+
+        if ( $existing_next ) {
+            // Next payment already exists, no need to create
+            return;
+        }
+
+        // Calculate next payment due date (one month after the completed payment)
+        // If calendar plugin is active, skip vacation periods
+        if ( defined( 'SMC_VERSION' ) && function_exists( 'smc_calculate_next_payment_date' ) ) {
+            $next_due_date = smc_calculate_next_payment_date( $completed_schedule->due_date, '+1 month' );
+        } else {
+            $next_due_date = date( 'Y-m-d', strtotime( '+1 month', strtotime( $completed_schedule->due_date ) ) );
+        }
+
+        // Calculate family discount
+        $discount_info = SM_Family_Discount::calculate_discount_for_student( $enrollment->student_id );
+        $discount_percentage = $discount_info['percentage'];
+        $discount_reason = $discount_info['reason'];
+
+        // Apply discount to amount
+        $price_per_month = floatval( $enrollment->price_per_month );
+        $discounted_amount = SM_Family_Discount::apply_discount(
+            $price_per_month,
+            $discount_percentage
+        );
+
+        // Insert next payment schedule
+        $wpdb->insert( $payment_schedules_table, [
+            'enrollment_id' => $enrollment_id,
+            'installment_number' => $next_installment_number,
+            'expected_amount' => $discounted_amount,
+            'due_date' => $next_due_date,
+            'status' => 'pending',
+            'paid_amount' => 0,
+            'discount_percentage' => $discount_percentage,
+            'discount_reason' => $discount_reason,
+        ] );
+
+        // Log the creation for debugging
+        error_log( sprintf(
+            'SM Payment: Created next subscription payment for enrollment #%d - Installment #%d, Due: %s',
+            $enrollment_id,
+            $next_installment_number,
+            $next_due_date
+        ) );
     }
 }
 

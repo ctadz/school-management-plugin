@@ -2,6 +2,32 @@
 
 All notable changes to the School Management plugin will be documented in this file.
 
+## [0.6.2] - 2026-01-28
+
+### Fixed
+- **Subscription Payments**: Fixed auto-generation of next payment when current payment is recorded
+- **Payment Schedules**: Corrected logic to properly create next subscription payment entry
+
+### Added
+- **Vacation-Aware Payments**: Subscription payments now automatically account for vacation periods
+  - Next payment dates extend by vacation duration for session-based subscriptions
+  - Only applies to subscription payment model (not installments or quarterly)
+  - Integrates with Calendar plugin vacation/holiday events
+- **Documentation**: Added comprehensive vacation-aware payments documentation
+
+### Technical
+- Integration with Calendar plugin `event_end_date` field for multi-day vacations
+- New helper function `smc_calculate_next_payment_date()` for vacation calculation
+- Enhanced `create_next_subscription_payment()` method in payments system
+
+## [0.6.1] - 2026-01-27
+
+### Fixed
+- GitHub updater token support and authentication improvements
+
+### Documentation
+- Added release process documentation for plugin auto-updates
+
 ## [0.6.0] - 2026-01-13
 
 ### Major Restructuring - Simplified Architecture
