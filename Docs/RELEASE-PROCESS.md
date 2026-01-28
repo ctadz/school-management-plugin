@@ -151,6 +151,9 @@ If the plugin installs to a wrong folder name (e.g., `ctadz-school-management-pl
 
 | Date | Plugin | Version | Notes |
 |------|--------|---------|-------|
+| 2026-01-28 | School Management | v0.6.2 | Vacation-aware subscription payments, auto-generation fix |
+| 2026-01-28 | Calendar | v1.1.0 | Multi-day vacation events, payment integration |
+| 2026-01-27 | School Management | v0.6.1 | GitHub updater improvements |
 | 2026-01-27 | School Management | v0.6.0 | Dropdown refresh, payment alerts, roles, attendance |
 | 2026-01-27 | Student Portal | v1.1.1 | Translatable JS strings, French translations |
-| 2026-01-27 | Calendar | v1.0.1 | French translation update |
+| 2026-01-27 | Calendar | v1.0.2 | French translation update |
