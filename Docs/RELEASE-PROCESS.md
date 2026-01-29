@@ -83,7 +83,36 @@ git archive --format=zip --prefix=school-management-calendar/ -o school-manageme
 
 **Critical**: The `--prefix` value MUST match the plugin's folder name in `wp-content/plugins/`. WordPress uses this folder name to identify the plugin during updates.
 
-### 4. Create GitHub Releases
+### 4. Merge develop into main
+
+After testing in develop, merge the changes into the main branch:
+
+```bash
+# School Management
+cd /path/to/plugins/school-management
+git checkout main
+git merge develop -m "Merge develop into main for vX.Y.Z release"
+git push origin main
+git checkout develop
+
+# Calendar
+cd /path/to/plugins/school-management-calendar
+git checkout main
+git merge develop -m "Merge develop into main for vX.Y.Z release"
+git push origin main
+git checkout develop
+
+# Student Portal (if needed)
+cd /path/to/plugins/school-management-student-portal
+git checkout master  # Note: uses master instead of main
+git merge develop -m "Merge develop into master for vX.Y.Z release"
+git push origin master
+git checkout develop
+```
+
+**Important**: This step ensures both `develop` and `main` branches are in sync with the release version.
+
+### 5. Create GitHub Releases
 
 Use the GitHub CLI to create releases with the zip files attached:
 
@@ -112,7 +141,7 @@ gh release create v1.0.1 school-management-calendar.zip \
 
 **Tag format**: Always use `vX.Y.Z` (e.g., `v0.6.0`). The updater strips the `v` prefix when comparing versions.
 
-### 5. Verify
+### 6. Verify
 
 After creating the releases:
 
