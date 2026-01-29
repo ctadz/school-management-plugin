@@ -380,7 +380,17 @@ class SM_Levels_Page {
                                 <?php
                                 $student_count = intval( $level->student_count );
                                 if ( $student_count > 0 ) {
+                                    $students_url = add_query_arg(
+                                        array(
+                                            'page' => 'school-management-students',
+                                            'level_id' => $level->id,
+                                            'level_name' => urlencode( $level->name )
+                                        ),
+                                        admin_url( 'admin.php' )
+                                    );
+                                    echo '<a href="' . esc_url( $students_url ) . '" class="sm-students-link">';
                                     echo '<span class="text-primary"><strong>' . esc_html( $student_count ) . '</strong> ' . esc_html( _n( 'student', 'students', $student_count, 'CTADZ-school-management' ) ) . '</span>';
+                                    echo '</a>';
                                 } else {
                                     echo '<span class="text-muted">' . esc_html__( 'None', 'CTADZ-school-management' ) . '</span>';
                                 }

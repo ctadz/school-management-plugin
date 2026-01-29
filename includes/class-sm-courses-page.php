@@ -712,7 +712,7 @@ class SM_Courses_Page {
                                 $model = $course->payment_model ?? 'monthly_installments';
                                 $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
                                 ?>
-                                <span class="sm-payment-badge sm-payment-badge-<?php echo esc_attr( $model ); ?>">
+                                <span class="sm-payment-badge sm-payment-badge--<?php echo esc_attr( $model ); ?>">
                                     <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>"></span>
                                     <strong><?php echo esc_html( $display['label'] ); ?></strong>
                                 </span>
@@ -997,14 +997,22 @@ class SM_Courses_Page {
                         <label for="course_level"><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <select id="course_level" name="level_id" required>
-                            <option value=""><?php esc_html_e( 'Select Level', 'CTADZ-school-management' ); ?></option>
-                            <?php foreach ( $levels as $level ) : ?>
-                                <option value="<?php echo intval( $level->id ); ?>" <?php selected( $form_data['level_id'] ?? 0, $level->id ); ?>>
-                                    <?php echo esc_html( $level->name ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="sm-dropdown-with-refresh">
+                            <select id="course_level" name="level_id" required>
+                                <option value=""><?php esc_html_e( 'Select Level', 'CTADZ-school-management' ); ?></option>
+                                <?php foreach ( $levels as $level ) : ?>
+                                    <option value="<?php echo intval( $level->id ); ?>" <?php selected( $form_data['level_id'] ?? 0, $level->id ); ?>>
+                                        <?php echo esc_html( $level->name ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="levels"
+                                    data-target="course_level"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
                         <p class="description">
                             <a href="?page=school-management-levels" target="_blank"><?php esc_html_e( 'Manage levels', 'CTADZ-school-management' ); ?></a>
                         </p>
@@ -1016,14 +1024,22 @@ class SM_Courses_Page {
                         <label for="course_teacher"><?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <select id="course_teacher" name="teacher_id" required>
-                            <option value=""><?php esc_html_e( 'Select Teacher', 'CTADZ-school-management' ); ?></option>
-                            <?php foreach ( $teachers as $teacher ) : ?>
-                                <option value="<?php echo intval( $teacher->id ); ?>" <?php selected( $form_data['teacher_id'] ?? 0, $teacher->id ); ?>>
-                                    <?php echo esc_html( $teacher->first_name . ' ' . $teacher->last_name ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="sm-dropdown-with-refresh">
+                            <select id="course_teacher" name="teacher_id" required>
+                                <option value=""><?php esc_html_e( 'Select Teacher', 'CTADZ-school-management' ); ?></option>
+                                <?php foreach ( $teachers as $teacher ) : ?>
+                                    <option value="<?php echo intval( $teacher->id ); ?>" <?php selected( $form_data['teacher_id'] ?? 0, $teacher->id ); ?>>
+                                        <?php echo esc_html( $teacher->first_name . ' ' . $teacher->last_name ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="teachers"
+                                    data-target="course_teacher"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
                         <p class="description">
                             <a href="?page=school-management-teachers" target="_blank"><?php esc_html_e( 'Manage teachers', 'CTADZ-school-management' ); ?></a>
                         </p>
@@ -1035,17 +1051,25 @@ class SM_Courses_Page {
                         <label for="course_classroom"><?php esc_html_e( 'Classroom', 'CTADZ-school-management' ); ?></label>
                     </th>
                     <td>
-                        <select id="course_classroom" name="classroom_id">
-                            <option value=""><?php esc_html_e( 'No Classroom Assigned', 'CTADZ-school-management' ); ?></option>
-                            <?php foreach ( $classrooms as $classroom ) : ?>
-                                <option value="<?php echo intval( $classroom->id ); ?>" <?php selected( $form_data['classroom_id'] ?? 0, $classroom->id ); ?>>
-                                    <?php echo esc_html( $classroom->name ); ?>
-                                    <?php if ( $classroom->location ) : ?>
-                                        - <?php echo esc_html( $classroom->location ); ?>
-                                    <?php endif; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="sm-dropdown-with-refresh">
+                            <select id="course_classroom" name="classroom_id">
+                                <option value=""><?php esc_html_e( 'No Classroom Assigned', 'CTADZ-school-management' ); ?></option>
+                                <?php foreach ( $classrooms as $classroom ) : ?>
+                                    <option value="<?php echo intval( $classroom->id ); ?>" <?php selected( $form_data['classroom_id'] ?? 0, $classroom->id ); ?>>
+                                        <?php echo esc_html( $classroom->name ); ?>
+                                        <?php if ( $classroom->location ) : ?>
+                                            - <?php echo esc_html( $classroom->location ); ?>
+                                        <?php endif; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="classrooms"
+                                    data-target="course_classroom"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
                         <p class="description">
                             <?php esc_html_e( 'Optional: Assign this course to a specific classroom.', 'CTADZ-school-management' ); ?>
                             <a href="?page=school-management-classrooms" target="_blank"><?php esc_html_e( 'Manage classrooms', 'CTADZ-school-management' ); ?></a>

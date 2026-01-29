@@ -1,9 +1,53 @@
 # School Management System - Development Roadmap
 
-**Last Updated**: December 6, 2025
-**Current Version**: 0.4.3
+**Last Updated**: January 13, 2026
+**Current Version**: 0.6.0
 
 ## ✅ Recently Completed
+
+### Major Plugin Restructuring - v0.6.0 (Jan 13, 2026) 🎉
+- [x] **3-Category Menu Architecture**
+  - Created separate "School Finances" menu (Financial Management)
+  - Created separate "School Settings" menu (Plugin Management)
+  - Reorganized "School Management" menu (Academic focus)
+  - Moved Enrollments to Financial menu
+  - Created dedicated Financial Dashboard with charts and widgets
+- [x] **Simplified Student Registration Workflow**
+  - Removed all payment fields from student form
+  - Added optional "Enroll in course now" checkbox
+  - Smart redirect to Financial Management for payment setup
+  - Clean separation: Academic staff register, Finance staff handle money
+- [x] **School Accountant Role**
+  - Created new `school_accountant` role
+  - Full access to Financial Management only
+  - Read-only access to Calendar
+  - No access to Academic Management or Settings
+  - Auto-redirects to Financial Dashboard
+  - Menu customization (only sees relevant menus)
+  - Hidden admin bar on frontend
+- [x] **Documentation**
+  - Created CHANGELOG.md with complete v0.6.0 details
+  - Updated version to 0.6.0 in plugin header
+
+**Impact**: Addressed user feedback "Plugin is too complicated" - now follows industry-standard architecture (matches OpenSIS, PowerSchool, Skyward).
+
+### GitHub Auto-Update System & Translations (Dec 27, 2025)
+- [x] Fixed GitHub auto-update system
+  - Corrected repository URL from `ahmedsebaa` to `ctadz` account
+  - Updated Plugin URI and Author URI to point to ctadz
+  - Verified updater class properly fetches `school-management.zip` from releases
+  - Tested auto-update mechanism (v0.5.4)
+- [x] Expanded French translations
+  - Added 63 new French translations for Payment Alerts page (28 strings)
+  - Added French translations for Family Discount Tools page (35 strings)
+  - Translated all payment alert filters, status indicators, and reminder emails
+  - Translated family discount bulk recalculation interface
+  - Recompiled MO files successfully
+- [x] Created GitHub releases with proper assets
+  - v0.5.4: Auto-Update Fix (December 27, 2025)
+  - v0.5.5: French Translations Update (December 27, 2025)
+  - All releases include properly-named `school-management.zip` assets
+  - Auto-update system now fully functional for live site deployment
 
 ### Mobile Responsive Design (Dec 6, 2025)
 - [x] Created comprehensive responsive CSS for calendar plugin
@@ -51,58 +95,124 @@
 
 ---
 
-## 🚀 Immediate Priorities
+## 🚀 Immediate Priorities (Next Session)
 
-### 1. Deploy to Live Site
+### 1. French Translation Updates for v0.6.0
 **Priority**: HIGH
 **Estimated Effort**: 2-3 hours
 
 Tasks:
-- [ ] Create deployment checklist
-- [ ] Backup live database
-- [ ] Deploy security fixes to production
-- [ ] Deploy French translations
-- [ ] Test on live environment
-- [ ] Monitor for issues
+- [ ] Translate new v0.6.0 strings:
+  - [ ] "School Finances" menu title and description
+  - [ ] "Financial Dashboard" title and all dashboard widgets
+  - [ ] "Enrollments & Plans" menu item
+  - [ ] "School Settings" menu title
+  - [ ] "School Accountant" role name and description
+  - [ ] "Enroll in course now" checkbox and enrollment section text
+  - [ ] Financial dashboard quick actions
+  - [ ] Role-based redirect messages
+- [ ] Update PO file with new strings
+- [ ] Compile MO file
+- [ ] Test language switching functionality
+- [ ] Verify all new UI elements display correctly in French
 
 **Dependencies**: None
 **Blocker**: None
+**Estimated New Strings**: ~35-40 strings
 
-### 2. Test French Translations
+### 2. User Documentation for v0.6.0
+**Priority**: HIGH
+**Estimated Effort**: 2-3 hours
+
+Tasks:
+- [ ] Create comprehensive user guide:
+  - [ ] Overview of 3-category menu structure
+  - [ ] How to use Academic Management menu
+  - [ ] How to use Financial Management menu
+  - [ ] How to use Settings menu
+- [ ] Document school_accountant role:
+  - [ ] How to create accountant users
+  - [ ] Accountant capabilities and restrictions
+  - [ ] Accountant workflow guide
+- [ ] Document simplified student registration:
+  - [ ] Step-by-step registration guide
+  - [ ] When to use "Enroll now" vs "Enroll later"
+  - [ ] Academic vs Financial staff responsibilities
+- [ ] Create role comparison chart (Admin vs School Admin vs Accountant vs Teacher)
+- [ ] Update README.md with new architecture
+- [ ] Create quick reference cards for staff
+
+**Dependencies**: None
+**Blocker**: None
+**Format**: Markdown files in `/docs` folder
+
+### 3. Deploy v0.6.0 to Live Site
 **Priority**: HIGH
 **Estimated Effort**: 1-2 hours
 
 Tasks:
-- [ ] Test language switching functionality
-- [ ] Verify all UI elements display in French
-- [ ] Test student portal in French
-- [ ] Check calendar plugin translations
-- [ ] Verify email notifications (if any) are translated
-- [ ] Test admin interface translations
+- [ ] Create deployment checklist
+- [ ] Backup live database
+- [ ] Deploy v0.6.0 to production
+- [ ] Test on live environment:
+  - [ ] Verify 3 menus appear correctly
+  - [ ] Test student registration workflow
+  - [ ] Test accountant role access
+  - [ ] Verify all existing data intact
+- [ ] Monitor for any issues
+- [ ] Create test accountant user for staff training
 
-**Dependencies**: Deploy to live site
+**Dependencies**: French translations complete
 **Blocker**: None
 
-### 3. Create GitHub Releases
+### 4. Create GitHub Release for v0.6.0
 **Priority**: MEDIUM
-**Estimated Effort**: 1 hour
+**Estimated Effort**: 30 minutes
 
 Tasks:
-- [ ] Tag v0.4.3 for main plugin
-- [ ] Tag v1.0.1 for calendar plugin
-- [ ] Tag v1.0.0 for student portal plugin
-- [ ] Write release notes documenting security fixes
-- [ ] Create release packages
-- [ ] Update changelog files
+- [ ] Tag v0.6.0 release on GitHub
+- [ ] Upload school-management.zip
+- [ ] Copy CHANGELOG.md content to release notes
+- [ ] Test auto-update from v0.5.6 to v0.6.0
 
-**Dependencies**: None
+**Dependencies**: v0.6.0 deployed and tested
 **Blocker**: None
 
 ---
 
 ## 🔧 Feature Development
 
-### 4. Attendance System Enhancements
+### 5. Payment Hold System (Designed, Not Yet Implemented)
+**Priority**: MEDIUM
+**Estimated Effort**: 4-6 hours
+**Status**: Design Complete ✅ | Implementation: Pending
+
+#### Background
+Requirement: Monthly subscription students have vacation periods. During vacations, payments should be automatically put on hold and anniversary dates shifted. Same for teacher absences.
+
+#### Design Completed
+- Full architecture designed (automatic, transparent system)
+- Triggers: Calendar events with types `student_vacation` or `teacher_absence`
+- Affects only courses with `payment_model = 'monthly_subscription'`
+- No additional admin pages needed (fully automatic)
+- Shifts payment due dates by vacation duration
+- Cumulative shifting (multiple vacations compound)
+
+#### Implementation Tasks
+- [ ] Create `class-sm-payment-date-shifter.php`
+- [ ] Add two new event types to calendar plugin
+- [ ] Hook event save action to payment shifter
+- [ ] Implement date shifting logic for pending payments
+- [ ] Add vacation period calculation (start to end date)
+- [ ] Handle teacher absence → find all affected courses
+- [ ] Test cumulative date shifting
+- [ ] Document workflow for staff
+
+**Dependencies**: None
+**Blocker**: None
+**Note**: Design document available in session history. Ready to implement when needed.
+
+### 6. Attendance System Enhancements
 **Priority**: MEDIUM
 **Estimated Effort**: 1-2 weeks
 

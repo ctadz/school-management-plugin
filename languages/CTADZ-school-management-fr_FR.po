@@ -3,10 +3,10 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: School Management 0.4.2\n"
+"Project-Id-Version: School Management 0.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/school-management\n"
-"POT-Creation-Date: 2025-11-17T12:40:08+00:00\n"
-"PO-Revision-Date: 2025-11-18 11:34+0100\n"
+"POT-Creation-Date: 2026-01-13T14:30:00+00:00\n"
+"PO-Revision-Date: 2026-01-13 14:30+0100\n"
 "Last-Translator: Ahmed Sebaa\n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -289,6 +289,24 @@ msgstr "Sélectionner le Niveau"
 
 msgid "Select Teacher"
 msgstr "Sélectionner l'Enseignant"
+
+msgid "Select Blood Type"
+msgstr "Sélectionner le Groupe Sanguin"
+
+msgid "Select Type"
+msgstr "Sélectionner le Type"
+
+msgid "Select Method"
+msgstr "Sélectionner la Méthode"
+
+msgid "Select Payment Term"
+msgstr "Sélectionner les Conditions de Paiement"
+
+msgid "No Photo"
+msgstr "Pas de Photo"
+
+msgid "optional"
+msgstr "facultatif"
 
 msgid "Classroom"
 msgstr "Salle de Classe"
@@ -859,3 +877,1213 @@ msgstr "Réinitialiser le Mot de Passe"
 msgid "Create Portal Access"
 msgstr "Créer un Accès au Portail"
 
+# NEW: Family Discount strings (added 2025-12-27)
+msgid "Discount"
+msgstr "Remise"
+
+msgid "Family Discount Settings"
+msgstr "Paramètres de Remise Familiale"
+
+msgid "Enable Family Discounts"
+msgstr "Activer les Remises Familiales"
+
+msgid "Enable automatic family discounts"
+msgstr "Activer les remises familiales automatiques"
+
+msgid "When enabled, students with the same parent phone number will automatically receive family discounts based on the tiers below."
+msgstr "Lorsqu'activé, les étudiants ayant le même numéro de téléphone parental recevront automatiquement des remises familiales selon les paliers ci-dessous."
+
+msgid "Configure automatic family discounts based on the number of enrolled siblings (identified by parent phone number)."
+msgstr "Configurer les remises familiales automatiques selon le nombre de frères et sœurs inscrits (identifiés par le numéro de téléphone parental)."
+
+msgid "Discount Tiers"
+msgstr "Paliers de Remise"
+
+msgid "Discount %"
+msgstr "Remise %"
+
+msgid "Define discount percentages based on the number of family members enrolled. Tiers are applied automatically based on the highest matching tier."
+msgstr "Définir les pourcentages de remise selon le nombre de membres de la famille inscrits. Les paliers s'appliquent automatiquement selon le palier le plus élevé correspondant."
+
+msgid "At least one discount tier is required."
+msgstr "Au moins un palier de remise est requis."
+
+msgid "Maximum Discount Cap"
+msgstr "Plafond de Remise Maximum"
+
+msgid "Maximum discount percentage that can be applied to any family, regardless of tier configuration. The highest configured tier will apply to families exceeding the highest tier threshold."
+msgstr "Pourcentage de remise maximum applicable à toute famille, indépendamment de la configuration des paliers. Le palier le plus élevé configuré s'appliquera aux familles dépassant le seuil du palier le plus élevé."
+
+msgid "Family discount: %d students enrolled (%s%% discount)"
+msgstr "Remise familiale : %d étudiants inscrits (%s%% de remise)"
+
+msgid "Family discount: %d students enrolled (%s%% capped at %s%%)"
+msgstr "Remise familiale : %d étudiants inscrits (%s%% plafonnée à %s%%)"
+
+msgid "Successfully recalculated %d payment schedules for this family!"
+msgstr "%d échéanciers de paiement recalculés avec succès pour cette famille !"
+
+msgid "This student has no parent phone number set."
+msgstr "Cet étudiant n'a pas de numéro de téléphone parental défini."
+
+msgid "Recalculated %d payment schedules for old family."
+msgstr "%d échéanciers de paiement recalculés pour l'ancienne famille."
+
+msgid "Recalculated %d payment schedules for new family."
+msgstr "%d échéanciers de paiement recalculés pour la nouvelle famille."
+
+msgid "Applied family discounts to %d existing payment schedules."
+msgstr "Remises familiales appliquées à %d échéanciers de paiement existants."
+
+msgid "Please enter a valid parent/guardian email address."
+msgstr "Veuillez saisir une adresse e-mail valide pour le parent/tuteur."
+
+msgid "Recalc Discount"
+msgstr "Recalculer la Remise"
+
+msgid "Family Members"
+msgstr "Membres de la Famille"
+
+msgid "Loading family members..."
+msgstr "Chargement des membres de la famille..."
+
+msgid "No family members found."
+msgstr "Aucun membre de la famille trouvé."
+
+msgid "Error loading family members."
+msgstr "Erreur lors du chargement des membres de la famille."
+
+msgid "Parent/Guardian Information"
+msgstr "Informations sur le Parent/Tuteur"
+
+msgid "Used for emergency contact and family discount calculation."
+msgstr "Utilisé pour le contact d'urgence et le calcul de la remise familiale."
+
+msgid "Family Discount Active"
+msgstr "Remise Familiale Active"
+
+msgid "%s%% discount applied (%d students in family with active enrollments)"
+msgstr "%s%% de remise appliquée (%d étudiants dans la famille avec inscriptions actives)"
+
+msgid "Siblings:"
+msgstr "Frères et Sœurs :"
+
+msgid "Parent/Guardian Name"
+msgstr "Nom du Parent/Tuteur"
+
+msgid "Full name of parent or guardian."
+msgstr "Nom complet du parent ou tuteur."
+
+msgid "Parent/Guardian Phone"
+msgstr "Téléphone du Parent/Tuteur"
+
+msgid "Used to identify family members for family discounts. Students with the same parent phone number will be grouped as siblings."
+msgstr "Utilisé pour identifier les membres de la famille pour les remises familiales. Les étudiants ayant le même numéro de téléphone parental seront regroupés comme frères et sœurs."
+
+msgid "Family Members Detected"
+msgstr "Membres de la Famille Détectés"
+
+msgid "Parent Name Mismatch Detected"
+msgstr "Incohérence de Nom de Parent Détectée"
+
+msgid "This student's parent name (%s) differs from siblings with the same phone number:"
+msgstr "Le nom du parent de cet étudiant (%s) diffère de celui des frères et sœurs ayant le même numéro de téléphone :"
+
+msgid "Parent/Guardian Email"
+msgstr "E-mail du Parent/Tuteur"
+
+msgid "Email address for parent communications."
+msgstr "Adresse e-mail pour les communications avec les parents."
+
+msgid "%s%% discount for %d students"
+msgstr "%s%% de remise pour %d étudiants"
+
+msgid "Family Discount Confirmation"
+msgstr "Confirmation de la Remise Familiale"
+
+# NEW: Payment Alerts & Follow-up page (added 2025-12-27)
+msgid "Payment Alerts & Follow-up"
+msgstr "Alertes de Paiement & Suivi"
+
+msgid "This Week"
+msgstr "Cette Semaine"
+
+msgid "Next Week"
+msgstr "Semaine Prochaine"
+
+msgid "All Pending"
+msgstr "Tous en Attente"
+
+msgid "All Levels"
+msgstr "Tous les Niveaux"
+
+msgid "All Courses"
+msgstr "Tous les Cours"
+
+msgid "Clear Filters"
+msgstr "Effacer les Filtres"
+
+msgid "Showing %d payment alerts"
+msgstr "Affichage de %d alertes de paiement"
+
+msgid "Amount Due"
+msgstr "Montant Dû"
+
+msgid "%d days overdue"
+msgstr "%d jours de retard"
+
+msgid "In %d days"
+msgstr "Dans %d jours"
+
+msgid "Due Soon"
+msgstr "Échéance Proche"
+
+msgid "Send payment reminder to this student?"
+msgstr "Envoyer un rappel de paiement à cet étudiant ?"
+
+msgid "Remind"
+msgstr "Rappeler"
+
+msgid "No email"
+msgstr "Pas d'e-mail"
+
+msgid "No Payment Alerts"
+msgstr "Aucune Alerte de Paiement"
+
+msgid "All payments are up to date for this category."
+msgstr "Tous les paiements sont à jour pour cette catégorie."
+
+msgid "Cannot send reminder: Student email not found."
+msgstr "Impossible d'envoyer le rappel : E-mail de l'étudiant introuvable."
+
+msgid "Payment Reminder - %s"
+msgstr "Rappel de Paiement - %s"
+
+msgid "Dear %s,"
+msgstr "Cher(ère) %s,"
+
+msgid "This is a friendly reminder about your upcoming payment."
+msgstr "Ceci est un rappel amical concernant votre paiement à venir."
+
+msgid "Payment Details:"
+msgstr "Détails du Paiement :"
+
+msgid "Course: %s"
+msgstr "Cours : %s"
+
+msgid "Amount Due: %s DA"
+msgstr "Montant Dû : %s DA"
+
+msgid "Note: This payment is %d days overdue. Please make payment as soon as possible."
+msgstr "Note : Ce paiement a %d jours de retard. Veuillez effectuer le paiement dès que possible."
+
+msgid "Please contact the school office if you have any questions."
+msgstr "Veuillez contacter le bureau de l'école si vous avez des questions."
+
+msgid "Best regards,%s%s"
+msgstr "Cordialement,%s%s"
+
+msgid "Payment reminder sent successfully to %s"
+msgstr "Rappel de paiement envoyé avec succès à %s"
+
+msgid "Failed to send reminder email. Please check your email settings."
+msgstr "Échec de l'envoi du rappel par e-mail. Veuillez vérifier vos paramètres e-mail."
+
+# NEW: Family Discount Tools page (added 2025-12-27)
+msgid "Family Discount Tools"
+msgstr "Outils de Remise Familiale"
+
+msgid "This page allows super administrators to bulk recalculate family discounts for all families. Use with caution."
+msgstr "Cette page permet aux super administrateurs de recalculer en masse les remises familiales pour toutes les familles. À utiliser avec précaution."
+
+msgid "Families Detected"
+msgstr "Familles Détectées"
+
+msgid "(2+ students with same parent phone)"
+msgstr "(2+ étudiants avec le même tél. parental)"
+
+msgid "Students with Parent Phone"
+msgstr "Étudiants avec Tél. Parental"
+
+msgid "(eligible for family discounts)"
+msgstr "(éligibles aux remises familiales)"
+
+msgid "Pending Payment Schedules"
+msgstr "Échéanciers de Paiement en Attente"
+
+msgid "(future payments that will be updated)"
+msgstr "(paiements futurs qui seront mis à jour)"
+
+msgid "Feature Status"
+msgstr "État de la Fonctionnalité"
+
+msgid "Family Discounts Enabled"
+msgstr "Remises Familiales Activées"
+
+msgid "Discount tiers:"
+msgstr "Paliers de remise :"
+
+msgid "%d students = %s%% discount"
+msgstr "%d étudiants = %s%% de remise"
+
+msgid "Family Discounts Disabled"
+msgstr "Remises Familiales Désactivées"
+
+msgid "Enable family discounts in %s to use this tool."
+msgstr "Activez les remises familiales dans %s pour utiliser cet outil."
+
+msgid "Detected Families"
+msgstr "Familles Détectées"
+
+msgid "Parent Name"
+msgstr "Nom du Parent"
+
+msgid "Parent Phone"
+msgstr "Tél. Parental"
+
+msgid "Number of Students"
+msgstr "Nombre d'Étudiants"
+
+msgid "Applicable Discount"
+msgstr "Remise Applicable"
+
+msgid "(No name)"
+msgstr "(Pas de nom)"
+
+msgid "No discount"
+msgstr "Pas de remise"
+
+msgid "No families detected. A family is defined as 2 or more students with the same parent phone number."
+msgstr "Aucune famille détectée. Une famille est définie comme 2 étudiants ou plus avec le même numéro de téléphone parental."
+
+msgid "Bulk Recalculation"
+msgstr "Recalcul en Masse"
+
+msgid "Warning: Use with Caution"
+msgstr "Attention : Utiliser avec Précaution"
+
+msgid "This action will recalculate family discounts for ALL families and update their pending payment schedules. This operation:"
+msgstr "Cette action recalculera les remises familiales pour TOUTES les familles et mettra à jour leurs échéanciers de paiement en attente. Cette opération :"
+
+msgid "Will update ALL pending and unpaid payment schedules with future due dates"
+msgstr "Mettra à jour TOUS les échéanciers de paiement en attente et impayés avec des dates d'échéance futures"
+
+msgid "Will NOT affect already paid or past payments"
+msgstr "N'affectera PAS les paiements déjà effectués ou passés"
+
+msgid "Will recalculate discounts based on current family composition"
+msgstr "Recalculera les remises en fonction de la composition actuelle de la famille"
+
+msgid "Cannot be undone (except by running it again)"
+msgstr "Ne peut pas être annulé (sauf en le relançant)"
+
+msgid "In most cases, you should use the automatic recalculation (when parent phone changes) or the manual per-student recalculation button. Use this bulk tool only when necessary."
+msgstr "Dans la plupart des cas, vous devriez utiliser le recalcul automatique (lors du changement de téléphone parental) ou le bouton de recalcul manuel par étudiant. N'utilisez cet outil en masse que lorsque nécessaire."
+
+msgid "I understand that this will update all pending payment schedules for all families"
+msgstr "Je comprends que cela mettra à jour tous les échéanciers de paiement en attente pour toutes les familles"
+
+msgid "Recalculate All Family Discounts"
+msgstr "Recalculer Toutes les Remises Familiales"
+
+msgid "Are you absolutely sure you want to recalculate family discounts for ALL families? This will affect %d payment schedules."
+msgstr "Êtes-vous absolument sûr de vouloir recalculer les remises familiales pour TOUTES les familles ? Cela affectera %d échéanciers de paiement."
+
+msgid "No students with parent phone numbers found."
+msgstr "Aucun étudiant avec numéro de téléphone parental trouvé."
+
+msgid "Successfully recalculated family discounts! %1$d payment schedules updated across %2$d families."
+msgstr "Remises familiales recalculées avec succès ! %1$d échéanciers de paiement mis à jour pour %2$d familles."
+
+msgid "No payment schedules needed recalculation. All discounts are already up to date."
+msgstr "Aucun échéancier de paiement n'a besoin de recalcul. Toutes les remises sont déjà à jour."
+
+# Plugin Deactivation Dependency Messages
+msgid "Plugin Deactivation Prevented"
+msgstr "Désactivation du Plugin Empêchée"
+
+msgid "The School Management plugin cannot be deactivated because the following dependent plugins are currently active:"
+msgstr "Le plugin Gestion Scolaire ne peut pas être désactivé car les plugins dépendants suivants sont actuellement actifs :"
+
+msgid "Active Dependent Plugins"
+msgstr "Plugins Dépendants Actifs"
+
+msgid "Return to Plugins"
+msgstr "Retour aux Plugins"
+
+msgid "School Management - Calendar & Schedule"
+msgstr "Gestion Scolaire - Calendrier & Emploi du Temps"
+
+msgid "School Management - Student Portal"
+msgstr "Gestion Scolaire - Portail Étudiant"
+
+# Level Dashboard Navigation - Filtered Views
+msgid "Students in %s"
+msgstr "Étudiants en %s"
+
+msgid "Total: %d students in this level"
+msgstr "Total : %d étudiants dans ce niveau"
+
+# ==============================================================================
+# NEW STRINGS for v0.6.0 - Simplified Architecture (January 13, 2026)
+# ==============================================================================
+
+# Menu Structure - Three Category Architecture
+msgid "School Finances"
+msgstr "Finances Scolaires"
+
+msgid "School Settings"
+msgstr "Paramètres du Système"
+
+msgid "Academic Dashboard"
+msgstr "Tableau de Bord Académique"
+
+msgid "Financial Dashboard"
+msgstr "Tableau de Bord Financier"
+
+# Financial Menu Items
+msgid "Enrollments & Plans"
+msgstr "Inscriptions & Plans"
+
+msgid "Payment Collection"
+msgstr "Collecte des Paiements"
+
+msgid "Payment Alerts"
+msgstr "Alertes de Paiement"
+
+# Student Registration - Optional Enrollment Section
+msgid "Course Enrollment (Optional)"
+msgstr "Inscription au Cours (Optionnel)"
+
+msgid "You can enroll this student in a course now, or do it later from the Financial Management menu."
+msgstr "Vous pouvez inscrire cet étudiant à un cours maintenant, ou le faire plus tard depuis le menu Gestion Financière."
+
+msgid "Enroll in a course now"
+msgstr "Inscrire à un cours maintenant"
+
+msgid "Choose a course..."
+msgstr "Choisissez un cours..."
+
+msgid "Payment details and enrollment setup will be handled in the Financial Management section."
+msgstr "Les détails du paiement et la configuration de l'inscription seront gérés dans la section Gestion Financière."
+
+msgid "Redirecting to Financial Management to complete enrollment and payment setup..."
+msgstr "Redirection vers la Gestion Financière pour compléter l'inscription et la configuration du paiement..."
+
+# Roles - School Accountant
+msgid "School Accountant"
+msgstr "Comptable Scolaire"
+
+# Financial Dashboard Widgets
+msgid "Total Collected"
+msgstr "Total Collecté"
+
+msgid "Successfully collected"
+msgstr "Collecté avec succès"
+
+msgid "Total revenue expected"
+msgstr "Revenu total attendu"
+
+msgid "All up to date"
+msgstr "Tout est à jour"
+
+msgid "View Alerts"
+msgstr "Voir les Alertes"
+
+msgid "View Payments"
+msgstr "Voir les Paiements"
+
+msgid "Common financial tasks:"
+msgstr "Tâches financières courantes :"
+
+msgid "Collect Payment"
+msgstr "Collecter un Paiement"
+
+msgid "View Payment Alerts"
+msgstr "Voir les Alertes de Paiement"
+
+msgid "Payment Visualizations"
+msgstr "Visualisations des Paiements"
+
+msgid "Payment Status Breakdown"
+msgstr "Répartition du Statut des Paiements"
+
+# Payment Alert Messages (Plural Forms)
+msgid "%d overdue"
+msgid_plural "%d overdue"
+msgstr[0] "%d en retard"
+msgstr[1] "%d en retard"
+
+msgid "%d due this week"
+msgid_plural "%d due this week"
+msgstr[0] "%d à payer cette semaine"
+msgstr[1] "%d à payer cette semaine"
+
+msgid "%d due next week"
+msgid_plural "%d due next week"
+msgstr[0] "%d à payer la semaine prochaine"
+msgstr[1] "%d à payer la semaine prochaine"
+
+# Enrollment Pre-fill Notice
+msgid "Student and course pre-selected:"
+msgstr "Étudiant et cours présélectionnés :"
+
+# Student Registration - Family Confirmation
+msgid "Student information confirmed."
+msgstr "Informations de l'étudiant confirmées."
+
+
+# Enrollment Prompt Modal
+msgid "Enroll Student in Course?"
+msgstr "Inscrire l'étudiant à un cours ?"
+
+msgid "Do you want to enroll"
+msgstr "Voulez-vous inscrire"
+
+msgid "in a course now?"
+msgstr "à un cours maintenant ?"
+
+msgid "You can enroll the student in a course now, or do it later from the Financial Management menu."
+msgstr "Vous pouvez inscrire l'étudiant à un cours maintenant, ou le faire plus tard depuis le menu Gestion Financière."
+
+msgid "Yes, Enroll Now"
+msgstr "Oui, inscrire maintenant"
+
+msgid "No, Maybe Later"
+msgstr "Non, peut-être plus tard"
+
+# Payment Alerts Download
+msgid "Download CSV"
+msgstr "Télécharger CSV"
+
+msgid "Download PDF"
+msgstr "Télécharger PDF"
+
+msgid "Print / Save as PDF"
+msgstr "Imprimer / Enregistrer en PDF"
+
+msgid "Report Date:"
+msgstr "Date du rapport :"
+
+msgid "Total Alerts:"
+msgstr "Total des alertes :"
+
+
+msgid "Installment #"
+msgstr "Échéance n°"
+
+
+# PDF Export - Additional strings
+msgid "Ready to Print or Save as PDF"
+msgstr "Prêt à imprimer ou enregistrer en PDF"
+
+msgid "Click the button below, then use your browser's print dialog to save as PDF or print to paper."
+msgstr "Cliquez sur le bouton ci-dessous, puis utilisez la boîte de dialogue d'impression de votre navigateur pour enregistrer en PDF ou imprimer sur papier."
+
+msgid "Overdue Payments"
+msgstr "Paiements en Retard"
+
+msgid "Due This Week"
+msgstr "À payer cette semaine"
+
+msgid "Due Next Week"
+msgstr "À payer la semaine prochaine"
+
+msgid "All Pending Payments"
+msgstr "Tous les paiements en attente"
+
+# Student name split validation messages
+msgid "First name must be at least 2 characters long."
+msgstr "Le prénom doit comporter au moins 2 caractères."
+
+msgid "First name cannot exceed 50 characters."
+msgstr "Le prénom ne peut pas dépasser 50 caractères."
+
+msgid "Last name must be at least 2 characters long."
+msgstr "Le nom de famille doit comporter au moins 2 caractères."
+
+msgid "Last name cannot exceed 50 characters."
+msgstr "Le nom de famille ne peut pas dépasser 50 caractères."
+
+msgid "Full name cannot exceed 100 characters."
+msgstr "Le nom complet ne peut pas dépasser 100 caractères."
+
+msgid "Student's first name (given name)."
+msgstr "Prénom de l'étudiant."
+
+msgid "Student's last name (family name)."
+msgstr "Nom de famille de l'étudiant."
+
+msgid "Student's first name (given name). Each student must have a unique full name."
+msgstr "Prénom de l'étudiant. Chaque étudiant doit avoir un nom complet unique."
+
+msgid "Student's last name (family name). Each student must have a unique full name."
+msgstr "Nom de famille de l'étudiant. Chaque étudiant doit avoir un nom complet unique."
+
+# Date format for date of birth field
+msgid "dd-mm-yyyy"
+msgstr "jj-mm-aaaa"
+
+msgid "Format: %s. Required for age verification and records."
+msgstr "Format : %s. Requis pour la vérification de l'âge et les dossiers."
+
+msgid "Required for age verification and records."
+msgstr "Requis pour la vérification de l'âge et les dossiers."
+
+# Datepicker day names
+msgid "Sunday"
+msgstr "Dimanche"
+
+msgid "Monday"
+msgstr "Lundi"
+
+msgid "Tuesday"
+msgstr "Mardi"
+
+msgid "Wednesday"
+msgstr "Mercredi"
+
+msgid "Thursday"
+msgstr "Jeudi"
+
+msgid "Friday"
+msgstr "Vendredi"
+
+msgid "Saturday"
+msgstr "Samedi"
+
+# Datepicker day names short
+msgid "Sun"
+msgstr "Dim"
+
+msgid "Mon"
+msgstr "Lun"
+
+msgid "Tue"
+msgstr "Mar"
+
+msgid "Wed"
+msgstr "Mer"
+
+msgid "Thu"
+msgstr "Jeu"
+
+msgid "Fri"
+msgstr "Ven"
+
+msgid "Sat"
+msgstr "Sam"
+
+# Datepicker day names min
+msgid "Su"
+msgstr "Di"
+
+msgid "Mo"
+msgstr "Lu"
+
+msgid "Tu"
+msgstr "Ma"
+
+msgid "We"
+msgstr "Me"
+
+msgid "Th"
+msgstr "Je"
+
+msgid "Fr"
+msgstr "Ve"
+
+msgid "Sa"
+msgstr "Sa"
+
+# Datepicker month names
+msgid "January"
+msgstr "Janvier"
+
+msgid "February"
+msgstr "Février"
+
+msgid "March"
+msgstr "Mars"
+
+msgid "April"
+msgstr "Avril"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "June"
+msgstr "Juin"
+
+msgid "July"
+msgstr "Juillet"
+
+msgid "August"
+msgstr "Août"
+
+msgid "September"
+msgstr "Septembre"
+
+msgid "October"
+msgstr "Octobre"
+
+msgid "November"
+msgstr "Novembre"
+
+msgid "December"
+msgstr "Décembre"
+
+# Datepicker month names short
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Fév"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Avr"
+
+msgid "Jun"
+msgstr "Juin"
+
+msgid "Jul"
+msgstr "Juil"
+
+msgid "Aug"
+msgstr "Aoû"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Oct"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Déc"
+
+# Datepicker navigation
+msgid "Prev"
+msgstr "Préc"
+
+msgid "Next"
+msgstr "Suiv"
+
+# Excel-style column filters
+msgid "(All Levels)"
+msgstr "(Tous les niveaux)"
+
+msgid "(All)"
+msgstr "(Tous)"
+
+msgid "Has Enrollments"
+msgstr "Avec inscriptions"
+
+msgid "Search levels..."
+msgstr "Rechercher des niveaux..."
+
+msgid "Active Filters:"
+msgstr "Filtres actifs :"
+
+msgid "Search: %s"
+msgstr "Recherche : %s"
+
+msgid "Level: %s"
+msgstr "Niveau : %s"
+
+msgid "Payment: %s"
+msgstr "Paiement : %s"
+
+msgid "Enrollment: %s"
+msgstr "Inscription : %s"
+
+msgid "Has Discount"
+msgstr "Avec remise"
+
+msgid "No Discount"
+msgstr "Sans remise"
+
+msgid "Discount: %s"
+msgstr "Remise : %s"
+
+msgid "Has Access"
+msgstr "Avec accès"
+
+msgid "No Access"
+msgstr "Sans accès"
+
+msgid "Portal: %s"
+msgstr "Portail : %s"
+
+msgid "Not Enrolled"
+msgstr "Non inscrit"
+
+msgid "[Clear all filters]"
+msgstr "[Effacer tous les filtres]"
+
+msgid "Showing %d filtered students"
+msgstr "Affichage de %d étudiants filtrés"
+
+msgid "Search name, email, phone, code, or level..."
+msgstr "Rechercher nom, email, téléphone, code ou niveau..."
+
+# ============================================
+# Form Field Descriptions - Students
+# ============================================
+
+msgid "Used for communications and must be unique."
+msgstr "Utilisé pour les communications et doit être unique."
+
+msgid "Contact number for emergencies and notifications."
+msgstr "Numéro de contact pour les urgences et notifications."
+
+msgid "Blood type information for emergency situations."
+msgstr "Information sur le groupe sanguin pour les situations d'urgence."
+
+msgid "Choose the appropriate skill level for course assignment."
+msgstr "Choisissez le niveau de compétence approprié pour l'affectation aux cours."
+
+# ============================================
+# Form Field Descriptions - Courses
+# ============================================
+
+msgid "Course name must be unique."
+msgstr "Le nom du cours doit être unique."
+
+msgid "Brief description of the course content and objectives."
+msgstr "Brève description du contenu et des objectifs du cours."
+
+msgid "Optional: Upload a detailed PDF description of the course."
+msgstr "Optionnel : Télécharger une description détaillée du cours en PDF."
+
+msgid "Duration of each individual class session (e.g., 1h 30min)."
+msgstr "Durée de chaque séance de cours (ex: 1h 30min)."
+
+msgid "Total teaching hours per week (e.g., 3.5 for two 1h45min sessions)."
+msgstr "Nombre total d'heures d'enseignement par semaine (ex: 3,5 pour deux séances de 1h45)."
+
+msgid "Total duration of the course in weeks."
+msgstr "Durée totale du cours en semaines."
+
+msgid "Total duration of the course in months."
+msgstr "Durée totale du cours en mois."
+
+msgid "Monthly tuition fee for this course."
+msgstr "Frais de scolarité mensuels pour ce cours."
+
+msgid "Total price for the entire course duration (for full payment or installments)."
+msgstr "Prix total pour toute la durée du cours (pour paiement intégral ou échelonné)."
+
+msgid "Type of certification or diploma awarded upon course completion."
+msgstr "Type de certification ou diplôme délivré à la fin du cours."
+
+msgid "Specify the name of the certification or entity that delivers it."
+msgstr "Précisez le nom de la certification ou de l'organisme qui la délivre."
+
+msgid "Current status of the course."
+msgstr "Statut actuel du cours."
+
+# ============================================
+# Form Field Descriptions - Enrollments
+# ============================================
+
+msgid "Student cannot be changed after enrollment."
+msgstr "L'étudiant ne peut pas être modifié après l'inscription."
+
+msgid "Course cannot be changed after enrollment."
+msgstr "Le cours ne peut pas être modifié après l'inscription."
+
+msgid "Date when the student enrolled in the course."
+msgstr "Date à laquelle l'étudiant s'est inscrit au cours."
+
+msgid "Date when the student begins attending the course."
+msgstr "Date à laquelle l'étudiant commence à suivre le cours."
+
+msgid "Optional: Date when the student completes or leaves the course."
+msgstr "Optionnel : Date à laquelle l'étudiant termine ou quitte le cours."
+
+msgid "Payment details for this enrollment. To modify payments, use the Payments page."
+msgstr "Détails de paiement pour cette inscription. Pour modifier les paiements, utilisez la page Paiements."
+
+msgid "Set enrollment fees and payment schedule for this enrollment."
+msgstr "Définir les frais d'inscription et le calendrier de paiement pour cette inscription."
+
+msgid "Payment plan cannot be changed after enrollment."
+msgstr "Le plan de paiement ne peut pas être modifié après l'inscription."
+
+msgid "One-time insurance fee (only charged for student's first enrollment)."
+msgstr "Frais d'assurance unique (facturés uniquement pour la première inscription de l'étudiant)."
+
+msgid "Book and materials fee for this course."
+msgstr "Frais de livres et matériel pour ce cours."
+
+msgid "Current payment status for this enrollment."
+msgstr "Statut de paiement actuel pour cette inscription."
+
+msgid "Optional notes or comments about this enrollment."
+msgstr "Notes ou commentaires optionnels sur cette inscription."
+
+# ============================================
+# Form Field Descriptions - Classrooms
+# ============================================
+
+msgid "E.g., Room 101, Lab A, Auditorium"
+msgstr "Ex: Salle 101, Labo A, Auditorium"
+
+msgid "Maximum number of students this classroom can accommodate."
+msgstr "Nombre maximum d'étudiants que cette salle peut accueillir."
+
+msgid "E.g., Building A - Floor 2, Main Campus"
+msgstr "Ex: Bâtiment A - Étage 2, Campus principal"
+
+msgid "List available equipment: projector, computers, whiteboard, etc."
+msgstr "Listez l'équipement disponible : projecteur, ordinateurs, tableau blanc, etc."
+
+# ============================================
+# Form Field Descriptions - Levels
+# ============================================
+
+msgid "E.g., Beginner, Intermediate, Advanced"
+msgstr "Ex: Débutant, Intermédiaire, Avancé"
+
+msgid "Brief description of this level"
+msgstr "Brève description de ce niveau"
+
+msgid "Lower numbers appear first in lists"
+msgstr "Les numéros les plus bas apparaissent en premier dans les listes"
+
+# ============================================
+# Form Field Descriptions - Teachers
+# ============================================
+
+msgid "Email must be unique and will be used as username."
+msgstr "L'e-mail doit être unique et sera utilisé comme nom d'utilisateur."
+
+msgid "Enter a valid phone number (numbers, spaces, +, -, ( ) allowed)."
+msgstr "Entrez un numéro de téléphone valide (chiffres, espaces, +, -, ( ) autorisés)."
+
+msgid "Payment rate per hour (optional)."
+msgstr "Taux de rémunération par heure (optionnel)."
+
+# ============================================
+# Form Field Descriptions - Payment Terms
+# ============================================
+
+msgid "Manage payment schedules for teachers"
+msgstr "Gérer les calendriers de paiement pour les enseignants"
+
+msgid "E.g., Monthly, Weekly, 50/50"
+msgstr "Ex: Mensuel, Hebdomadaire, 50/50"
+
+msgid "Brief description of this payment term"
+msgstr "Brève description de ce terme de paiement"
+
+msgid "Payment percentage (e.g., 50 for 50/50, 33.33 for 1/3)"
+msgstr "Pourcentage de paiement (ex: 50 pour 50/50, 33,33 pour 1/3)"
+
+msgid "Lower numbers appear first"
+msgstr "Les numéros les plus bas apparaissent en premier"
+
+# ============================================
+# Form Field Descriptions - Settings
+# ============================================
+
+msgid "Use PHP date format, e.g., Y-m-d, d/m/Y, m/d/Y"
+msgstr "Utilisez le format de date PHP, ex: Y-m-d, d/m/Y, m/d/Y"
+
+msgid "Use PHP time format, e.g., H:i, g:i a"
+msgstr "Utilisez le format d'heure PHP, ex: H:i, g:i a"
+
+msgid "Choose the first day of the week for calendars."
+msgstr "Choisissez le premier jour de la semaine pour les calendriers."
+
+# ============================================
+# JavaScript Strings - Attendance Page
+# ============================================
+
+msgid "Loading students..."
+msgstr "Chargement des étudiants..."
+
+msgid "Saving..."
+msgstr "Enregistrement..."
+
+msgid "Save Attendance"
+msgstr "Enregistrer les Présences"
+
+msgid "Attendance saved successfully!"
+msgstr "Présences enregistrées avec succès !"
+
+msgid "Attendance saved. Select another class to mark attendance."
+msgstr "Présences enregistrées. Sélectionnez une autre classe pour marquer les présences."
+
+msgid "Error:"
+msgstr "Erreur :"
+
+msgid "An error occurred. Please try again."
+msgstr "Une erreur s'est produite. Veuillez réessayer."
+
+msgid "Success!"
+msgstr "Succès !"
+
+msgid "Attendance saved successfully."
+msgstr "Présences enregistrées avec succès."
+
+msgid "Attendance updated successfully."
+msgstr "Présences mises à jour avec succès."
+
+msgid "Please select both from and to dates."
+msgstr "Veuillez sélectionner les dates de début et de fin."
+
+msgid "Loading attendance history..."
+msgstr "Chargement de l'historique des présences..."
+
+msgid "Load History"
+msgstr "Charger l'Historique"
+
+msgid "Loading attendance data..."
+msgstr "Chargement des données de présence..."
+
+# ============================================
+# JavaScript Strings - Payments Page
+# ============================================
+
+msgid "Remaining:"
+msgstr "Restant :"
+
+msgid "Other Payment"
+msgstr "Autre Paiement"
+
+# ============================================
+# Teachers Page - Account Related
+# ============================================
+
+msgid "Account"
+msgstr "Compte"
+
+msgid "Created"
+msgstr "Créé"
+
+msgid "Create Account"
+msgstr "Créer un Compte"
+
+msgid "WordPress Account Created Successfully!"
+msgstr "Compte WordPress créé avec succès !"
+
+msgid "Create Teacher Accounts"
+msgstr "Créer des Comptes Enseignants"
+
+msgid "Are you sure you want to delete this teacher?"
+msgstr "Êtes-vous sûr de vouloir supprimer cet enseignant ?"
+
+# ============================================
+# Student Form - Links
+# ============================================
+
+msgid "Manage levels"
+msgstr "Gérer les niveaux"
+
+# ============================================
+# Common UI Elements
+# ============================================
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "View"
+msgstr "Voir"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Reset"
+msgstr "Réinitialiser"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "Confirm"
+msgstr "Confirmer"
+
+msgid "Close"
+msgstr "Fermer"
+
+# ============================================
+# Confirmation Dialogs
+# ============================================
+
+msgid "Are you sure you want to delete this classroom?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette salle de classe ?"
+
+msgid "Are you sure you want to delete this enrollment?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette inscription ?"
+
+msgid "Are you sure you want to delete this level?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce niveau ?"
+
+msgid "Are you sure you want to delete this course?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce cours ?"
+
+msgid "Are you sure you want to delete this payment term?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce terme de paiement ?"
+
+msgid "Are you sure you want to delete this student? This action cannot be undone."
+msgstr "Êtes-vous sûr de vouloir supprimer cet étudiant ? Cette action est irréversible."
+
+# ============================================
+# Error Messages
+# ============================================
+
+msgid "Invalid date"
+msgstr "Date invalide"
+
+msgid "Invalid parameters"
+msgstr "Paramètres invalides"
+
+msgid "Invalid date range"
+msgstr "Plage de dates invalide"
+
+msgid "Permission denied"
+msgstr "Permission refusée"
+
+msgid "No students enrolled in this course"
+msgstr "Aucun étudiant inscrit à ce cours"
+
+msgid "No attendance records found for the selected criteria."
+msgstr "Aucun enregistrement de présence trouvé pour les critères sélectionnés."
+
+msgid "Invalid attendance data"
+msgstr "Données de présence invalides"
+
+msgid "No classes scheduled for this date."
+msgstr "Aucun cours programmé pour cette date."
+
+# ============================================
+# Teacher Form - Missing Translations
+# ============================================
+
+msgid "How this teacher will be paid."
+msgstr "Comment cet enseignant sera payé."
+
+msgid "Manage payment terms"
+msgstr "Gérer les modalités de paiement"
+
+# ============================================
+# JavaScript Strings - PDF Upload
+# ============================================
+
+msgid "PDF Document"
+msgstr "Document PDF"
+
+msgid "Download"
+msgstr "Télécharger"
+
+msgid "Remove"
+msgstr "Retirer"
+
+msgid "Replace PDF"
+msgstr "Remplacer le PDF"
+
+msgid "Upload PDF"
+msgstr "Télécharger un PDF"
+
+msgid "Are you sure you want to remove this file?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce fichier ?"
+
+msgid "Select or Upload Student Picture"
+msgstr "Sélectionner ou télécharger une photo d'étudiant"
+
+msgid "Use this picture"
+msgstr "Utiliser cette image"
+
+# ============================================
+# Status Descriptions in Forms
+# ============================================
+
+msgid "Active (available for course assignment)"
+msgstr "Actif (disponible pour l'affectation aux cours)"
+
+msgid "Active (visible and available for enrollment)"
+msgstr "Actif (visible et disponible pour l'inscription)"
+
+msgid "Active (available for courses and students)"
+msgstr "Actif (disponible pour les cours et les étudiants)"
+
+msgid "Active (available for selection)"
+msgstr "Actif (disponible pour la sélection)"
+
+# ============================================
+# Dashboard - Calendar and Data Visualization
+# ============================================
+
+msgid "Active Schedules"
+msgstr "Emplois du Temps Actifs"
+
+msgid "Upcoming Events"
+msgstr "Événements à Venir"
+
+msgid "School Calendar"
+msgstr "Calendrier Scolaire"
+
+msgid "View Calendar"
+msgstr "Voir le Calendrier"
+
+msgid "Data Visualizations"
+msgstr "Visualisations de Données"
+
+msgid "Enrollment Trends"
+msgstr "Tendances des Inscriptions"
+
+msgid "Students by Level"
+msgstr "Étudiants par Niveau"
+
+msgid "Line chart showing enrollment trends over the last 6 months"
+msgstr "Graphique linéaire montrant les tendances des inscriptions au cours des 6 derniers mois"
+
+msgid "Doughnut chart showing payment status breakdown"
+msgstr "Graphique en anneau montrant la répartition des statuts de paiement"
+
+msgid "Bar chart showing student distribution across levels"
+msgstr "Graphique à barres montrant la répartition des étudiants par niveau"
+
+msgid "Calendar"
+msgstr "Calendrier"
+
+msgid "School logo"
+msgstr "Logo de l'école"
+
+msgid "Manage Schedules"
+msgstr "Gérer les Emplois du Temps"
+
+msgid "Manage Events"
+msgstr "Gérer les Événements"
+
+msgid "Add Classroom"
+msgstr "Ajouter une Salle"
+
+#: includes/class-sm-students-page.php includes/class-sm-courses-page.php
+#: includes/class-sm-teachers-page.php includes/class-sm-enrollments-page.php
+msgid "Refresh list"
+msgstr "Actualiser la liste"

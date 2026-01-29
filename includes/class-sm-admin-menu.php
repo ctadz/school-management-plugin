@@ -194,31 +194,33 @@ class SM_Admin_Menu {
         <?php
     }
      /**
-     * Add plugin menus
+     * Add plugin menus - Organized into 3 categories
      */
     public static function add_menus() {
-        // Top-level menu
+        // ========================================
+        // CATEGORY 1: ACADEMIC MANAGEMENT
+        // ========================================
         add_menu_page(
             __( 'School Management', 'CTADZ-school-management' ),
             __( 'School Management', 'CTADZ-school-management' ),
             'manage_school',
             'school-management',
-            [ __CLASS__, 'render_dashboard' ],
+            [ __CLASS__, 'render_academic_dashboard' ],
             'dashicons-welcome-learn-more',
             6
         );
 
-        // Dashboard submenu
+        // Academic Dashboard
         add_submenu_page(
             'school-management',
-            __( 'Dashboard', 'CTADZ-school-management' ),
+            __( 'Academic Dashboard', 'CTADZ-school-management' ),
             '<span class="dashicons dashicons-dashboard sm-menu-icon"></span> ' . __( 'Dashboard', 'CTADZ-school-management' ),
             'manage_school',
             'school-management',
-            [ __CLASS__, 'render_dashboard' ]
+            [ __CLASS__, 'render_academic_dashboard' ]
         );
 
-        // Students submenu
+        // Students
         add_submenu_page(
             'school-management',
             __( 'Students', 'CTADZ-school-management' ),
@@ -228,7 +230,7 @@ class SM_Admin_Menu {
             [ 'SM_Students_Page', 'render_students_page' ]
         );
 
-        // Teachers submenu
+        // Teachers
         add_submenu_page(
             'school-management',
             __( 'Teachers', 'CTADZ-school-management' ),
@@ -238,7 +240,7 @@ class SM_Admin_Menu {
             [ 'SM_Teachers_Page', 'render_teachers_page' ]
         );
 
-        // Courses submenu
+        // Courses
         add_submenu_page(
             'school-management',
             __( 'Courses', 'CTADZ-school-management' ),
@@ -248,7 +250,7 @@ class SM_Admin_Menu {
             [ 'SM_Courses_Page', 'render_courses_page' ]
         );
 
-        // Levels submenu
+        // Levels
         add_submenu_page(
             'school-management',
             __( 'Levels', 'CTADZ-school-management' ),
@@ -258,7 +260,7 @@ class SM_Admin_Menu {
             [ 'SM_Levels_Page', 'render_levels_page' ]
         );
 
-        // Classrooms submenu
+        // Classrooms
         add_submenu_page(
             'school-management',
             __( 'Classrooms', 'CTADZ-school-management' ),
@@ -268,17 +270,7 @@ class SM_Admin_Menu {
             [ 'SM_Classrooms_Page', 'render_classrooms_page' ]
         );
 
-        // Enrollments submenu
-        add_submenu_page(
-            'school-management',
-            __( 'Enrollments', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-welcome-learn-more" class="sm-menu-icon"></span> ' . __( 'Enrollments', 'CTADZ-school-management' ),
-            'manage_enrollments',
-            'school-management-enrollments',
-            [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
-        );
-
-        // Attendance submenu
+        // Attendance
         add_submenu_page(
             'school-management',
             __( 'Attendance', 'CTADZ-school-management' ),
@@ -288,29 +280,52 @@ class SM_Admin_Menu {
             [ 'SM_Attendance_Page', 'render_attendance_page' ]
         );
 
-        // Payment Terms submenu
-        add_submenu_page(
-            'school-management',
-            __( 'Payment Terms', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-calendar-alt" class="sm-menu-icon"></span> ' . __( 'Payment Terms', 'CTADZ-school-management' ),
+        // ========================================
+        // CATEGORY 2: FINANCIAL MANAGEMENT
+        // ========================================
+        add_menu_page(
+            __( 'School Finances', 'CTADZ-school-management' ),
+            __( 'School Finances', 'CTADZ-school-management' ),
             'manage_payments',
-            'school-management-payment-terms',
-            [ 'SM_Payment_Terms_Page', 'render_payment_terms_page' ]
+            'school-finances',
+            [ __CLASS__, 'render_financial_dashboard' ],
+            'dashicons-money-alt',
+            7
         );
 
-        // Payments submenu
+        // Financial Dashboard
         add_submenu_page(
-            'school-management',
-            __( 'Payments', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-money-alt" class="sm-menu-icon"></span> ' . __( 'Payments', 'CTADZ-school-management' ),
+            'school-finances',
+            __( 'Financial Dashboard', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-dashboard sm-menu-icon"></span> ' . __( 'Dashboard', 'CTADZ-school-management' ),
+            'manage_payments',
+            'school-finances',
+            [ __CLASS__, 'render_financial_dashboard' ]
+        );
+
+        // Enrollments & Payment Plans (moved from academic)
+        add_submenu_page(
+            'school-finances',
+            __( 'Enrollments & Plans', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-welcome-learn-more" class="sm-menu-icon"></span> ' . __( 'Enrollments & Plans', 'CTADZ-school-management' ),
+            'manage_payments',
+            'school-management-enrollments',
+            [ 'SM_Enrollments_Page', 'render_enrollments_page' ]
+        );
+
+        // Payment Collection
+        add_submenu_page(
+            'school-finances',
+            __( 'Payment Collection', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-money-alt" class="sm-menu-icon"></span> ' . __( 'Payment Collection', 'CTADZ-school-management' ),
             'manage_payments',
             'school-management-payments',
             [ 'SM_Payments_Page', 'render_payments_page' ]
         );
 
-        // Payment Alerts submenu
+        // Payment Alerts
         add_submenu_page(
-            'school-management',
+            'school-finances',
             __( 'Payment Alerts', 'CTADZ-school-management' ),
             '<span class="dashicons dashicons-warning sm-menu-icon" style="color: #dc2626;"></span> ' . __( 'Payment Alerts', 'CTADZ-school-management' ),
             'manage_payments',
@@ -318,37 +333,63 @@ class SM_Admin_Menu {
             [ 'SM_Payment_Alerts_Page', 'render_page' ]
         );
 
-        // Family Discount Tools submenu (Super Admin only)
-        if ( current_user_can( 'manage_options' ) ) {
-            add_submenu_page(
-                'school-management',
-                __( 'Family Discount Tools', 'CTADZ-school-management' ),
-                '<span class="dashicons dashicons-groups sm-menu-icon" style="color: #8e44ad;"></span> ' . __( 'Family Discount Tools', 'CTADZ-school-management' ),
-                'manage_options',
-                'school-management-family-discount-tools',
-                [ 'SM_Family_Discount_Tools_Page', 'render_page' ]
-            );
-        }
+        // Payment Terms
+        add_submenu_page(
+            'school-finances',
+            __( 'Payment Terms', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-calendar-alt" class="sm-menu-icon"></span> ' . __( 'Payment Terms', 'CTADZ-school-management' ),
+            'manage_payments',
+            'school-management-payment-terms',
+            [ 'SM_Payment_Terms_Page', 'render_payment_terms_page' ]
+        );
+
+        // Family Discounts
+        add_submenu_page(
+            'school-finances',
+            __( 'Family Discounts', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-groups sm-menu-icon" style="color: #8e44ad;"></span> ' . __( 'Family Discounts', 'CTADZ-school-management' ),
+            'manage_payments',
+            'school-management-family-discount-tools',
+            [ 'SM_Family_Discount_Tools_Page', 'render_page' ]
+        );
+
+        // ========================================
+        // CATEGORY 3: PLUGIN MANAGEMENT (Super Admin Only)
+        // ========================================
+        // Settings menu is added later via add_settings_menu() hook
     }
 
     /**
      * Add settings menu last (runs after calendar add-on menus)
+     * Now as a separate top-level menu for Plugin Management
      */
     public static function add_settings_menu() {
+        // Create separate Plugin Management menu (Super Admin only)
+        add_menu_page(
+            __( 'School Settings', 'CTADZ-school-management' ),
+            __( 'School Settings', 'CTADZ-school-management' ),
+            'manage_options',
+            'school-settings',
+            [ 'SM_Settings_Page', 'render_settings_page' ],
+            'dashicons-admin-generic',
+            8
+        );
+
+        // Settings submenu
         add_submenu_page(
-            'school-management',
-            __( 'Settings', 'CTADZ-school-management' ),
-            '<span class="dashicons dashicons-admin-generic" class="sm-menu-icon"></span> ' . __( 'Settings', 'CTADZ-school-management' ),
-            'manage_school_settings',
-            'school-management-settings',
+            'school-settings',
+            __( 'General Settings', 'CTADZ-school-management' ),
+            '<span class="dashicons dashicons-admin-generic sm-menu-icon"></span> ' . __( 'General Settings', 'CTADZ-school-management' ),
+            'manage_options',
+            'school-settings',
             [ 'SM_Settings_Page', 'render_settings_page' ]
         );
     }
 
     /**
-    * Render Dashboard page
+    * Render Academic Dashboard page
     */
-    public static function render_dashboard() {
+    public static function render_academic_dashboard() {
         // Security check
         if ( ! current_user_can( 'manage_school' ) ) {
             wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
@@ -765,6 +806,237 @@ class SM_Admin_Menu {
             }
         });
         </script>
+        <?php
+    }
+
+    /**
+    * Render Financial Dashboard page
+    */
+    public static function render_financial_dashboard() {
+        // Security check
+        if ( ! current_user_can( 'manage_payments' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
+        }
+
+        global $wpdb;
+
+        // Get school settings
+        $settings = get_option( 'sm_school_settings', [] );
+        $school_name = $settings['school_name'] ?? __( 'School Management System', 'CTADZ-school-management' );
+        $school_logo = $settings['logo'] ?? '';
+
+        // Get financial statistics
+        $total_expected = floatval( $wpdb->get_var( "SELECT SUM(expected_amount) FROM {$wpdb->prefix}sm_payment_schedules" ) );
+        $total_paid = floatval( $wpdb->get_var( "SELECT SUM(paid_amount) FROM {$wpdb->prefix}sm_payment_schedules" ) );
+        $outstanding_balance = $total_expected - $total_paid;
+
+        $enrollments_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_enrollments WHERE status = 'active'" );
+        $payment_terms_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_terms WHERE is_active = 1" );
+
+        // Payment statistics
+        $paid_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_schedules WHERE status = 'paid'" );
+        $partial_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_schedules WHERE status = 'partial'" );
+        $pending_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_payment_schedules WHERE status = 'pending'" );
+
+        // Get payment alerts data
+        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+
+        // Count overdue payments
+        $overdue_count = $wpdb->get_var("
+            SELECT COUNT(*)
+            FROM $payment_schedules_table ps
+            LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+            WHERE ps.status IN ('pending', 'partial')
+            AND ps.due_date < CURDATE()
+            AND e.status = 'active'
+        ");
+
+        // Count due this week (1-7 days)
+        $week_count = $wpdb->get_var("
+            SELECT COUNT(*)
+            FROM $payment_schedules_table ps
+            LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+            WHERE ps.status IN ('pending', 'partial')
+            AND ps.due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+            AND e.status = 'active'
+        ");
+
+        // Count due next week (8-14 days)
+        $next_week_count = $wpdb->get_var("
+            SELECT COUNT(*)
+            FROM $payment_schedules_table ps
+            LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+            WHERE ps.status IN ('pending', 'partial')
+            AND ps.due_date BETWEEN DATE_ADD(CURDATE(), INTERVAL 8 DAY) AND DATE_ADD(CURDATE(), INTERVAL 14 DAY)
+            AND e.status = 'active'
+        ");
+
+        $total_alerts = $overdue_count + $week_count + $next_week_count;
+
+        ?>
+        <div class="wrap">
+        <!-- School Header -->
+        <div class="sm-dashboard-header" style="display: flex; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #27ae60;">
+            <?php if ( $school_logo ) : ?>
+                <img src="<?php echo esc_url( $school_logo ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" style="max-height: 80px; max-width: 200px; margin-right: 20px; object-fit: contain;" />
+            <?php else : ?>
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #27ae60 0%, #16a085 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                    <span class="dashicons dashicons-money-alt" style="font-size: 40px; color: white;"></span>
+                </div>
+            <?php endif; ?>
+
+            <div>
+                <h1 style="margin: 0; font-size: 32px; color: #23282d;"><?php echo esc_html( $school_name ); ?></h1>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 16px;"><?php esc_html_e( 'Financial Dashboard', 'CTADZ-school-management' ); ?></p>
+            </div>
+        </div>
+
+        <div class="sm-dashboard-widgets">
+
+            <!-- Outstanding Balance Widget -->
+            <div class="sm-widget" style="border-left: 4px solid #27ae60;">
+                <div class="sm-widget-header">
+                    <h3 class="sm-widget-title"><?php esc_html_e( 'Outstanding Balance', 'CTADZ-school-management' ); ?></h3>
+                    <span class="dashicons dashicons-money-alt" style="font-size: 24px; color: #27ae60; opacity: 0.5;"></span>
+                </div>
+                <div class="sm-widget-value" style="color: #27ae60; font-size: 32px;"><?php echo number_format( $outstanding_balance, 2 ); ?> DZD</div>
+                <a href="?page=school-management-payments" class="button button-primary"><?php esc_html_e( 'View Payments', 'CTADZ-school-management' ); ?></a>
+            </div>
+
+            <!-- Total Expected Widget -->
+            <div class="sm-widget" style="border-left: 4px solid #16a085;">
+                <div class="sm-widget-header">
+                    <h3 class="sm-widget-title"><?php esc_html_e( 'Total Expected', 'CTADZ-school-management' ); ?></h3>
+                    <span class="dashicons dashicons-chart-line" style="font-size: 24px; color: #16a085; opacity: 0.5;"></span>
+                </div>
+                <div class="sm-widget-value" style="color: #16a085;"><?php echo number_format( $total_expected, 2 ); ?> DZD</div>
+                <p class="sm-widget-label"><?php esc_html_e( 'Total revenue expected', 'CTADZ-school-management' ); ?></p>
+            </div>
+
+            <!-- Total Collected Widget -->
+            <div class="sm-widget" style="border-left: 4px solid #46b450;">
+                <div class="sm-widget-header">
+                    <h3 class="sm-widget-title"><?php esc_html_e( 'Total Collected', 'CTADZ-school-management' ); ?></h3>
+                    <span class="dashicons dashicons-yes-alt" style="font-size: 24px; color: #46b450; opacity: 0.5;"></span>
+                </div>
+                <div class="sm-widget-value" style="color: #46b450;"><?php echo number_format( $total_paid, 2 ); ?> DZD</div>
+                <p class="sm-widget-label"><?php esc_html_e( 'Successfully collected', 'CTADZ-school-management' ); ?></p>
+            </div>
+
+            <!-- Payment Alerts Widget -->
+            <?php
+            $alert_color = '#dc2626'; // Red for alerts
+            $alert_text = '';
+
+            if ( $overdue_count > 0 ) {
+                $alert_text = sprintf( _n( '%d overdue', '%d overdue', $overdue_count, 'CTADZ-school-management' ), $overdue_count );
+                $alert_color = '#dc2626'; // Red
+            } elseif ( $week_count > 0 ) {
+                $alert_text = sprintf( _n( '%d due this week', '%d due this week', $week_count, 'CTADZ-school-management' ), $week_count );
+                $alert_color = '#f59e0b'; // Orange
+            } elseif ( $next_week_count > 0 ) {
+                $alert_text = sprintf( _n( '%d due next week', '%d due next week', $next_week_count, 'CTADZ-school-management' ), $next_week_count );
+                $alert_color = '#eab308'; // Yellow
+            } else {
+                $alert_text = __( 'All up to date', 'CTADZ-school-management' );
+                $alert_color = '#22c55e'; // Green
+            }
+            ?>
+            <div class="sm-widget" style="border-left: 4px solid <?php echo esc_attr( $alert_color ); ?>;">
+                <div class="sm-widget-header">
+                    <h3 class="sm-widget-title"><?php esc_html_e( 'Payment Alerts', 'CTADZ-school-management' ); ?></h3>
+                    <span class="dashicons dashicons-warning" style="font-size: 24px; color: <?php echo esc_attr( $alert_color ); ?>; opacity: 0.5;"></span>
+                </div>
+                <div class="sm-widget-value" style="color: <?php echo esc_attr( $alert_color ); ?>;"><?php echo intval( $total_alerts ); ?></div>
+                <?php if ( $alert_text ) : ?>
+                    <p class="sm-widget-label" style="color: <?php echo esc_attr( $alert_color ); ?>; margin-bottom: 15px;">
+                        <?php echo esc_html( $alert_text ); ?>
+                    </p>
+                <?php endif; ?>
+                <a href="?page=school-management-payment-alerts" class="button"><?php esc_html_e( 'View Alerts', 'CTADZ-school-management' ); ?></a>
+            </div>
+
+            <!-- Active Enrollments Widget -->
+            <div class="sm-widget" style="border-left: 4px solid #00a0d2;">
+                <div class="sm-widget-header">
+                    <h3 class="sm-widget-title"><?php esc_html_e( 'Active Enrollments', 'CTADZ-school-management' ); ?></h3>
+                    <span class="dashicons dashicons-welcome-learn-more" style="font-size: 24px; color: #00a0d2; opacity: 0.5;"></span>
+                </div>
+                <div class="sm-widget-value" style="color: #00a0d2;"><?php echo intval( $enrollments_count ); ?></div>
+                <a href="?page=school-management-enrollments" class="button"><?php esc_html_e( 'Manage Enrollments', 'CTADZ-school-management' ); ?></a>
+            </div>
+
+            <!-- Payment Terms Widget -->
+            <div class="sm-widget" style="border-left: 4px solid #9b59b6;">
+                <div class="sm-widget-header">
+                    <h3 class="sm-widget-title"><?php esc_html_e( 'Payment Terms', 'CTADZ-school-management' ); ?></h3>
+                    <span class="dashicons dashicons-calendar-alt" style="font-size: 24px; color: #9b59b6; opacity: 0.5;"></span>
+                </div>
+                <div class="sm-widget-value" style="color: #9b59b6;"><?php echo intval( $payment_terms_count ); ?></div>
+                <a href="?page=school-management-payment-terms" class="button"><?php esc_html_e( 'Manage Terms', 'CTADZ-school-management' ); ?></a>
+            </div>
+
+        </div>
+
+        <!-- Quick Actions -->
+        <nav aria-labelledby="quick-actions-heading" style="margin-top: 40px; background: white; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h2 id="quick-actions-heading"><?php esc_html_e( 'Quick Actions', 'CTADZ-school-management' ); ?></h2>
+            <p><?php esc_html_e( 'Common financial tasks:', 'CTADZ-school-management' ); ?></p>
+            <p>
+                <a href="?page=school-management-enrollments&action=add" class="button button-primary"><?php esc_html_e( 'New Enrollment', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-payments" class="button"><?php esc_html_e( 'Collect Payment', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-payment-alerts" class="button"><?php esc_html_e( 'View Payment Alerts', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-payment-terms" class="button"><?php esc_html_e( 'Manage Payment Terms', 'CTADZ-school-management' ); ?></a>
+                <a href="?page=school-management-family-discount-tools" class="button"><?php esc_html_e( 'Family Discounts', 'CTADZ-school-management' ); ?></a>
+            </p>
+        </nav>
+
+        <!-- Payment Status Chart -->
+        <section aria-labelledby="payment-viz-heading" style="margin-top: 30px;">
+            <h2 id="payment-viz-heading" class="sr-only"><?php esc_html_e( 'Payment Visualizations', 'CTADZ-school-management' ); ?></h2>
+            <div class="sm-dashboard-widgets">
+                <div class="sm-widget" style="grid-column: span 2;">
+                    <div class="sm-widget-header">
+                        <h3 class="sm-widget-title"><?php esc_html_e( 'Payment Status Breakdown', 'CTADZ-school-management' ); ?></h3>
+                    </div>
+                    <canvas id="paymentStatusChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Payment Status Chart
+            const paymentCtx = document.getElementById('paymentStatusChart');
+            if (paymentCtx) {
+                new Chart(paymentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [
+                            '<?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?>',
+                            '<?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?>',
+                            '<?php esc_html_e( 'Pending', 'CTADZ-school-management' ); ?>'
+                        ],
+                        datasets: [{
+                            data: [
+                                <?php echo intval( $paid_count ); ?>,
+                                <?php echo intval( $partial_count ); ?>,
+                                <?php echo intval( $pending_count ); ?>
+                            ],
+                            backgroundColor: ['#46b450', '#f0ad4e', '#d63638']
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+        });
+        </script>
+        </div>
         <?php
     }
 }

@@ -7,6 +7,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SM_Payment_Alerts_Page {
 
     /**
+     * Initialize hooks
+     */
+    public static function init() {
+        // Handle downloads before WordPress renders admin page
+        add_action( 'admin_init', [ __CLASS__, 'handle_downloads' ] );
+    }
+
+    /**
+     * Handle download requests early (before admin page renders)
+     */
+    public static function handle_downloads() {
+        // Check if this is a download request for payment alerts
+        if ( isset( $_GET['page'] ) && $_GET['page'] === 'school-management-payment-alerts' &&
+             isset( $_GET['download'] ) && check_admin_referer( 'sm_download_alerts', 'nonce' ) ) {
+
+            // Security check
+            if ( ! current_user_can( 'manage_payments' ) ) {
+                wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
+            }
+
+            $format = sanitize_text_field( $_GET['download'] );
+            if ( $format === 'csv' ) {
+                self::download_csv();
+            } elseif ( $format === 'pdf' ) {
+                self::download_pdf();
+            }
+            exit;
+        }
+    }
+
+    /**
      * Render the Payment Alerts page
      */
     public static function render_page() {
@@ -19,7 +50,7 @@ class SM_Payment_Alerts_Page {
         if ( isset( $_POST['send_reminder'] ) && check_admin_referer( 'sm_send_reminder', 'sm_reminder_nonce' ) ) {
             $schedule_id = intval( $_POST['schedule_id'] );
             $result = self::send_payment_reminder( $schedule_id );
-            
+
             if ( $result['success'] ) {
                 echo '<div class="updated notice"><p>' . esc_html( $result['message'] ) . '</p></div>';
             } else {
@@ -208,6 +239,29 @@ class SM_Payment_Alerts_Page {
                             <?php esc_html_e( 'Clear Filters', 'CTADZ-school-management' ); ?>
                         </a>
                     <?php endif; ?>
+
+                    <div style="margin-left: auto; display: flex; gap: 10px;">
+                        <?php
+                        $download_url_params = [
+                            'page' => 'school-management-payment-alerts',
+                            'filter' => $filter,
+                            's' => $search,
+                            'course' => $course_filter,
+                            'level' => $level_filter,
+                            'nonce' => wp_create_nonce( 'sm_download_alerts' ),
+                        ];
+                        $csv_url = add_query_arg( array_merge( $download_url_params, [ 'download' => 'csv' ] ), admin_url( 'admin.php' ) );
+                        $pdf_url = add_query_arg( array_merge( $download_url_params, [ 'download' => 'pdf' ] ), admin_url( 'admin.php' ) );
+                        ?>
+                        <a href="<?php echo esc_url( $csv_url ); ?>" class="button">
+                            <span class="dashicons dashicons-media-spreadsheet" style="vertical-align: middle;"></span>
+                            <?php esc_html_e( 'Download CSV', 'CTADZ-school-management' ); ?>
+                        </a>
+                        <a href="<?php echo esc_url( $pdf_url ); ?>" class="button" target="_blank">
+                            <span class="dashicons dashicons-pdf" style="vertical-align: middle;"></span>
+                            <?php esc_html_e( 'Download PDF', 'CTADZ-school-management' ); ?>
+                        </a>
+                    </div>
                 </form>
             </div>
 
@@ -397,7 +451,374 @@ class SM_Payment_Alerts_Page {
             ];
         }
     }
+
+    /**
+     * Download payment alerts as CSV
+     */
+    private static function download_csv() {
+        // Ensure text domain is loaded for translations
+        load_plugin_textdomain( 'CTADZ-school-management', false, 'school-management/languages' );
+
+        global $wpdb;
+        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $students_table = $wpdb->prefix . 'sm_students';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+        $levels_table = $wpdb->prefix . 'sm_levels';
+
+        // Get filter parameters
+        $filter = isset( $_GET['filter'] ) ? sanitize_text_field( $_GET['filter'] ) : 'overdue';
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        $course_filter = isset( $_GET['course'] ) ? intval( $_GET['course'] ) : 0;
+        $level_filter = isset( $_GET['level'] ) ? intval( $_GET['level'] ) : 0;
+
+        // Build query (same as render_page)
+        $where_clauses = [
+            "ps.status IN ('pending', 'partial')",
+            "e.status = 'active'"
+        ];
+
+        switch ( $filter ) {
+            case 'overdue':
+                $where_clauses[] = "ps.due_date < CURDATE()";
+                break;
+            case 'this_week':
+                $where_clauses[] = "ps.due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+                break;
+            case 'next_week':
+                $where_clauses[] = "ps.due_date BETWEEN DATE_ADD(CURDATE(), INTERVAL 8 DAY) AND DATE_ADD(CURDATE(), INTERVAL 14 DAY)";
+                break;
+        }
+
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clauses[] = $wpdb->prepare( "(s.name LIKE %s OR c.name LIKE %s)", $search_term, $search_term );
+        }
+
+        if ( $course_filter > 0 ) {
+            $where_clauses[] = $wpdb->prepare( "e.course_id = %d", $course_filter );
+        }
+
+        if ( $level_filter > 0 ) {
+            $where_clauses[] = $wpdb->prepare( "c.level_id = %d", $level_filter );
+        }
+
+        $where_clause = 'WHERE ' . implode( ' AND ', $where_clauses );
+
+        $alerts = $wpdb->get_results("
+            SELECT ps.*,
+                   e.id as enrollment_id,
+                   e.student_id,
+                   s.name as student_name,
+                   s.email,
+                   s.phone,
+                   s.parent_phone,
+                   c.name as course_name,
+                   l.name as level_name,
+                   (ps.expected_amount - ps.paid_amount) as balance,
+                   DATEDIFF(CURDATE(), ps.due_date) as days_overdue
+            FROM $payment_schedules_table ps
+            LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+            LEFT JOIN $students_table s ON e.student_id = s.id
+            LEFT JOIN $courses_table c ON e.course_id = c.id
+            LEFT JOIN $levels_table l ON c.level_id = l.id
+            $where_clause
+            ORDER BY ps.due_date ASC, s.name ASC
+        ");
+
+        // Set headers for CSV download
+        $filename = 'payment-alerts-' . $filter . '-' . date( 'Y-m-d' ) . '.csv';
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Pragma: no-cache' );
+        header( 'Expires: 0' );
+
+        // Open output stream
+        $output = fopen( 'php://output', 'w' );
+
+        // Add BOM for UTF-8
+        fprintf( $output, chr(0xEF).chr(0xBB).chr(0xBF) );
+
+        // CSV headers
+        fputcsv( $output, [
+            __( 'Student Name', 'CTADZ-school-management' ),
+            __( 'Email', 'CTADZ-school-management' ),
+            __( 'Phone', 'CTADZ-school-management' ),
+            __( 'Parent Phone', 'CTADZ-school-management' ),
+            __( 'Course', 'CTADZ-school-management' ),
+            __( 'Level', 'CTADZ-school-management' ),
+            __( 'Installment #', 'CTADZ-school-management' ),
+            __( 'Due Date', 'CTADZ-school-management' ),
+            __( 'Expected Amount', 'CTADZ-school-management' ),
+            __( 'Paid Amount', 'CTADZ-school-management' ),
+            __( 'Balance', 'CTADZ-school-management' ),
+            __( 'Days Overdue', 'CTADZ-school-management' ),
+            __( 'Status', 'CTADZ-school-management' ),
+        ], ',', '"', '\\' );
+
+        // CSV data
+        foreach ( $alerts as $alert ) {
+            fputcsv( $output, [
+                $alert->student_name,
+                $alert->email,
+                $alert->phone,
+                $alert->parent_phone,
+                $alert->course_name,
+                $alert->level_name,
+                $alert->installment_number,
+                $alert->due_date,
+                number_format( $alert->expected_amount, 2 ),
+                number_format( $alert->paid_amount, 2 ),
+                number_format( $alert->balance, 2 ),
+                $alert->days_overdue > 0 ? $alert->days_overdue : 0,
+                ucfirst( $alert->status ),
+            ], ',', '"', '\\' );
+        }
+
+        fclose( $output );
+    }
+
+    /**
+     * Download payment alerts as PDF (print-friendly HTML)
+     */
+    private static function download_pdf() {
+        // Ensure text domain is loaded for translations
+        load_plugin_textdomain( 'CTADZ-school-management', false, 'school-management/languages' );
+
+        global $wpdb;
+        $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $students_table = $wpdb->prefix . 'sm_students';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+        $levels_table = $wpdb->prefix . 'sm_levels';
+
+        // Get filter parameters
+        $filter = isset( $_GET['filter'] ) ? sanitize_text_field( $_GET['filter'] ) : 'overdue';
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+        $course_filter = isset( $_GET['course'] ) ? intval( $_GET['course'] ) : 0;
+        $level_filter = isset( $_GET['level'] ) ? intval( $_GET['level'] ) : 0;
+
+        // Build query (same as render_page)
+        $where_clauses = [
+            "ps.status IN ('pending', 'partial')",
+            "e.status = 'active'"
+        ];
+
+        switch ( $filter ) {
+            case 'overdue':
+                $where_clauses[] = "ps.due_date < CURDATE()";
+                $filter_title = __( 'Overdue Payments', 'CTADZ-school-management' );
+                break;
+            case 'this_week':
+                $where_clauses[] = "ps.due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+                $filter_title = __( 'Due This Week', 'CTADZ-school-management' );
+                break;
+            case 'next_week':
+                $where_clauses[] = "ps.due_date BETWEEN DATE_ADD(CURDATE(), INTERVAL 8 DAY) AND DATE_ADD(CURDATE(), INTERVAL 14 DAY)";
+                $filter_title = __( 'Due Next Week', 'CTADZ-school-management' );
+                break;
+            default:
+                $filter_title = __( 'All Pending Payments', 'CTADZ-school-management' );
+                break;
+        }
+
+        if ( ! empty( $search ) ) {
+            $search_term = '%' . $wpdb->esc_like( $search ) . '%';
+            $where_clauses[] = $wpdb->prepare( "(s.name LIKE %s OR c.name LIKE %s)", $search_term, $search_term );
+        }
+
+        if ( $course_filter > 0 ) {
+            $where_clauses[] = $wpdb->prepare( "e.course_id = %d", $course_filter );
+        }
+
+        if ( $level_filter > 0 ) {
+            $where_clauses[] = $wpdb->prepare( "c.level_id = %d", $level_filter );
+        }
+
+        $where_clause = 'WHERE ' . implode( ' AND ', $where_clauses );
+
+        $alerts = $wpdb->get_results("
+            SELECT ps.*,
+                   e.id as enrollment_id,
+                   e.student_id,
+                   s.name as student_name,
+                   s.email,
+                   s.phone,
+                   s.parent_phone,
+                   c.name as course_name,
+                   l.name as level_name,
+                   (ps.expected_amount - ps.paid_amount) as balance,
+                   DATEDIFF(CURDATE(), ps.due_date) as days_overdue
+            FROM $payment_schedules_table ps
+            LEFT JOIN $enrollments_table e ON ps.enrollment_id = e.id
+            LEFT JOIN $students_table s ON e.student_id = s.id
+            LEFT JOIN $courses_table c ON e.course_id = c.id
+            LEFT JOIN $levels_table l ON c.level_id = l.id
+            $where_clause
+            ORDER BY ps.due_date ASC, s.name ASC
+        ");
+
+        $settings = get_option( 'sm_school_settings', [] );
+        $school_name = $settings['school_name'] ?? get_bloginfo( 'name' );
+
+        // Output print-friendly HTML (completely standalone, no WordPress)
+        // Clear all output buffers to ensure clean output
+        while ( ob_get_level() ) {
+            ob_end_clean();
+        }
+
+        // Set headers for HTML
+        header( 'Content-Type: text/html; charset=utf-8' );
+
+        ?>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title><?php echo esc_html( $filter_title ); ?> - <?php echo esc_html( $school_name ); ?></title>
+            <style>
+                /* Reset and ensure clean page */
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                @media print {
+                    .no-print { display: none !important; }
+                    @page {
+                        margin: 1cm;
+                    }
+                }
+
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    color: #000;
+                    background: #fff;
+                }
+                h1 {
+                    color: #333;
+                    border-bottom: 3px solid #0073aa;
+                    padding-bottom: 10px;
+                }
+                .header-info {
+                    margin-bottom: 30px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                    font-size: 12px;
+                }
+                th {
+                    background: #0073aa;
+                    color: white;
+                    padding: 10px;
+                    text-align: left;
+                    font-weight: bold;
+                }
+                td {
+                    padding: 8px;
+                    border-bottom: 1px solid #ddd;
+                }
+                tr:nth-child(even) {
+                    background: #f9f9f9;
+                }
+                .overdue {
+                    color: #dc2626;
+                    font-weight: bold;
+                }
+                .print-button {
+                    margin: 20px 0;
+                    padding: 10px 20px;
+                    background: #0073aa;
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+                .print-button:hover {
+                    background: #005a87;
+                }
+                .footer {
+                    margin-top: 30px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: #666;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="no-print" style="margin-bottom: 20px; padding: 15px; background: #f0f6fc; border-left: 4px solid #0073aa; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #0073aa;">📄 <?php esc_html_e( 'Ready to Print or Save as PDF', 'CTADZ-school-management' ); ?></p>
+                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">
+                    <?php esc_html_e( 'Click the button below, then use your browser\'s print dialog to save as PDF or print to paper.', 'CTADZ-school-management' ); ?>
+                </p>
+                <button class="print-button" onclick="window.print()">🖨️ <?php esc_html_e( 'Print / Save as PDF', 'CTADZ-school-management' ); ?></button>
+            </div>
+
+            <div class="header-info">
+                <h1><?php echo esc_html( $school_name ); ?></h1>
+                <h2><?php echo esc_html( $filter_title ); ?></h2>
+                <p><strong><?php esc_html_e( 'Report Date:', 'CTADZ-school-management' ); ?></strong> <?php echo date_i18n( get_option( 'date_format' ) ); ?></p>
+                <p><strong><?php esc_html_e( 'Total Alerts:', 'CTADZ-school-management' ); ?></strong> <?php echo count( $alerts ); ?></p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Contact', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Level', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Due Date', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Amount Due', 'CTADZ-school-management' ); ?></th>
+                        <th><?php esc_html_e( 'Days Overdue', 'CTADZ-school-management' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $total_balance = 0;
+                    foreach ( $alerts as $alert ) :
+                        $is_overdue = $alert->days_overdue > 0;
+                        $balance = floatval( $alert->balance );
+                        $total_balance += $balance;
+                    ?>
+                        <tr>
+                            <td><strong><?php echo esc_html( $alert->student_name ); ?></strong></td>
+                            <td>
+                                <?php echo esc_html( $alert->email ); ?><br>
+                                <small><?php echo esc_html( $alert->phone ); ?></small>
+                            </td>
+                            <td><?php echo esc_html( $alert->course_name ); ?></td>
+                            <td><?php echo esc_html( $alert->level_name ); ?></td>
+                            <td <?php echo $is_overdue ? 'class="overdue"' : ''; ?>>
+                                <?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $alert->due_date ) ) ); ?>
+                            </td>
+                            <td><?php echo number_format( $balance, 2 ); ?></td>
+                            <td <?php echo $is_overdue ? 'class="overdue"' : ''; ?>>
+                                <?php echo $is_overdue ? $alert->days_overdue . ' ' . __( 'days', 'CTADZ-school-management' ) : '-'; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <tr style="background: #f0f0f0; font-weight: bold;">
+                        <td colspan="5" style="text-align: right;"><?php esc_html_e( 'Total Amount Due:', 'CTADZ-school-management' ); ?></td>
+                        <td colspan="2"><?php echo number_format( $total_balance, 2 ); ?></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="footer">
+                <p><?php echo esc_html( sprintf( __( 'Generated by %s on %s', 'CTADZ-school-management' ), $school_name, date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) ) ); ?></p>
+            </div>
+        </body>
+        </html>
+        <?php
+    }
 }
 
-// Instantiate class
-new SM_Payment_Alerts_Page();
+// Initialize class
+SM_Payment_Alerts_Page::init();

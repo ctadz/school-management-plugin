@@ -697,7 +697,7 @@ class SM_Teachers_Page {
                                 <?php if ( $teacher->picture ) : ?>
                                     <img src="<?php echo esc_url( $teacher->picture ); ?>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" alt="<?php echo esc_attr( $teacher->first_name . ' ' . $teacher->last_name ); ?>" />
                                 <?php else : ?>
-                                    <div style="width:40px;height:40px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">No Photo</div>
+                                    <div style="width:40px;height:40px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;"><?php esc_html_e( 'No Photo', 'CTADZ-school-management' ); ?></div>
                                 <?php endif; ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Name', 'CTADZ-school-management' ); ?>">
@@ -933,14 +933,22 @@ class SM_Teachers_Page {
                         <label for="teacher_payment_term"><?php esc_html_e( 'Payment Term', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
-                        <select id="teacher_payment_term" name="payment_term_id" required>
-                            <option value=""><?php esc_html_e( 'Select Payment Term', 'CTADZ-school-management' ); ?></option>
-                            <?php foreach ( $payment_terms as $term ) : ?>
-                                <option value="<?php echo intval( $term->id ); ?>" <?php selected( $form_data['payment_term_id'] ?? 0, $term->id ); ?>>
-                                    <?php echo esc_html( $term->name ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="sm-dropdown-with-refresh">
+                            <select id="teacher_payment_term" name="payment_term_id" required>
+                                <option value=""><?php esc_html_e( 'Select Payment Term', 'CTADZ-school-management' ); ?></option>
+                                <?php foreach ( $payment_terms as $term ) : ?>
+                                    <option value="<?php echo intval( $term->id ); ?>" <?php selected( $form_data['payment_term_id'] ?? 0, $term->id ); ?>>
+                                        <?php echo esc_html( $term->name ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="payment_terms"
+                                    data-target="teacher_payment_term"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
                         <p class="description">
                             <?php esc_html_e( 'How this teacher will be paid.', 'CTADZ-school-management' ); ?>
                             <a href="?page=school-management-payment-terms" target="_blank"><?php esc_html_e( 'Manage payment terms', 'CTADZ-school-management' ); ?></a>

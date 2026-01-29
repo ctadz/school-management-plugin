@@ -65,9 +65,9 @@ class SM_Enrollments_Page {
         $payment_schedules_table = $wpdb->prefix . 'sm_payment_schedules';
         $enrollments_table = $wpdb->prefix . 'sm_enrollments';
         $courses_table = $wpdb->prefix . 'sm_courses';
-        
+
         $enrollment = $wpdb->get_row( $wpdb->prepare(
-            "SELECT e.*, c.price_per_month, c.total_months
+            "SELECT e.*, c.price_per_month, c.total_months, c.payment_model
              FROM $enrollments_table e
              LEFT JOIN $courses_table c ON e.course_id = c.id
              WHERE e.id = %d",
@@ -82,28 +82,43 @@ class SM_Enrollments_Page {
         $price_per_month = floatval( $enrollment->price_per_month );
         $total_months = intval( $enrollment->total_months );
         $start_date = $enrollment->start_date;
+        $payment_model = $enrollment->payment_model ?? 'monthly_installments';
+        $is_subscription = ( $payment_model === 'monthly_subscription' );
 
         // Calculate family discount
         $discount_info = SM_Family_Discount::calculate_discount_for_student( $enrollment->student_id );
         $discount_percentage = $discount_info['percentage'];
         $discount_reason = $discount_info['reason'];
-        
+
         $installments = [];
-        
+
         switch ( $payment_plan ) {
             case 'monthly':
-                // One payment per month
-                for ( $i = 0; $i < $total_months; $i++ ) {
+                // For subscriptions, create only the first payment
+                // Additional payments will be generated automatically when paid
+                // Subscriptions are session-based, so vacation periods will be considered when generating each payment
+                if ( $is_subscription ) {
                     $installments[] = [
-                        'number' => $i + 1,
+                        'number' => 1,
                         'amount' => $price_per_month,
-                        'due_date' => date( 'Y-m-d', strtotime( "+$i months", strtotime( $start_date ) ) ),
+                        'due_date' => $start_date,
                     ];
+                } else {
+                    // For regular monthly installments, create all payments upfront
+                    // These are financial payment plans (not session-based), so vacations are NOT considered
+                    for ( $i = 0; $i < $total_months; $i++ ) {
+                        $installments[] = [
+                            'number' => $i + 1,
+                            'amount' => $price_per_month,
+                            'due_date' => date( 'Y-m-d', strtotime( "+$i months", strtotime( $start_date ) ) ),
+                        ];
+                    }
                 }
                 break;
-                
+
             case 'quarterly':
                 // Payment every 3 months
+                // These are financial payment plans (not session-based), so vacations are NOT considered
                 $num_quarters = ceil( $total_months / 3 );
                 for ( $i = 0; $i < $num_quarters; $i++ ) {
                     $months_in_quarter = min( 3, $total_months - ( $i * 3 ) );
@@ -114,7 +129,7 @@ class SM_Enrollments_Page {
                     ];
                 }
                 break;
-                
+
             case 'full':
                 // Single payment for entire course
                 $installments[] = [
@@ -124,7 +139,7 @@ class SM_Enrollments_Page {
                 ];
                 break;
         }
-        
+
         // Insert installments into database
         foreach ( $installments as $installment ) {
             // Apply family discount to amount
@@ -164,21 +179,21 @@ class SM_Enrollments_Page {
             
             // CASCADE DELETE: Remove all related records first
             // This prevents orphaned data in the database
-            
-            // 1. Delete payment records (child of payment_schedules)
+
+            // 1. Delete payment records
             $wpdb->delete(
-                $wpdb->prefix . 'sm_payment_records',
+                $wpdb->prefix . 'sm_payments',
                 [ 'enrollment_id' => $enrollment_id ],
                 [ '%d' ]
             );
-            
-            // 2. Delete payment schedules (child of enrollment)
+
+            // 2. Delete payment schedules
             $wpdb->delete(
                 $wpdb->prefix . 'sm_payment_schedules',
                 [ 'enrollment_id' => $enrollment_id ],
                 [ '%d' ]
             );
-            
+
             // 3. Delete enrollment fees (insurance, books)
             $wpdb->delete(
                 $wpdb->prefix . 'sm_enrollment_fees',
@@ -822,9 +837,9 @@ class SM_Enrollments_Page {
                                 $model = $enrollment->payment_model ?? 'monthly_installments';
                                 $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
                                 ?>
-                                <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: <?php echo esc_attr( $display['bg'] ); ?>; border-radius: 4px; font-size: 12px;">
-                                    <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>" style="font-size: 14px; color: <?php echo esc_attr( $display['color'] ); ?>; margin-right: 5px;"></span>
-                                    <strong style="color: <?php echo esc_attr( $display['color'] ); ?>;"><?php echo esc_html( $display['label'] ); ?></strong>
+                                <span class="sm-payment-badge sm-payment-badge--<?php echo esc_attr( $model ); ?>">
+                                    <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>"></span>
+                                    <strong><?php echo esc_html( $display['label'] ); ?></strong>
                                 </span>
                             </td>
 
@@ -1018,6 +1033,18 @@ class SM_Enrollments_Page {
                 'payment_plan' => $enrollment->payment_plan,
                 'notes' => $enrollment->notes,
             ];
+        } else {
+            // Pre-fill from URL parameters (e.g., from student registration redirect)
+            $form_data = [
+                'student_id' => isset( $_GET['student_id'] ) ? intval( $_GET['student_id'] ) : 0,
+                'course_id' => isset( $_GET['course_id'] ) ? intval( $_GET['course_id'] ) : 0,
+                'enrollment_date' => date( 'Y-m-d' ), // Default to today
+                'start_date' => date( 'Y-m-d' ), // Default to today
+                'end_date' => '',
+                'status' => 'active',
+                'payment_status' => 'unpaid',
+                'notes' => '',
+            ];
         }
         
         // Get payment data for edit mode
@@ -1165,6 +1192,33 @@ class SM_Enrollments_Page {
             </h2>
         </div>
 
+        <?php
+        // Show notice if coming from student registration with pre-filled data
+        if ( ! $is_edit && isset( $_GET['student_id'] ) && isset( $_GET['course_id'] ) ) {
+            $prefill_student_id = intval( $_GET['student_id'] );
+            $prefill_course_id = intval( $_GET['course_id'] );
+
+            // Get student and course names for the notice
+            $prefill_student = $wpdb->get_row( $wpdb->prepare(
+                "SELECT name FROM {$wpdb->prefix}sm_students WHERE id = %d",
+                $prefill_student_id
+            ) );
+            $prefill_course = $wpdb->get_row( $wpdb->prepare(
+                "SELECT name FROM {$wpdb->prefix}sm_courses WHERE id = %d",
+                $prefill_course_id
+            ) );
+
+            if ( $prefill_student && $prefill_course ) {
+                echo '<div class="notice notice-info" style="padding: 12px; margin: 0 0 20px 0; border-left-color: #00a0d2;">';
+                echo '<p style="margin: 0;">';
+                echo '<span class="dashicons dashicons-info" style="color: #00a0d2; vertical-align: middle; margin-right: 5px;"></span>';
+                echo '<strong>' . esc_html__( 'Student and course pre-selected:', 'CTADZ-school-management' ) . '</strong> ';
+                echo esc_html( $prefill_student->name ) . ' → ' . esc_html( $prefill_course->name );
+                echo '</p></div>';
+            }
+        }
+        ?>
+
         <form method="post">
             <?php wp_nonce_field( 'sm_save_enrollment_action', 'sm_save_enrollment_nonce' ); ?>
             <input type="hidden" name="enrollment_id" value="<?php echo esc_attr( $enrollment->id ?? '' ); ?>" />
@@ -1175,6 +1229,9 @@ class SM_Enrollments_Page {
                         <label for="enrollment_student"><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
+                        <?php if ( ! $is_edit ) : ?>
+                        <div class="sm-dropdown-with-refresh">
+                        <?php endif; ?>
                         <select id="enrollment_student" name="student_id" required <?php echo $is_edit ? 'disabled' : ''; ?>>
                             <option value=""><?php esc_html_e( 'Select Student', 'CTADZ-school-management' ); ?></option>
                             <?php foreach ( $students as $student ) : ?>
@@ -1183,6 +1240,15 @@ class SM_Enrollments_Page {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if ( ! $is_edit ) : ?>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="students"
+                                    data-target="enrollment_student"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
+                        <?php endif; ?>
                         <?php if ( $is_edit ) : ?>
                             <input type="hidden" name="student_id" value="<?php echo esc_attr( $form_data['student_id'] ?? '' ); ?>" />
                             <p class="description"><?php esc_html_e( 'Student cannot be changed after enrollment.', 'CTADZ-school-management' ); ?></p>
@@ -1205,13 +1271,16 @@ class SM_Enrollments_Page {
                         <label for="enrollment_course"><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?> <span style="color: #d63638;">*</span></label>
                     </th>
                     <td>
+                        <?php if ( ! $is_edit ) : ?>
+                        <div class="sm-dropdown-with-refresh">
+                        <?php endif; ?>
                         <select id="enrollment_course" name="course_id" required <?php echo $is_edit ? 'disabled' : ''; ?>>
                             <option value=""><?php esc_html_e( 'Select Course', 'CTADZ-school-management' ); ?></option>
-                            <?php foreach ( $courses as $course ) : 
+                            <?php foreach ( $courses as $course ) :
                                 // Get current enrollment count
-                                $current_count = $wpdb->get_var( $wpdb->prepare( 
-                                    "SELECT COUNT(*) FROM {$wpdb->prefix}sm_enrollments WHERE course_id = %d AND status IN ('active', 'completed')", 
-                                    $course->id 
+                                $current_count = $wpdb->get_var( $wpdb->prepare(
+                                    "SELECT COUNT(*) FROM {$wpdb->prefix}sm_enrollments WHERE course_id = %d AND status IN ('active', 'completed')",
+                                    $course->id
                                 ) );
                                 $spots_info = '';
                                 if ( $course->max_students > 0 ) {
@@ -1224,6 +1293,15 @@ class SM_Enrollments_Page {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if ( ! $is_edit ) : ?>
+                            <button type="button" class="button button-small sm-refresh-dropdown"
+                                    data-entity="courses"
+                                    data-target="enrollment_course"
+                                    title="<?php esc_attr_e( 'Refresh list', 'CTADZ-school-management' ); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                            </button>
+                        </div>
+                        <?php endif; ?>
                         <?php if ( $is_edit ) : ?>
                             <input type="hidden" name="course_id" value="<?php echo esc_attr( $form_data['course_id'] ?? '' ); ?>" />
                             <p class="description"><?php esc_html_e( 'Course cannot be changed after enrollment.', 'CTADZ-school-management' ); ?></p>
@@ -1307,8 +1385,8 @@ class SM_Enrollments_Page {
                             $model = $payment_data['course_info']->payment_model ?? 'monthly_installments';
                             $display = $payment_model_display[ $model ] ?? $payment_model_display['monthly_installments'];
                             ?>
-                            <span style="display: inline-flex; align-items: center; padding: 6px 12px; background: <?php echo esc_attr( $display['color'] ); ?>; color: white; border-radius: 4px; font-size: 13px;">
-                                <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>" style="font-size: 16px; margin-right: 6px;"></span>
+                            <span class="sm-payment-badge sm-payment-badge--<?php echo esc_attr( $model ); ?>" style="padding: 6px 12px; font-size: 13px;">
+                                <span class="dashicons <?php echo esc_attr( $display['icon'] ); ?>" style="font-size: 16px;"></span>
                                 <strong><?php echo esc_html( $display['label'] ); ?></strong>
                             </span>
                             

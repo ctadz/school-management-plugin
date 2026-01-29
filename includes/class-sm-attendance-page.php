@@ -330,6 +330,25 @@ class SM_Attendance_Page {
         </style>
 
         <script>
+        // Localized strings for attendance page
+        var smAttendanceStrings = {
+            loadingStudents: '<?php echo esc_js( __( 'Loading students...', 'CTADZ-school-management' ) ); ?>',
+            saving: '<?php echo esc_js( __( 'Saving...', 'CTADZ-school-management' ) ); ?>',
+            saveAttendance: '<?php echo esc_js( __( 'Save Attendance', 'CTADZ-school-management' ) ); ?>',
+            attendanceSaved: '<?php echo esc_js( __( 'Attendance saved successfully!', 'CTADZ-school-management' ) ); ?>',
+            attendanceSavedSelect: '<?php echo esc_js( __( 'Attendance saved. Select another class to mark attendance.', 'CTADZ-school-management' ) ); ?>',
+            errorPrefix: '<?php echo esc_js( __( 'Error:', 'CTADZ-school-management' ) ); ?>',
+            errorOccurred: '<?php echo esc_js( __( 'An error occurred. Please try again.', 'CTADZ-school-management' ) ); ?>',
+            success: '<?php echo esc_js( __( 'Success!', 'CTADZ-school-management' ) ); ?>',
+            attendanceSavedSuccess: '<?php echo esc_js( __( 'Attendance saved successfully.', 'CTADZ-school-management' ) ); ?>',
+            attendanceUpdatedSuccess: '<?php echo esc_js( __( 'Attendance updated successfully.', 'CTADZ-school-management' ) ); ?>',
+            selectBothDates: '<?php echo esc_js( __( 'Please select both from and to dates.', 'CTADZ-school-management' ) ); ?>',
+            loading: '<?php echo esc_js( __( 'Loading...', 'CTADZ-school-management' ) ); ?>',
+            loadingHistory: '<?php echo esc_js( __( 'Loading attendance history...', 'CTADZ-school-management' ) ); ?>',
+            loadHistory: '<?php echo esc_js( __( 'Load History', 'CTADZ-school-management' ) ); ?>',
+            loadingData: '<?php echo esc_js( __( 'Loading attendance data...', 'CTADZ-school-management' ) ); ?>'
+        };
+
         jQuery(document).ready(function($) {
             // Modal setup
             var modal = $('#sm-attendance-modal');
@@ -367,7 +386,7 @@ class SM_Attendance_Page {
                 var courseId = $(this).data('course-id');
                 var date = $(this).data('date');
 
-                $('#sm-attendance-form-container').html('<p>Loading students...</p>');
+                $('#sm-attendance-form-container').html('<p>' + smAttendanceStrings.loadingStudents + '</p>');
 
                 $.ajax({
                     url: ajaxurl,
@@ -402,7 +421,7 @@ class SM_Attendance_Page {
                 // Save attendance
                 $('#sm-save-attendance-btn').on('click', function() {
                     var button = $(this);
-                    button.prop('disabled', true).text('Saving...');
+                    button.prop('disabled', true).text(smAttendanceStrings.saving);
 
                     var attendanceData = [];
                     $('.sm-student-row').each(function() {
@@ -436,16 +455,16 @@ class SM_Attendance_Page {
                         },
                         success: function(response) {
                             if (response.success) {
-                                alert('Attendance saved successfully!');
-                                $('#sm-attendance-form-container').html('<p class="sm-no-data">Attendance saved. Select another class to mark attendance.</p>');
+                                alert(smAttendanceStrings.attendanceSaved);
+                                $('#sm-attendance-form-container').html('<p class="sm-no-data">' + smAttendanceStrings.attendanceSavedSelect + '</p>');
                             } else {
-                                alert('Error: ' + response.data.message);
+                                alert(smAttendanceStrings.errorPrefix + ' ' + response.data.message);
                             }
-                            button.prop('disabled', false).text('Save Attendance');
+                            button.prop('disabled', false).text(smAttendanceStrings.saveAttendance);
                         },
                         error: function() {
-                            alert('An error occurred. Please try again.');
-                            button.prop('disabled', false).text('Save Attendance');
+                            alert(smAttendanceStrings.errorOccurred);
+                            button.prop('disabled', false).text(smAttendanceStrings.saveAttendance);
                         }
                     });
                 });
@@ -599,6 +618,25 @@ class SM_Attendance_Page {
         echo '</div>';
         ?>
         <script>
+        // Localized strings for attendance page
+        var smAttendanceStrings = {
+            loadingStudents: '<?php echo esc_js( __( 'Loading students...', 'CTADZ-school-management' ) ); ?>',
+            saving: '<?php echo esc_js( __( 'Saving...', 'CTADZ-school-management' ) ); ?>',
+            saveAttendance: '<?php echo esc_js( __( 'Save Attendance', 'CTADZ-school-management' ) ); ?>',
+            attendanceSaved: '<?php echo esc_js( __( 'Attendance saved successfully!', 'CTADZ-school-management' ) ); ?>',
+            attendanceSavedSelect: '<?php echo esc_js( __( 'Attendance saved. Select another class to mark attendance.', 'CTADZ-school-management' ) ); ?>',
+            errorPrefix: '<?php echo esc_js( __( 'Error:', 'CTADZ-school-management' ) ); ?>',
+            errorOccurred: '<?php echo esc_js( __( 'An error occurred. Please try again.', 'CTADZ-school-management' ) ); ?>',
+            success: '<?php echo esc_js( __( 'Success!', 'CTADZ-school-management' ) ); ?>',
+            attendanceSavedSuccess: '<?php echo esc_js( __( 'Attendance saved successfully.', 'CTADZ-school-management' ) ); ?>',
+            attendanceUpdatedSuccess: '<?php echo esc_js( __( 'Attendance updated successfully.', 'CTADZ-school-management' ) ); ?>',
+            selectBothDates: '<?php echo esc_js( __( 'Please select both from and to dates.', 'CTADZ-school-management' ) ); ?>',
+            loading: '<?php echo esc_js( __( 'Loading...', 'CTADZ-school-management' ) ); ?>',
+            loadingHistory: '<?php echo esc_js( __( 'Loading attendance history...', 'CTADZ-school-management' ) ); ?>',
+            loadHistory: '<?php echo esc_js( __( 'Load History', 'CTADZ-school-management' ) ); ?>',
+            loadingData: '<?php echo esc_js( __( 'Loading attendance data...', 'CTADZ-school-management' ) ); ?>'
+        };
+
         jQuery(document).ready(function($) {
             var modal = $('#sm-attendance-modal');
 
@@ -609,7 +647,7 @@ class SM_Attendance_Page {
 
                 // Open modal and show loading
                 modal.show();
-                $('#sm-modal-body').html('<p style="text-align: center; padding: 40px;">Loading students...</p>');
+                $('#sm-modal-body').html('<p style="text-align: center; padding: 40px;">' + smAttendanceStrings.loadingStudents + '</p>');
 
                 $.ajax({
                     url: ajaxurl,
@@ -631,7 +669,7 @@ class SM_Attendance_Page {
                         }
                     },
                     error: function() {
-                        $('#sm-modal-body').html('<p class="sm-no-data">An error occurred. Please try again.</p>');
+                        $('#sm-modal-body').html('<p class="sm-no-data">' + smAttendanceStrings.errorOccurred + '</p>');
                     }
                 });
             });
@@ -648,7 +686,7 @@ class SM_Attendance_Page {
                 // Save attendance
                 $('#sm-save-attendance-btn').on('click', function() {
                     var button = $(this);
-                    button.prop('disabled', true).text('Saving...');
+                    button.prop('disabled', true).text(smAttendanceStrings.saving);
 
                     var attendanceData = [];
                     $('.sm-student-row').each(function() {
@@ -685,7 +723,7 @@ class SM_Attendance_Page {
                                 // Close modal
                                 modal.hide();
                                 // Show success message
-                                $('<div class="notice notice-success is-dismissible" style="margin: 15px 0;"><p><strong>Success!</strong> Attendance saved successfully.</p></div>')
+                                $('<div class="notice notice-success is-dismissible" style="margin: 15px 0;"><p><strong>' + smAttendanceStrings.success + '</strong> ' + smAttendanceStrings.attendanceSavedSuccess + '</p></div>')
                                     .insertAfter('.wrap h1')
                                     .delay(3000)
                                     .fadeOut(400, function() { $(this).remove(); });
@@ -694,13 +732,13 @@ class SM_Attendance_Page {
                                     location.reload();
                                 }, 500);
                             } else {
-                                alert('Error: ' + response.data.message);
-                                button.prop('disabled', false).text('Save Attendance');
+                                alert(smAttendanceStrings.errorPrefix + ' ' + response.data.message);
+                                button.prop('disabled', false).text(smAttendanceStrings.saveAttendance);
                             }
                         },
                         error: function() {
-                            alert('An error occurred. Please try again.');
-                            button.prop('disabled', false).text('Save Attendance');
+                            alert(smAttendanceStrings.errorOccurred);
+                            button.prop('disabled', false).text(smAttendanceStrings.saveAttendance);
                         }
                     });
                 });
@@ -841,6 +879,25 @@ class SM_Attendance_Page {
 
         ?>
         <script>
+        // Localized strings for attendance page
+        var smAttendanceStrings = {
+            loadingStudents: '<?php echo esc_js( __( 'Loading students...', 'CTADZ-school-management' ) ); ?>',
+            saving: '<?php echo esc_js( __( 'Saving...', 'CTADZ-school-management' ) ); ?>',
+            saveAttendance: '<?php echo esc_js( __( 'Save Attendance', 'CTADZ-school-management' ) ); ?>',
+            attendanceSaved: '<?php echo esc_js( __( 'Attendance saved successfully!', 'CTADZ-school-management' ) ); ?>',
+            attendanceSavedSelect: '<?php echo esc_js( __( 'Attendance saved. Select another class to mark attendance.', 'CTADZ-school-management' ) ); ?>',
+            errorPrefix: '<?php echo esc_js( __( 'Error:', 'CTADZ-school-management' ) ); ?>',
+            errorOccurred: '<?php echo esc_js( __( 'An error occurred. Please try again.', 'CTADZ-school-management' ) ); ?>',
+            success: '<?php echo esc_js( __( 'Success!', 'CTADZ-school-management' ) ); ?>',
+            attendanceSavedSuccess: '<?php echo esc_js( __( 'Attendance saved successfully.', 'CTADZ-school-management' ) ); ?>',
+            attendanceUpdatedSuccess: '<?php echo esc_js( __( 'Attendance updated successfully.', 'CTADZ-school-management' ) ); ?>',
+            selectBothDates: '<?php echo esc_js( __( 'Please select both from and to dates.', 'CTADZ-school-management' ) ); ?>',
+            loading: '<?php echo esc_js( __( 'Loading...', 'CTADZ-school-management' ) ); ?>',
+            loadingHistory: '<?php echo esc_js( __( 'Loading attendance history...', 'CTADZ-school-management' ) ); ?>',
+            loadHistory: '<?php echo esc_js( __( 'Load History', 'CTADZ-school-management' ) ); ?>',
+            loadingData: '<?php echo esc_js( __( 'Loading attendance data...', 'CTADZ-school-management' ) ); ?>'
+        };
+
         jQuery(document).ready(function($) {
             $('#sm-filter-history').on('click', function() {
                 var button = $(this);
@@ -849,12 +906,12 @@ class SM_Attendance_Page {
                 var courseId = $('#sm-history-course').val();
 
                 if (!fromDate || !toDate) {
-                    alert('Please select both from and to dates.');
+                    alert(smAttendanceStrings.selectBothDates);
                     return;
                 }
 
-                button.prop('disabled', true).text('Loading...');
-                $('#sm-history-results').html('<p style="text-align: center; padding: 40px;">Loading attendance history...</p>');
+                button.prop('disabled', true).text(smAttendanceStrings.loading);
+                $('#sm-history-results').html('<p style="text-align: center; padding: 40px;">' + smAttendanceStrings.loadingHistory + '</p>');
 
                 $.ajax({
                     url: ajaxurl,
@@ -876,11 +933,11 @@ class SM_Attendance_Page {
                         } else {
                             $('#sm-history-results').html('<p class="sm-no-data">' + response.data.message + '</p>');
                         }
-                        button.prop('disabled', false).text('Load History');
+                        button.prop('disabled', false).text(smAttendanceStrings.loadHistory);
                     },
                     error: function() {
-                        $('#sm-history-results').html('<p class="sm-no-data">An error occurred. Please try again.</p>');
-                        button.prop('disabled', false).text('Load History');
+                        $('#sm-history-results').html('<p class="sm-no-data">' + smAttendanceStrings.errorOccurred + '</p>');
+                        button.prop('disabled', false).text(smAttendanceStrings.loadHistory);
                     }
                 });
             });
@@ -895,7 +952,7 @@ class SM_Attendance_Page {
                     // Open modal from Mark Attendance tab
                     var modal = $('#sm-attendance-modal');
                     modal.show();
-                    $('#sm-modal-body').html('<p style="text-align: center; padding: 40px;">Loading attendance data...</p>');
+                    $('#sm-modal-body').html('<p style="text-align: center; padding: 40px;">' + smAttendanceStrings.loadingData + '</p>');
 
                     $.ajax({
                         url: ajaxurl,
@@ -918,7 +975,7 @@ class SM_Attendance_Page {
                             }
                         },
                         error: function() {
-                            $('#sm-modal-body').html('<p class="sm-no-data">An error occurred. Please try again.</p>');
+                            $('#sm-modal-body').html('<p class="sm-no-data">' + smAttendanceStrings.errorOccurred + '</p>');
                         }
                     });
                 });
@@ -935,7 +992,7 @@ class SM_Attendance_Page {
 
                 $('#sm-save-attendance-btn').on('click', function() {
                     var button = $(this);
-                    button.prop('disabled', true).text('Saving...');
+                    button.prop('disabled', true).text(smAttendanceStrings.saving);
 
                     var attendanceData = [];
                     $('.sm-student-row').each(function() {
@@ -972,20 +1029,20 @@ class SM_Attendance_Page {
                                 var modal = $('#sm-attendance-modal');
                                 modal.hide();
                                 // Show success message
-                                $('<div class="notice notice-success is-dismissible" style="margin: 15px 0;"><p><strong>Success!</strong> Attendance updated successfully.</p></div>')
+                                $('<div class="notice notice-success is-dismissible" style="margin: 15px 0;"><p><strong>' + smAttendanceStrings.success + '</strong> ' + smAttendanceStrings.attendanceUpdatedSuccess + '</p></div>')
                                     .insertAfter('.wrap h1')
                                     .delay(3000)
                                     .fadeOut(400, function() { $(this).remove(); });
                                 // Reload history
                                 $('#sm-filter-history').click();
                             } else {
-                                alert('Error: ' + response.data.message);
-                                button.prop('disabled', false).text('Save Attendance');
+                                alert(smAttendanceStrings.errorPrefix + ' ' + response.data.message);
+                                button.prop('disabled', false).text(smAttendanceStrings.saveAttendance);
                             }
                         },
                         error: function() {
-                            alert('An error occurred. Please try again.');
-                            button.prop('disabled', false).text('Save Attendance');
+                            alert(smAttendanceStrings.errorOccurred);
+                            button.prop('disabled', false).text(smAttendanceStrings.saveAttendance);
                         }
                     });
                 });
