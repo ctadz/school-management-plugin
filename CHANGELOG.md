@@ -2,6 +2,28 @@
 
 All notable changes to the School Management plugin will be documented in this file.
 
+## [0.6.3] - 2026-02-01
+
+### Added
+- **Clickable Course/Enrollment Counts**: Enhanced dashboard navigation
+  - Classrooms: Click course count to view assigned courses with weekly schedule
+  - Teachers: Click course count to view assigned courses with weekly schedule
+  - Students: Click enrollment count to view enrolled courses with weekly schedule
+  - Shows day, time, classroom, teacher information for each course
+  - Displays separate sections for courses with/without schedules
+  - Gracefully handles missing Calendar plugin
+
+### Changed
+- **Student Enrollments Display**: Changed "Payment Plan" to "Payment Model" to correctly show subscription status
+  - Now displays "Monthly subscription" instead of just "Monthly"
+  - Shows actual payment model from course configuration
+
+### Improved
+- **French Translations**: Added complete French translations for all new features
+  - Dashboard navigation strings
+  - Schedule display elements
+  - Information panels
+
 ## [0.6.2] - 2026-01-28
 
 ### Fixed
