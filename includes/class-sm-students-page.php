@@ -155,6 +155,9 @@ class SM_Students_Page {
                 case 'edit':
                     self::render_student_form( $student );
                     break;
+                case 'view_enrollments':
+                    self::render_student_enrollments();
+                    break;
                 default:
                     self::render_students_list();
                     break;
@@ -1069,10 +1072,12 @@ class SM_Students_Page {
                             <td data-label="<?php echo esc_attr__( 'Enrollments', 'CTADZ-school-management' ); ?>">
                                 <span class="mobile-label"><?php esc_html_e( 'Enrollments', 'CTADZ-school-management' ); ?>:</span>
                                 <?php if ( $active_enrollments > 0 ) : ?>
-                                    <span class="text-primary">
+                                    <a href="?page=school-management-students&action=view_enrollments&student_id=<?php echo intval( $student->id ); ?>"
+                                       style="text-decoration: none; color: #2271b1; font-weight: 500;">
                                         <strong><?php echo esc_html( $active_enrollments ); ?></strong>
                                         <?php echo esc_html( _n( 'course', 'courses', $active_enrollments, 'CTADZ-school-management' ) ); ?>
-                                    </span>
+                                        <span class="dashicons dashicons-arrow-right-alt2" style="font-size: 16px; vertical-align: middle;"></span>
+                                    </a>
                                 <?php else : ?>
                                     <span class="text-muted"><?php esc_html_e( 'None', 'CTADZ-school-management' ); ?></span>
                                 <?php endif; ?>
@@ -2393,6 +2398,214 @@ class SM_Students_Page {
         }
 
         return $student_code;
+    }
+
+    /**
+     * Render enrollments for a student with their schedule
+     */
+    private static function render_student_enrollments() {
+        // Security check
+        if ( ! current_user_can( 'manage_students' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
+        }
+
+        // Get student ID
+        $student_id = isset( $_GET['student_id'] ) ? intval( $_GET['student_id'] ) : 0;
+        if ( ! $student_id ) {
+            wp_die( __( 'Invalid student ID.', 'CTADZ-school-management' ) );
+        }
+
+        global $wpdb;
+        $students_table = $wpdb->prefix . 'sm_students';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+        $levels_table = $wpdb->prefix . 'sm_levels';
+
+        // Get student details
+        $student = $wpdb->get_row( $wpdb->prepare(
+            "SELECT s.*, l.name as level_name
+             FROM $students_table s
+             LEFT JOIN $levels_table l ON s.level_id = l.id
+             WHERE s.id = %d",
+            $student_id
+        ) );
+
+        if ( ! $student ) {
+            wp_die( __( 'Student not found.', 'CTADZ-school-management' ) );
+        }
+
+        // Get active enrollments for this student
+        $enrollments = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.*, c.name as course_name, c.description as course_description, c.payment_model
+             FROM $enrollments_table e
+             LEFT JOIN $courses_table c ON e.course_id = c.id
+             WHERE e.student_id = %d AND e.status = 'active'
+             ORDER BY c.name",
+            $student_id
+        ) );
+
+        // Check if calendar plugin is active to get schedule data
+        $calendar_active = defined( 'SMC_VERSION' );
+        $schedules = [];
+
+        if ( $calendar_active && ! empty( $enrollments ) ) {
+            $schedules_table = $wpdb->prefix . 'smc_schedules';
+            $course_ids = array_column( $enrollments, 'course_id' );
+            $placeholders = implode( ',', array_fill( 0, count( $course_ids ), '%d' ) );
+
+            // Get all schedules for enrolled courses
+            $schedules = $wpdb->get_results( $wpdb->prepare(
+                "SELECT s.*, c.name as course_name, cl.name as classroom_name, t.first_name, t.last_name
+                 FROM $schedules_table s
+                 LEFT JOIN $courses_table c ON s.course_id = c.id
+                 LEFT JOIN {$wpdb->prefix}sm_classrooms cl ON s.classroom_id = cl.id
+                 LEFT JOIN {$wpdb->prefix}sm_teachers t ON s.teacher_id = t.id
+                 WHERE s.course_id IN ($placeholders) AND s.is_active = 1
+                 ORDER BY s.day_of_week, s.start_time",
+                $course_ids
+            ) );
+        }
+
+        // Day of week mapping
+        $days_of_week = [
+            1 => __( 'Monday', 'CTADZ-school-management' ),
+            2 => __( 'Tuesday', 'CTADZ-school-management' ),
+            3 => __( 'Wednesday', 'CTADZ-school-management' ),
+            4 => __( 'Thursday', 'CTADZ-school-management' ),
+            5 => __( 'Friday', 'CTADZ-school-management' ),
+            6 => __( 'Saturday', 'CTADZ-school-management' ),
+            7 => __( 'Sunday', 'CTADZ-school-management' ),
+        ];
+
+        ?>
+        <div class="wrap">
+            <h1>
+                <?php echo esc_html( sprintf( __( 'Enrollments for %s', 'CTADZ-school-management' ), $student->name ) ); ?>
+            </h1>
+
+            <div style="margin-bottom: 20px;">
+                <a href="?page=school-management-students" class="button">
+                    <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
+                    <?php esc_html_e( 'Back to Students', 'CTADZ-school-management' ); ?>
+                </a>
+            </div>
+
+            <div class="sm-student-info" style="background: #f0f0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h2 style="margin-top: 0;"><?php esc_html_e( 'Student Information', 'CTADZ-school-management' ); ?></h2>
+                <p>
+                    <strong><?php esc_html_e( 'Name:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $student->name ); ?><br>
+                    <strong><?php esc_html_e( 'Student Code:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $student->student_code ); ?><br>
+                    <?php if ( ! empty( $student->level_name ) ) : ?>
+                        <strong><?php esc_html_e( 'Level:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $student->level_name ); ?><br>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $student->parent_name ) ) : ?>
+                        <strong><?php esc_html_e( 'Parent:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $student->parent_name ); ?><br>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $student->parent_phone ) ) : ?>
+                        <strong><?php esc_html_e( 'Parent Phone:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $student->parent_phone ); ?>
+                    <?php endif; ?>
+                </p>
+            </div>
+
+            <?php if ( $calendar_active ) : ?>
+                <!-- Calendar plugin is active -->
+                <?php if ( ! empty( $schedules ) ) : ?>
+                    <!-- Show courses WITH schedules -->
+                    <h2><?php esc_html_e( 'Weekly Schedule', 'CTADZ-school-management' ); ?></h2>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;"><?php esc_html_e( 'Day', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 25%;"><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 18%;"><?php esc_html_e( 'Teacher', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 15%;"><?php esc_html_e( 'Classroom', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 12%;"><?php esc_html_e( 'Start Time', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 12%;"><?php esc_html_e( 'End Time', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $schedules as $schedule ) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html( $days_of_week[ $schedule->day_of_week ] ?? '' ); ?></strong></td>
+                                    <td><?php echo esc_html( $schedule->course_name ); ?></td>
+                                    <td><?php echo esc_html( $schedule->first_name && $schedule->last_name ? $schedule->first_name . ' ' . $schedule->last_name : '—' ); ?></td>
+                                    <td><?php echo esc_html( $schedule->classroom_name ?: '—' ); ?></td>
+                                    <td><?php echo esc_html( $schedule->start_time ); ?></td>
+                                    <td><?php echo esc_html( $schedule->end_time ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+
+                <?php
+                // Check if there are enrollments without schedules
+                $scheduled_course_ids = ! empty( $schedules ) ? array_unique( array_column( $schedules, 'course_id' ) ) : [];
+                $enrollments_without_schedule = array_filter( $enrollments, function( $enrollment ) use ( $scheduled_course_ids ) {
+                    return ! in_array( $enrollment->course_id, $scheduled_course_ids );
+                } );
+
+                if ( ! empty( $enrollments_without_schedule ) ) : ?>
+                    <h3 style="margin-top: 30px;"><?php esc_html_e( 'Enrollments Without Schedule', 'CTADZ-school-management' ); ?></h3>
+                    <p class="description" style="background: #fff3cd; padding: 10px; border-left: 4px solid #f0ad4e;">
+                        <span class="dashicons dashicons-warning" style="vertical-align: middle;"></span>
+                        <?php esc_html_e( 'The following enrollments do not have schedules configured yet. Create schedules in the Calendar plugin.', 'CTADZ-school-management' ); ?>
+                    </p>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;"><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 30%;"><?php esc_html_e( 'Start Date', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 30%;"><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $enrollments_without_schedule as $enrollment ) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html( $enrollment->course_name ); ?></strong></td>
+                                    <td><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $enrollment->start_date ) ) ); ?></td>
+                                    <td><?php echo esc_html( ucfirst( str_replace( '_', ' ', $enrollment->payment_model ) ) ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+
+                <?php if ( empty( $enrollments ) ) : ?>
+                    <p><?php esc_html_e( 'No active enrollments for this student.', 'CTADZ-school-management' ); ?></p>
+                <?php endif; ?>
+            <?php else : ?>
+                <!-- No calendar plugin - show basic enrollment list -->
+                <h2><?php esc_html_e( 'Active Enrollments', 'CTADZ-school-management' ); ?></h2>
+                <p class="description" style="background: #fff3cd; padding: 10px; border-left: 4px solid #f0ad4e;">
+                    <span class="dashicons dashicons-info" style="vertical-align: middle;"></span>
+                    <?php esc_html_e( 'Install and activate the School Management Calendar plugin to view course schedules with day and time information.', 'CTADZ-school-management' ); ?>
+                </p>
+                <?php if ( ! empty( $enrollments ) ) : ?>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;"><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 30%;"><?php esc_html_e( 'Start Date', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 30%;"><?php esc_html_e( 'Payment Model', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $enrollments as $enrollment ) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html( $enrollment->course_name ); ?></strong></td>
+                                    <td><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $enrollment->start_date ) ) ); ?></td>
+                                    <td><?php echo esc_html( ucfirst( str_replace( '_', ' ', $enrollment->payment_model ) ) ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else : ?>
+                    <p><?php esc_html_e( 'No active enrollments for this student.', 'CTADZ-school-management' ); ?></p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 }
 

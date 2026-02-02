@@ -315,6 +315,9 @@ class SM_Teachers_Page {
                 case 'edit':
                     self::render_teacher_form( $teacher );
                     break;
+                case 'view_courses':
+                    self::render_teacher_courses();
+                    break;
                 default:
                     self::render_teachers_list();
                     break;
@@ -721,7 +724,13 @@ class SM_Teachers_Page {
                                 <?php
                                 $count = intval( $teacher->course_count );
                                 if ( $count > 0 ) {
-                                    echo '<span class="text-primary"><strong>' . esc_html( $count ) . '</strong> ' . esc_html( _n( 'course', 'courses', $count, 'CTADZ-school-management' ) ) . '</span>';
+                                    ?>
+                                    <a href="?page=school-management-teachers&action=view_courses&teacher_id=<?php echo intval( $teacher->id ); ?>"
+                                       style="text-decoration: none; color: #2271b1; font-weight: 500;">
+                                        <strong><?php echo esc_html( $count ); ?></strong> <?php echo esc_html( _n( 'course', 'courses', $count, 'CTADZ-school-management' ) ); ?>
+                                        <span class="dashicons dashicons-arrow-right-alt2" style="font-size: 16px; vertical-align: middle;"></span>
+                                    </a>
+                                    <?php
                                 } else {
                                     echo '<span class="text-muted">' . esc_html__( 'No courses', 'CTADZ-school-management' ) . '</span>';
                                 }
@@ -1134,6 +1143,199 @@ class SM_Teachers_Page {
             }
         });
         </script>
+        <?php
+    }
+
+    /**
+     * Render courses assigned to a teacher with their schedule
+     */
+    private static function render_teacher_courses() {
+        // Security check
+        if ( ! current_user_can( 'manage_teachers' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
+        }
+
+        // Get teacher ID
+        $teacher_id = isset( $_GET['teacher_id'] ) ? intval( $_GET['teacher_id'] ) : 0;
+        if ( ! $teacher_id ) {
+            wp_die( __( 'Invalid teacher ID.', 'CTADZ-school-management' ) );
+        }
+
+        global $wpdb;
+        $teachers_table = $wpdb->prefix . 'sm_teachers';
+        $courses_table = $wpdb->prefix . 'sm_courses';
+
+        // Get teacher details
+        $teacher = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $teachers_table WHERE id = %d", $teacher_id ) );
+        if ( ! $teacher ) {
+            wp_die( __( 'Teacher not found.', 'CTADZ-school-management' ) );
+        }
+
+        // Get courses assigned to this teacher
+        $courses = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, name, description FROM $courses_table WHERE teacher_id = %d ORDER BY name",
+            $teacher_id
+        ) );
+
+        // Check if calendar plugin is active to get schedule data
+        $calendar_active = defined( 'SMC_VERSION' );
+        $schedules = [];
+
+        if ( $calendar_active ) {
+            $schedules_table = $wpdb->prefix . 'smc_schedules';
+
+            // Get all schedules for this teacher
+            $schedules = $wpdb->get_results( $wpdb->prepare(
+                "SELECT s.*, c.name as course_name, cl.name as classroom_name
+                 FROM $schedules_table s
+                 LEFT JOIN $courses_table c ON s.course_id = c.id
+                 LEFT JOIN {$wpdb->prefix}sm_classrooms cl ON s.classroom_id = cl.id
+                 WHERE s.teacher_id = %d AND s.is_active = 1
+                 ORDER BY s.day_of_week, s.start_time",
+                $teacher_id
+            ) );
+        }
+
+        // Day of week mapping
+        $days_of_week = [
+            1 => __( 'Monday', 'CTADZ-school-management' ),
+            2 => __( 'Tuesday', 'CTADZ-school-management' ),
+            3 => __( 'Wednesday', 'CTADZ-school-management' ),
+            4 => __( 'Thursday', 'CTADZ-school-management' ),
+            5 => __( 'Friday', 'CTADZ-school-management' ),
+            6 => __( 'Saturday', 'CTADZ-school-management' ),
+            7 => __( 'Sunday', 'CTADZ-school-management' ),
+        ];
+
+        ?>
+        <div class="wrap">
+            <h1>
+                <?php echo esc_html( sprintf( __( 'Courses for %s', 'CTADZ-school-management' ), $teacher->first_name . ' ' . $teacher->last_name ) ); ?>
+            </h1>
+
+            <div style="margin-bottom: 20px;">
+                <a href="?page=school-management-teachers" class="button">
+                    <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
+                    <?php esc_html_e( 'Back to Teachers', 'CTADZ-school-management' ); ?>
+                </a>
+            </div>
+
+            <div class="sm-teacher-info" style="background: #f0f0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h2 style="margin-top: 0;"><?php esc_html_e( 'Teacher Information', 'CTADZ-school-management' ); ?></h2>
+                <p>
+                    <strong><?php esc_html_e( 'Name:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $teacher->first_name . ' ' . $teacher->last_name ); ?><br>
+                    <strong><?php esc_html_e( 'Email:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $teacher->email ); ?><br>
+                    <strong><?php esc_html_e( 'Phone:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $teacher->phone ); ?><br>
+                    <?php if ( ! empty( $teacher->specialization ) ) : ?>
+                        <strong><?php esc_html_e( 'Specialization:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( $teacher->specialization ); ?><br>
+                    <?php endif; ?>
+                    <strong><?php esc_html_e( 'Hourly Rate:', 'CTADZ-school-management' ); ?></strong> <?php echo esc_html( number_format( $teacher->hourly_rate, 2 ) ); ?>
+                </p>
+            </div>
+
+            <?php if ( $calendar_active ) : ?>
+                <!-- Calendar plugin is active -->
+                <?php if ( ! empty( $schedules ) ) : ?>
+                    <!-- Show courses WITH schedules -->
+                    <h2><?php esc_html_e( 'Weekly Schedule', 'CTADZ-school-management' ); ?></h2>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;"><?php esc_html_e( 'Day', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 30%;"><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 18%;"><?php esc_html_e( 'Classroom', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 12%;"><?php esc_html_e( 'Start Time', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 12%;"><?php esc_html_e( 'End Time', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 16%;"><?php esc_html_e( 'Effective Period', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $schedules as $schedule ) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html( $days_of_week[ $schedule->day_of_week ] ?? '' ); ?></strong></td>
+                                    <td><?php echo esc_html( $schedule->course_name ); ?></td>
+                                    <td><?php echo esc_html( $schedule->classroom_name ?: '—' ); ?></td>
+                                    <td><?php echo esc_html( $schedule->start_time ); ?></td>
+                                    <td><?php echo esc_html( $schedule->end_time ); ?></td>
+                                    <td>
+                                        <?php
+                                        echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $schedule->effective_from ) ) );
+                                        if ( ! empty( $schedule->effective_until ) ) {
+                                            echo ' – ' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $schedule->effective_until ) ) );
+                                        } else {
+                                            echo ' – ' . esc_html__( 'Ongoing', 'CTADZ-school-management' );
+                                        }
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+
+                <?php
+                // Check if there are courses without schedules
+                $scheduled_course_ids = ! empty( $schedules ) ? array_unique( array_column( $schedules, 'course_id' ) ) : [];
+                $courses_without_schedule = array_filter( $courses, function( $course ) use ( $scheduled_course_ids ) {
+                    return ! in_array( $course->id, $scheduled_course_ids );
+                } );
+
+                if ( ! empty( $courses_without_schedule ) ) : ?>
+                    <h3 style="margin-top: 30px;"><?php esc_html_e( 'Courses Without Schedule', 'CTADZ-school-management' ); ?></h3>
+                    <p class="description" style="background: #fff3cd; padding: 10px; border-left: 4px solid #f0ad4e;">
+                        <span class="dashicons dashicons-warning" style="vertical-align: middle;"></span>
+                        <?php esc_html_e( 'The following courses are assigned to this teacher but do not have schedules configured yet. Create schedules in the Calendar plugin.', 'CTADZ-school-management' ); ?>
+                    </p>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;"><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 60%;"><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $courses_without_schedule as $course ) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html( $course->name ); ?></strong></td>
+                                    <td><?php echo esc_html( $course->description ?: '—' ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+
+                <?php if ( empty( $courses ) ) : ?>
+                    <p><?php esc_html_e( 'No courses assigned to this teacher.', 'CTADZ-school-management' ); ?></p>
+                <?php endif; ?>
+            <?php else : ?>
+                <!-- No calendar plugin - show basic course list -->
+                <h2><?php esc_html_e( 'Assigned Courses', 'CTADZ-school-management' ); ?></h2>
+                <p class="description" style="background: #fff3cd; padding: 10px; border-left: 4px solid #f0ad4e;">
+                    <span class="dashicons dashicons-info" style="vertical-align: middle;"></span>
+                    <?php esc_html_e( 'Install and activate the School Management Calendar plugin to view course schedules with day and time information.', 'CTADZ-school-management' ); ?>
+                </p>
+                <?php if ( ! empty( $courses ) ) : ?>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;"><?php esc_html_e( 'Course Name', 'CTADZ-school-management' ); ?></th>
+                                <th style="width: 60%;"><?php esc_html_e( 'Description', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $courses as $course ) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html( $course->name ); ?></strong></td>
+                                    <td><?php echo esc_html( $course->description ?: '—' ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else : ?>
+                    <p><?php esc_html_e( 'No courses assigned to this teacher.', 'CTADZ-school-management' ); ?></p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
         <?php
     }
 }

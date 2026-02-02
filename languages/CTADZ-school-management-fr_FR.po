@@ -2087,3 +2087,91 @@ msgstr "Ajouter une Salle"
 #: includes/class-sm-teachers-page.php includes/class-sm-enrollments-page.php
 msgid "Refresh list"
 msgstr "Actualiser la liste"
+
+# New features - Clickable course/enrollment counts (v0.6.3)
+
+#: includes/class-sm-classrooms-page.php
+#, php-format
+msgid "Courses in %s"
+msgstr "Cours dans %s"
+
+#: includes/class-sm-classrooms-page.php
+msgid "Back to Classrooms"
+msgstr "Retour aux Salles de Classe"
+
+#: includes/class-sm-classrooms-page.php
+msgid "Classroom Information"
+msgstr "Informations sur la Salle"
+
+#: includes/class-sm-classrooms-page.php includes/class-sm-teachers-page.php
+#: includes/class-sm-students-page.php
+msgid "Weekly Schedule"
+msgstr "Emploi du Temps Hebdomadaire"
+
+#: includes/class-sm-classrooms-page.php includes/class-sm-teachers-page.php
+msgid "Effective Period"
+msgstr "Période d'Application"
+
+#: includes/class-sm-classrooms-page.php includes/class-sm-teachers-page.php
+msgid "Ongoing"
+msgstr "En Cours"
+
+#: includes/class-sm-classrooms-page.php
+msgid "Courses Without Schedule"
+msgstr "Cours Sans Emploi du Temps"
+
+#: includes/class-sm-classrooms-page.php
+msgid "The following courses are assigned to this classroom but do not have schedules configured yet. Create schedules in the Calendar plugin."
+msgstr "Les cours suivants sont assignés à cette salle mais n'ont pas encore d'emploi du temps configuré. Créez des emplois du temps dans le plugin Calendrier."
+
+#: includes/class-sm-classrooms-page.php includes/class-sm-teachers-page.php
+#: includes/class-sm-students-page.php
+msgid "Assigned Courses"
+msgstr "Cours Assignés"
+
+#: includes/class-sm-classrooms-page.php includes/class-sm-teachers-page.php
+#: includes/class-sm-students-page.php
+msgid "Install and activate the School Management Calendar plugin to view course schedules with day and time information."
+msgstr "Installez et activez le plugin Calendrier de Gestion Scolaire pour voir les emplois du temps avec les jours et horaires."
+
+#: includes/class-sm-classrooms-page.php
+msgid "No courses assigned to this classroom."
+msgstr "Aucun cours assigné à cette salle."
+
+#: includes/class-sm-teachers-page.php
+#, php-format
+msgid "Courses for %s"
+msgstr "Cours pour %s"
+
+#: includes/class-sm-teachers-page.php
+msgid "Teacher Information"
+msgstr "Informations sur l'Enseignant"
+
+#: includes/class-sm-teachers-page.php
+msgid "The following courses are assigned to this teacher but do not have schedules configured yet. Create schedules in the Calendar plugin."
+msgstr "Les cours suivants sont assignés à cet enseignant mais n'ont pas encore d'emploi du temps configuré. Créez des emplois du temps dans le plugin Calendrier."
+
+#: includes/class-sm-teachers-page.php
+msgid "No courses assigned to this teacher."
+msgstr "Aucun cours assigné à cet enseignant."
+
+#: includes/class-sm-students-page.php
+#, php-format
+msgid "Enrollments for %s"
+msgstr "Inscriptions pour %s"
+
+#: includes/class-sm-students-page.php
+msgid "Student Information"
+msgstr "Informations sur l'Étudiant"
+
+#: includes/class-sm-students-page.php
+msgid "Enrollments Without Schedule"
+msgstr "Inscriptions Sans Emploi du Temps"
+
+#: includes/class-sm-students-page.php
+msgid "The following enrollments do not have schedules configured yet. Create schedules in the Calendar plugin."
+msgstr "Les inscriptions suivantes n'ont pas encore d'emploi du temps configuré. Créez des emplois du temps dans le plugin Calendrier."
+
+#: includes/class-sm-students-page.php
+msgid "No active enrollments for this student."
+msgstr "Aucune inscription active pour cet étudiant."
