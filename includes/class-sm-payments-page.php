@@ -113,6 +113,8 @@ class SM_Payments_Page {
         $order_clause = "$orderby_column $order";
 
         // Get active enrollments with payment info
+        // For subscriptions: we need current payment data (latest installment)
+        // For installments/one-time: we need total sums
         $query = "SELECT e.*,
                         s.name as student_name,
                         c.name as course_name,
@@ -123,6 +125,8 @@ class SM_Payments_Page {
                         (SELECT COUNT(*) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id AND ps.status = 'paid') as paid_payments,
                         (SELECT SUM(expected_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_expected,
                         (SELECT SUM(paid_amount) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id) as total_paid,
+                        (SELECT expected_amount FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id ORDER BY installment_number DESC LIMIT 1) as current_expected,
+                        (SELECT paid_amount FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id ORDER BY installment_number DESC LIMIT 1) as current_paid,
                         (SELECT MIN(due_date) FROM $payment_schedules_table ps WHERE ps.enrollment_id = e.id AND ps.status IN ('pending', 'partial')) as next_payment_date
                  FROM $enrollments_table e
                  LEFT JOIN $students_table s ON e.student_id = s.id
@@ -141,22 +145,33 @@ class SM_Payments_Page {
         }
 
         // Apply status filtering after fetching (since it's calculated)
+        // For subscriptions: use current payment values
+        // For installments/one-time: use total values
         if ( ! empty( $filter_status ) && $enrollments ) {
             $enrollments = array_filter( $enrollments, function( $enrollment ) use ( $filter_status ) {
-                $total_expected = floatval( $enrollment->total_expected );
-                $total_paid = floatval( $enrollment->total_paid );
-                $balance = $total_expected - $total_paid;
-                
+                $payment_model = $enrollment->payment_model ?? 'monthly_installments';
+                $is_subscription = ( $payment_model === 'monthly_subscription' );
+
+                // Use current values for subscriptions, total values for others
+                if ( $is_subscription ) {
+                    $expected = floatval( $enrollment->current_expected );
+                    $paid = floatval( $enrollment->current_paid );
+                } else {
+                    $expected = floatval( $enrollment->total_expected );
+                    $paid = floatval( $enrollment->total_paid );
+                }
+                $balance = $expected - $paid;
+
                 if ( $filter_status === 'paid' && $balance <= 0 ) {
                     return true;
-                } elseif ( $filter_status === 'partial' && $total_paid > 0 && $balance > 0 ) {
+                } elseif ( $filter_status === 'partial' && $paid > 0 && $balance > 0 ) {
                     return true;
-                } elseif ( $filter_status === 'unpaid' && $total_paid == 0 ) {
+                } elseif ( $filter_status === 'unpaid' && $paid == 0 ) {
                     return true;
                 }
                 return false;
             });
-            
+
             // Update count for filtered results
             $total_enrollments = count( $enrollments );
         }
@@ -379,33 +394,38 @@ class SM_Payments_Page {
                 </thead>
                 <tbody>
                     <?php foreach ( $enrollments as $enrollment ) :
-                        $total_expected = floatval( $enrollment->total_expected );
-                        $total_paid = floatval( $enrollment->total_paid );
-                        $balance = $total_expected - $total_paid;
-                        $progress_percent = $total_expected > 0 ? ( $total_paid / $total_expected ) * 100 : 0;
-
-                        // Determine if this payment plan should show next payment date
-                        // Show for monthly installments and subscriptions
+                        // Determine payment model type
                         $payment_plan = $enrollment->payment_plan ?? 'monthly';
                         $payment_model = $enrollment->payment_model ?? 'monthly_installments';
                         $is_subscription = ( $payment_model === 'monthly_subscription' );
+
+                        // For subscriptions: show current month's values
+                        // For installments/one-time: show total values
+                        if ( $is_subscription ) {
+                            $display_expected = floatval( $enrollment->current_expected );
+                            $display_paid = floatval( $enrollment->current_paid );
+                        } else {
+                            $display_expected = floatval( $enrollment->total_expected );
+                            $display_paid = floatval( $enrollment->total_paid );
+                        }
+                        $balance = $display_expected - $display_paid;
+                        $progress_percent = $display_expected > 0 ? ( $display_paid / $display_expected ) * 100 : 0;
+
+                        // Determine if this payment plan should show next payment date
+                        // Show for monthly installments and subscriptions
                         $show_next_payment = ( $payment_plan === 'monthly' || $is_subscription );
                     ?>
                         <tr>
                             <td data-label="<?php echo esc_attr__( 'Student', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?>:</span>
                                 <strong><?php echo esc_html( $enrollment->student_name ); ?></strong>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Course', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?>:</span>
                                 <?php echo esc_html( $enrollment->course_name ); ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Payment Plan', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Payment Plan', 'CTADZ-school-management' ); ?>:</span>
                                 <?php echo esc_html( ucfirst( $payment_plan ) ); ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Progress', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Progress', 'CTADZ-school-management' ); ?>:</span>
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <div style="flex: 1; background: #f0f0f1; height: 20px; border-radius: 10px; overflow: hidden;">
                                         <div style="width: <?php echo esc_attr( min( 100, $progress_percent ) ); ?>%; height: 100%; background: <?php echo $progress_percent >= 100 ? '#46b450' : '#0073aa'; ?>; transition: width 0.3s;"></div>
@@ -414,15 +434,18 @@ class SM_Payments_Page {
                                 </div>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Total Expected', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Total Expected', 'CTADZ-school-management' ); ?>:</span>
-                                <?php echo number_format( $total_expected, 2 ); ?>
+                                <?php echo number_format( $display_expected, 2 ); ?>
+                                <?php if ( $is_subscription ) : ?>
+                                    <br><small style="color: #666;"><?php esc_html_e( '(Current Month)', 'CTADZ-school-management' ); ?></small>
+                                <?php endif; ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Total Paid', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Total Paid', 'CTADZ-school-management' ); ?>:</span>
-                                <?php echo number_format( $total_paid, 2 ); ?>
+                                <?php echo number_format( $display_paid, 2 ); ?>
+                                <?php if ( $is_subscription ) : ?>
+                                    <br><small style="color: #666;"><?php esc_html_e( '(Current Month)', 'CTADZ-school-management' ); ?></small>
+                                <?php endif; ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Next Payment', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Next Payment', 'CTADZ-school-management' ); ?>:</span>
                                 <?php
                                 if ( $show_next_payment && ! empty( $enrollment->next_payment_date ) ) {
                                     $next_date = strtotime( $enrollment->next_payment_date );
@@ -451,14 +474,36 @@ class SM_Payments_Page {
                                 ?>
                             </td>
                             <td data-label="<?php echo esc_attr__( 'Status', 'CTADZ-school-management' ); ?>">
-                                <span class="mobile-label"><?php esc_html_e( 'Status', 'CTADZ-school-management' ); ?>:</span>
-                                <?php if ( $balance <= 0 ) : ?>
-                                    <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
-                                <?php elseif ( $total_paid > 0 ) : ?>
-                                    <span style="color: #f0ad4e;">● <?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?></span>
-                                <?php else : ?>
-                                    <span class="text-danger">● <?php esc_html_e( 'Unpaid', 'CTADZ-school-management' ); ?></span>
-                                <?php endif; ?>
+                                <?php
+                                // Determine if payment is overdue
+                                $is_overdue = false;
+                                $is_upcoming = false;
+                                if ( ! empty( $enrollment->next_payment_date ) ) {
+                                    $next_date = strtotime( $enrollment->next_payment_date );
+                                    $today = strtotime( 'today' );
+                                    $is_overdue = ( $next_date < $today );
+                                    $is_upcoming = ( $next_date >= $today );
+                                }
+
+                                if ( $is_subscription ) :
+                                    // For subscriptions: Paid if next payment is in future, Late if overdue
+                                    if ( $is_upcoming ) : ?>
+                                        <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
+                                    <?php elseif ( $is_overdue ) : ?>
+                                        <span class="text-danger">● <?php esc_html_e( 'Late', 'CTADZ-school-management' ); ?></span>
+                                    <?php endif;
+                                else :
+                                    // For installments: check balance
+                                    if ( $balance <= 0 ) : ?>
+                                        <span style="color: #46b450;">● <?php esc_html_e( 'Paid', 'CTADZ-school-management' ); ?></span>
+                                    <?php elseif ( $is_overdue ) : ?>
+                                        <span class="text-danger">● <?php esc_html_e( 'Late', 'CTADZ-school-management' ); ?></span>
+                                    <?php elseif ( $display_paid > 0 ) : ?>
+                                        <span style="color: #f0ad4e;">● <?php esc_html_e( 'Partial', 'CTADZ-school-management' ); ?></span>
+                                    <?php else : ?>
+                                        <span style="color: #999;">● <?php esc_html_e( 'Pending', 'CTADZ-school-management' ); ?></span>
+                                    <?php endif;
+                                endif; ?>
                             </td>
                             <td class="actions">
                                 <a href="?page=school-management-payments&action=view&enrollment_id=<?php echo intval( $enrollment->id ); ?>" class="button button-small">
@@ -1103,12 +1148,19 @@ class SM_Payments_Page {
             return;
         }
 
-        // Calculate next payment due date (one month after the completed payment)
-        // If calendar plugin is active, skip vacation periods
-        if ( defined( 'SMC_VERSION' ) && function_exists( 'smc_calculate_next_payment_date' ) ) {
-            $next_due_date = smc_calculate_next_payment_date( $completed_schedule->due_date, '+1 month' );
+        // Calculate next payment due date based on enrollment start_date
+        // This preserves the original day of month (e.g., Jan 31 → Feb 28 → Mar 31)
+        // If a previous payment was vacation-adjusted, uses the adjusted day going forward
+        // If calendar plugin is active, also applies vacation adjustment
+        $start_date = $enrollment->start_date;
+        $previous_due_date = $completed_schedule->due_date;
+
+        if ( defined( 'SMC_VERSION' ) && function_exists( 'smc_calculate_subscription_payment_date' ) ) {
+            // Use new function that preserves day, detects vacation adjustments, and handles vacations
+            $next_due_date = smc_calculate_subscription_payment_date( $start_date, $next_installment_number, $previous_due_date );
         } else {
-            $next_due_date = date( 'Y-m-d', strtotime( '+1 month', strtotime( $completed_schedule->due_date ) ) );
+            // Fallback: calculate based on previous due date with day preservation (no vacation handling)
+            $next_due_date = self::add_months_preserve_day( $previous_due_date, 1 );
         }
 
         // Calculate family discount
@@ -1142,6 +1194,39 @@ class SM_Payments_Page {
             $next_installment_number,
             $next_due_date
         ) );
+    }
+
+    /**
+     * Add months to a date while preserving the original day of month
+     * Fallback method when calendar plugin is not active
+     *
+     * @param string $start_date Original start date in Y-m-d format
+     * @param int $months Number of months to add
+     * @return string Target date in Y-m-d format
+     */
+    private static function add_months_preserve_day( $start_date, $months ) {
+        if ( $months === 0 ) {
+            return $start_date;
+        }
+
+        $dt = new DateTime( $start_date );
+        $original_day = (int) $dt->format( 'j' );
+
+        // Move to first day of month, then add months
+        $dt->modify( 'first day of this month' );
+        $dt->modify( "+{$months} months" );
+
+        // Get target month info
+        $target_year = (int) $dt->format( 'Y' );
+        $target_month = (int) $dt->format( 'n' );
+        $last_day_of_target = (int) $dt->format( 't' );
+
+        // Use original day or last day of month, whichever is smaller
+        $target_day = min( $original_day, $last_day_of_target );
+
+        $dt->setDate( $target_year, $target_month, $target_day );
+
+        return $dt->format( 'Y-m-d' );
     }
 }
 
