@@ -2,6 +2,30 @@
 
 All notable changes to the School Management plugin will be documented in this file.
 
+## [0.6.4] - 2026-02-26
+
+### Changed
+- **Payment Overview Dashboard**: Improved display for subscription vs installment payments
+  - Subscriptions now show "Total Expected" and "Total Paid" for current month only
+  - Installments show cumulative totals as before
+  - Added "(Current Month)" indicator for subscription payments
+
+### Fixed
+- **Subscription Payment Date Calculation**: Completely rewritten vacation-aware payment logic
+  - Payments now correctly preserve the original day of month (e.g., Jan 31 → Feb 28 → Mar 31)
+  - Vacation days between payments are properly added to next payment date
+  - If payment date falls inside vacation, uses correct offset calculation
+  - Once vacation adjusts a date, subsequent payments follow the new day pattern
+
+### Improved
+- **Payment Status Logic**: Enhanced status display for subscriptions
+  - Shows "Paid" when student is up-to-date (next payment in future)
+  - Shows "Late" when payment date has passed
+  - Removed redundant column labels from payment overview table
+
+### Added
+- **French Translations**: Added translations for new status labels (Late, Pending)
+
 ## [0.6.3] - 2026-02-01
 
 ### Added

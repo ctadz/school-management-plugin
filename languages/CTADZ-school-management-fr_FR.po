@@ -428,6 +428,12 @@ msgstr "Impayé"
 msgid "Partial"
 msgstr "Partiel"
 
+msgid "Late"
+msgstr "En Retard"
+
+msgid "Pending"
+msgstr "En Attente"
+
 msgid "Overdue"
 msgstr "En Retard"
 
@@ -613,9 +619,6 @@ msgstr "Montant Attendu"
 
 msgid "Paid Amount"
 msgstr "Montant Payé"
-
-msgid "Pending"
-msgstr "En Attente"
 
 msgid "Payment History"
 msgstr "Historique des Paiements"
@@ -2115,6 +2118,10 @@ msgstr "Période d'Application"
 #: includes/class-sm-classrooms-page.php includes/class-sm-teachers-page.php
 msgid "Ongoing"
 msgstr "En Cours"
+
+#: includes/class-sm-payments-page.php
+msgid "(Current Month)"
+msgstr "(Mois en Cours)"
 
 #: includes/class-sm-classrooms-page.php
 msgid "Courses Without Schedule"
