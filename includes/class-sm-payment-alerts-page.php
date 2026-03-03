@@ -362,6 +362,7 @@ class SM_Payment_Alerts_Page {
                     <p><?php esc_html_e( 'All payments are up to date for this category.', 'CTADZ-school-management' ); ?></p>
                 </div>
             <?php endif; ?>
+
         </div>
         <?php
     }

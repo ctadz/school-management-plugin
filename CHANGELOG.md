@@ -2,6 +2,17 @@
 
 All notable changes to the School Management plugin will be documented in this file.
 
+## [0.6.5] - 2026-03-03
+
+### Added
+- **Maintenance Tool: Fix Subscription Payment Dates** (School Settings → Maintenance Tools, super admin only)
+  - Recalculates due dates for all pending/partial subscription payments using the corrected vacation-aware formula
+  - Automatically previews which payments need correction (student, course, installment, old date → new date) before applying
+  - One-click apply with confirmation dialog
+  - Designed as a one-time fix for payments created before v0.6.4 that may fall inside vacation periods
+  - Only visible when Calendar plugin is active
+  - New `recalculate_subscription_due_dates($dry_run)` method added to `SM_Payment_Sync`
+
 ## [0.6.4] - 2026-02-26
 
 ### Changed

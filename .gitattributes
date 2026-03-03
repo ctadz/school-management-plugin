@@ -1,0 +1,7 @@
+# Files and folders excluded from git archive (release zips)
+# These stay in the repo for development but are NOT included in the zip
+# uploaded to GitHub Releases for auto-updates.
+
+Docs/       export-ignore
+file/       export-ignore
+CLAUDE.md   export-ignore

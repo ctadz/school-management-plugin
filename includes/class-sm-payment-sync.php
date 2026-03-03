@@ -90,6 +90,93 @@ class SM_Payment_Sync {
     }
 
     /**
+     * Recalculate due dates for all pending/partial subscription payments
+     * Fixes legacy records created before the vacation-aware date calculation fix (v0.6.4)
+     *
+     * @param bool $dry_run If true, return changes without applying them
+     * @return array { changes[], total_checked, total_changed, updated_count, error? }
+     */
+    public static function recalculate_subscription_due_dates( $dry_run = false ) {
+        global $wpdb;
+
+        if ( ! defined( 'SMC_VERSION' ) || ! function_exists( 'smc_calculate_subscription_payment_date' ) ) {
+            return [
+                'error'         => 'calendar_inactive',
+                'changes'       => [],
+                'total_checked' => 0,
+                'total_changed' => 0,
+                'updated_count' => 0,
+            ];
+        }
+
+        $schedules_table   = $wpdb->prefix . 'sm_payment_schedules';
+        $enrollments_table = $wpdb->prefix . 'sm_enrollments';
+        $courses_table     = $wpdb->prefix . 'sm_courses';
+        $students_table    = $wpdb->prefix . 'sm_students';
+
+        // Get all pending/partial subscription payments with their enrollment context
+        // Also fetch the previous installment's due_date for vacation-adjustment detection
+        $payments = $wpdb->get_results(
+            "SELECT ps.id, ps.enrollment_id, ps.installment_number, ps.due_date, ps.status,
+                    e.start_date, e.student_id, e.course_id,
+                    c.name AS course_name,
+                    s.name AS student_name,
+                    prev_ps.due_date AS previous_due_date
+             FROM {$schedules_table} ps
+             JOIN {$enrollments_table} e  ON ps.enrollment_id = e.id
+             JOIN {$courses_table} c      ON e.course_id = c.id
+             JOIN {$students_table} s     ON e.student_id = s.id
+             LEFT JOIN {$schedules_table} prev_ps
+                    ON prev_ps.enrollment_id = ps.enrollment_id
+                   AND prev_ps.installment_number = ps.installment_number - 1
+             WHERE c.payment_model = 'monthly_subscription'
+               AND ps.status IN ('pending', 'partial')
+             ORDER BY ps.enrollment_id ASC, ps.installment_number ASC"
+        );
+
+        $changes       = [];
+        $updated_count = 0;
+
+        foreach ( $payments as $payment ) {
+            $correct_date = smc_calculate_subscription_payment_date(
+                $payment->start_date,
+                intval( $payment->installment_number ),
+                $payment->previous_due_date
+            );
+
+            if ( $correct_date !== $payment->due_date ) {
+                $changes[] = [
+                    'id'           => intval( $payment->id ),
+                    'student_name' => $payment->student_name,
+                    'course_name'  => $payment->course_name,
+                    'installment'  => intval( $payment->installment_number ),
+                    'old_date'     => $payment->due_date,
+                    'new_date'     => $correct_date,
+                    'status'       => $payment->status,
+                ];
+
+                if ( ! $dry_run ) {
+                    $wpdb->update(
+                        $schedules_table,
+                        [ 'due_date' => $correct_date ],
+                        [ 'id'       => intval( $payment->id ) ],
+                        [ '%s' ],
+                        [ '%d' ]
+                    );
+                    $updated_count++;
+                }
+            }
+        }
+
+        return [
+            'changes'       => $changes,
+            'total_checked' => count( $payments ),
+            'total_changed' => count( $changes ),
+            'updated_count' => $dry_run ? 0 : $updated_count,
+        ];
+    }
+
+    /**
      * Sync all enrollments (useful for initial setup or bulk updates)
      */
     public static function sync_all_enrollments() {
