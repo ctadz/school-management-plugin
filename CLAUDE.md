@@ -26,7 +26,7 @@ It covers all three plugins: main plugin, calendar add-on, and student portal ad
 |------|-------|
 | Folder | `school-management/` |
 | Main file | `school-management.php` |
-| Version | **0.6.4** |
+| Version | **0.6.5** |
 | Version constant | `SM_VERSION` |
 | DB version | `SM_DB_VERSION = '1.4.0'` |
 | Text domain | `CTADZ-school-management` |
@@ -302,6 +302,7 @@ All tables use WordPress `$wpdb->prefix` (default: `wp_`).
 | v0.6.2 | Jan 28–30, 2026 | Vacation-aware subscription payments, auto-generation of next payment |
 | v0.6.3 | Feb 1–2, 2026 | Clickable course/enrollment counts with weekly schedule views |
 | v0.6.4 | Feb 26, 2026 | Fixed subscription date day-of-month preservation, improved payment status display |
+| v0.6.5 | Mar 3, 2026 | Maintenance tool: Fix subscription payment dates (Settings page, super admin only) |
 
 ### Calendar Plugin
 
@@ -474,6 +475,7 @@ $without = array_filter( $courses, fn($c) => ! in_array( $c->id, $scheduled_ids 
 - **school_accountant Role** (v0.6.0): Finance-only access, auto-redirect to Finance Dashboard
 - **Optional Enrollment at Registration** (v0.6.0): Checkbox → redirect to Finance
 - **GitHub Auto-Updater**: Checks GitHub Releases API every 12h
+- **Maintenance Tools** (v0.6.5, Settings page, super admin only): Fix Subscription Payment Dates — previews and corrects legacy payment due dates that fall inside vacation periods; uses `SM_Payment_Sync::recalculate_subscription_due_dates($dry_run)`
 - **Deactivation Protection**: Warns if Calendar/Portal plugins depend on main plugin
 
 ### Calendar Plugin
@@ -516,9 +518,8 @@ $without = array_filter( $courses, fn($c) => ! in_array( $c->id, $scheduled_ids 
 ## 15. PENDING WORK (from ROADMAP.md)
 
 ### High Priority
-- [ ] French translations for v0.6.0 new strings (~35–40 strings: "School Finances", "Financial Dashboard", "School Accountant", etc.)
-- [ ] Deploy to live site (backup DB → deploy → test → monitor)
-- [ ] Create GitHub releases for v0.6.3 and v0.6.4
+- [ ] French translations for v0.6.0+ new strings (~35–40 strings: "School Finances", "Financial Dashboard", "School Accountant", + new Maintenance Tools strings)
+- [ ] Deploy v0.6.5 to live site and run the "Fix Subscription Payment Dates" maintenance tool to correct legacy payment records
 
 ### Medium Priority
 - [ ] Payment Hold System (designed, not coded): Triggered by `student_vacation`/`teacher_absence` calendar events; shifts subscription payment dates; file to create: `class-sm-payment-date-shifter.php`; estimated 4–6 hours
@@ -569,7 +570,7 @@ GitHub CLI: "C:\Program Files\GitHub CLI\gh.exe"
 
 Git branch status at last session:
   All plugins on `develop` branch
-  Main plugin: v0.6.4 committed and pushed
+  Main plugin: v0.6.5 committed and pushed
 ```
 
 ---

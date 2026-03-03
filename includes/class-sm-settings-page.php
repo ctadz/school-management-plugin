@@ -324,6 +324,23 @@ class SM_Settings_Page {
             wp_die( __( 'You do not have sufficient permissions to access this page.', 'CTADZ-school-management' ) );
         }
 
+        // Handle fix subscription dates action
+        if ( isset( $_POST['sm_fix_subscription_dates'] ) && check_admin_referer( 'sm_fix_subscription_dates_action', 'sm_fix_dates_nonce' ) ) {
+            if ( class_exists( 'SM_Payment_Sync' ) ) {
+                $fix_result = SM_Payment_Sync::recalculate_subscription_due_dates( false );
+                if ( isset( $fix_result['error'] ) && $fix_result['error'] === 'calendar_inactive' ) {
+                    echo '<div class="notice notice-error"><p>' . esc_html__( 'Calendar plugin is required for vacation-aware date recalculation.', 'CTADZ-school-management' ) . '</p></div>';
+                } elseif ( $fix_result['updated_count'] > 0 ) {
+                    echo '<div class="notice notice-success"><p>' . sprintf(
+                        esc_html__( '%d subscription payment date(s) corrected successfully.', 'CTADZ-school-management' ),
+                        $fix_result['updated_count']
+                    ) . '</p></div>';
+                } else {
+                    echo '<div class="notice notice-success"><p>' . esc_html__( 'No subscription payment dates needed correction.', 'CTADZ-school-management' ) . '</p></div>';
+                }
+            }
+        }
+
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'School Management Settings', 'CTADZ-school-management' ); ?></h1>
@@ -334,6 +351,84 @@ class SM_Settings_Page {
                 submit_button();
                 ?>
             </form>
+
+            <?php if ( defined( 'SMC_VERSION' ) && class_exists( 'SM_Payment_Sync' ) ) :
+                $preview = SM_Payment_Sync::recalculate_subscription_due_dates( true );
+            ?>
+            <hr style="margin: 40px 0 30px;">
+
+            <!-- Maintenance Tools -->
+            <h2><?php esc_html_e( 'Maintenance Tools', 'CTADZ-school-management' ); ?></h2>
+
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 20px; max-width: 900px;">
+                <h3 style="margin-top: 0;">
+                    <span class="dashicons dashicons-calendar-alt" style="vertical-align: middle; color: #0073aa;"></span>
+                    <?php esc_html_e( 'Fix Subscription Payment Dates', 'CTADZ-school-management' ); ?>
+                </h3>
+                <p class="description">
+                    <?php esc_html_e( 'Recalculates due dates for all pending subscription payments using the corrected vacation-aware formula. Run this once to fix payments created before v0.6.4 that may fall inside vacation periods.', 'CTADZ-school-management' ); ?>
+                </p>
+
+                <?php if ( $preview['total_changed'] > 0 ) : ?>
+                    <div style="background: #fff8e5; border-left: 4px solid #f0ad4e; padding: 10px 15px; margin-bottom: 15px;">
+                        <strong>
+                            <?php printf(
+                                esc_html__( '%d of %d subscription payment date(s) need correction.', 'CTADZ-school-management' ),
+                                $preview['total_changed'],
+                                $preview['total_checked']
+                            ); ?>
+                        </strong>
+                    </div>
+
+                    <table class="wp-list-table widefat fixed striped" style="margin-bottom: 15px;">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Student', 'CTADZ-school-management' ); ?></th>
+                                <th><?php esc_html_e( 'Course', 'CTADZ-school-management' ); ?></th>
+                                <th><?php esc_html_e( 'Installment #', 'CTADZ-school-management' ); ?></th>
+                                <th style="color: #dc2626;"><?php esc_html_e( 'Current Date (wrong)', 'CTADZ-school-management' ); ?></th>
+                                <th style="color: #16a34a;"><?php esc_html_e( 'Corrected Date', 'CTADZ-school-management' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $preview['changes'] as $change ) : ?>
+                                <tr>
+                                    <td><?php echo esc_html( $change['student_name'] ); ?></td>
+                                    <td><?php echo esc_html( $change['course_name'] ); ?></td>
+                                    <td><?php echo intval( $change['installment'] ); ?></td>
+                                    <td style="color: #dc2626;"><?php echo esc_html( date( 'M j, Y', strtotime( $change['old_date'] ) ) ); ?></td>
+                                    <td style="color: #16a34a; font-weight: 600;"><?php echo esc_html( date( 'M j, Y', strtotime( $change['new_date'] ) ) ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <form method="post">
+                        <?php wp_nonce_field( 'sm_fix_subscription_dates_action', 'sm_fix_dates_nonce' ); ?>
+                        <button type="submit" name="sm_fix_subscription_dates" class="button button-primary"
+                                onclick="return confirm('<?php esc_attr_e( 'Apply all date corrections? This action cannot be undone.', 'CTADZ-school-management' ); ?>');">
+                            <span class="dashicons dashicons-yes-alt" style="vertical-align: middle;"></span>
+                            <?php printf(
+                                esc_html__( 'Apply %d Correction(s)', 'CTADZ-school-management' ),
+                                $preview['total_changed']
+                            ); ?>
+                        </button>
+                    </form>
+
+                <?php else : ?>
+                    <div style="background: #f0fff4; border-left: 4px solid #22c55e; padding: 10px 15px;">
+                        <span class="dashicons dashicons-yes-alt" style="color: #22c55e; vertical-align: middle;"></span>
+                        <strong>
+                            <?php printf(
+                                esc_html__( 'All %d subscription payment date(s) are correct. No action needed.', 'CTADZ-school-management' ),
+                                $preview['total_checked']
+                            ); ?>
+                        </strong>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
         </div>
         <?php
     }
